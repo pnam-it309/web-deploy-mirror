@@ -1,0 +1,142 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'io.freefair.lombok' version '8.4'
+}
+
+group = 'udpm.hn'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.spring.io/milestone" }
+    // Google Maven repository
+    google()
+    // JitPack repository
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    // Spring Boot Starters (Core)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Elasticsearch (compatible with Spring Boot 3.2.0)
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'co.elastic.clients:elasticsearch-java:8.9.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'jakarta.json:jakarta.json-api:2.1.2'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.9.0'
+    implementation 'org.elasticsearch:elasticsearch:8.9.0'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+    implementation 'io.lettuce:lettuce-core'
+    // Database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // File Processing
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-fileupload:commons-fileupload:1.5'
+
+    // AWS SDK
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.570'
+    implementation 'com.amazonaws:aws-java-sdk-core:1.12.570'
+
+    // Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Google Cloud Libraries BOM
+    implementation platform('com.google.cloud:libraries-bom:26.30.0')
+    
+    // Google APIs
+    implementation 'com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0'
+    implementation 'com.google.apis:google-api-services-analytics:v3-rev20190807-2.0.0'
+    
+    // Google Auth and API Client
+    implementation 'com.google.auth:google-auth-library-oauth2-http'
+    implementation 'com.google.api-client:google-api-client'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty'
+    
+    // Google HTTP Client
+    implementation 'com.google.http-client:google-http-client-jackson2'
+
+    // Security
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
+    // SpringDoc OpenAPI (for Swagger/OpenAPI annotations)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    implementation 'org.springframework.batch:spring-batch-core:5.0.3'
+    implementation 'com.github.kumarpankaj18:spring-batch-excel:1.0.6'
+
+    // Spring Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // Spring WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Apache POI for Excel processing
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+
+    // Elasticsearch
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // Firebase Admin
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+    // OneSignal REST API client
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'org.apache.commons:commons-csv:1.10.0'
+    implementation 'com.cloudinary:cloudinary-http44:1.37.0'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('compileJava') {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+tasks.named('bootJar') {
+    launchScript()
+}
