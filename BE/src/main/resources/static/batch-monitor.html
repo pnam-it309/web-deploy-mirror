@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Job Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .status-pending { background-color: #f0f0f0; }
+        .status-running { background-color: #e3f2fd; }
+        .status-complete { background-color: #e8f5e9; }
+        .status-error { background-color: #ffebee; }
+        .log-entry {
+            margin: 5px 0;
+            padding: 8px;
+            border-left: 4px solid #2196f3;
+            background-color: #f9f9f9;
+        }
+        .log-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .log-message {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Batch Job Monitor</h1>
+    <div>
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    
+    <div id="status" class="status-pending">
+        Not connected to WebSocket server
+    </div>
+    
+    <h2>Job Progress</h2>
+    <div id="progress">
+        <div>No active job</div>
+    </div>
+    
+    <h2>Logs</h2>
+    <div id="logs"></div>
+
+    <script>
+        let stompClient = null;
+        let jobId = 'demo-job-1';
+        
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                updateStatus('Connected to WebSocket server', 'status-running');
+                
+                // Subscribe to batch job updates
+                stompClient.subscribe('/topic/batch/' + jobId, function(message) {
+                    const data = JSON.parse(message.body);
+                    addLog(data);
+                    
+                    if (data.type === 'BATCH_COMPLETE') {
+                        updateStatus('Job completed successfully', 'status-complete');
+                        updateProgress(data);
+                    } else if (data.type === 'BATCH_ERROR') {
+                        updateStatus('Job failed', 'status-error');
+                        updateProgress(data);
+                    } else {
+                        updateProgress(data);
+                    }
+                });
+                
+                // Subscribe to error channel
+                stompClient.subscribe('/topic/batch/' + jobId + '/error', function(message) {
+                    const data = JSON.parse(message.body);
+                    addLog(data);
+                    updateStatus('Error in job', 'status-error');
+                });
+                
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                
+                // Notify server we're ready
+                stompClient.send("/app/batch/status/" + jobId, {}, JSON.stringify({type: 'SUBSCRIBE'}));
+                
+            }, function(error) {
+                console.error('Error: ' + error);
+                updateStatus('Connection error', 'status-error');
+            });
+        }
+        
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+            }
+            updateStatus('Disconnected', 'status-pending');
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            console.log("Disconnected");
+        }
+        
+        function updateStatus(message, className) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = className;
+        }
+        
+        function updateProgress(data) {
+            const progressDiv = document.getElementById('progress');
+            progressDiv.innerHTML = `
+                <div><strong>Job ID:</strong> ${data.data.jobId || 'N/A'}</div>
+                <div><strong>Status:</strong> ${data.message}</div>
+                <div><strong>Start Time:</strong> ${data.data.startTime || 'N/A'}</div>
+                <div><strong>End Time:</strong> ${data.data.endTime || 'Still running...'}</div>
+                <div><strong>Items Processed:</strong> ${data.data.itemsProcessed || 0}</div>
+            `;
+        }
+        
+        function addLog(data) {
+            const logsDiv = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const time = new Date().toLocaleTimeString();
+            logEntry.innerHTML = `
+                <div class="log-time">${time} - ${data.type}</div>
+                <div class="log-message">${data.message}</div>
+                ${data.data ? `<pre>${JSON.stringify(data.data, null, 2)}</pre>` : ''}
+            `;
+            
+            logsDiv.insertBefore(logEntry, logsDiv.firstChild);
+        }
+        
+        // Event listeners
+        document.getElementById('connectBtn').addEventListener('click', connect);
+        document.getElementById('disconnectBtn').addEventListener('click', disconnect);
+    </script>
+</body>
+</html>
