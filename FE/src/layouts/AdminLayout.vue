@@ -87,6 +87,13 @@
         </div>
       </header>
 
+      <!-- Main content -->
+      <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div class="p-6">
+          <router-view></router-view>
+        </div>
+      </main>
+
       <!-- Mobile sidebar -->
       <div v-show="isSidebarOpen" class="md:hidden">
         <div class="fixed inset-0 z-40 flex">
@@ -169,104 +176,34 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* Custom focus styles */
-.focus-visible-ring {
   @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
 }
 </style>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { 
   HomeIcon,
-  DocumentTextIcon,
+  UsersIcon,
   ShoppingBagIcon,
-  UserGroupIcon,
-  ChartBarIcon,
-  CogIcon,
-  BellIcon,
+  Cog6ToothIcon,
+  DocumentTextIcon,
   ChevronDownIcon,
   Bars3Icon,
   XMarkIcon,
   ArrowUpTrayIcon,
   CubeIcon,
-  InboxStackIcon,
-  QueueListIcon,
-  UserCircleIcon
+  UserGroupIcon,
+  ChartBarIcon,
+  CogIcon
 } from '@heroicons/vue/24/outline'
 
+const route = useRoute()
 const router = useRouter()
-const isSidebarOpen = ref(false)
 const isProfileOpen = ref(false)
-const userInitials = computed(() => 'AU') // Replace with actual user initials
-
-const navItems = [
-  { path: '/admin', label: 'Dashboard', icon: HomeIcon },
-  { 
-    path: '/admin/import', 
-    label: 'Import Data', 
-    icon: ArrowUpTrayIcon,
-    children: [
-      { path: '/admin/import/products', label: 'Import Products' },
-      { path: '/admin/import/orders', label: 'Import Orders' },
-    ]
-  },
-  { 
-    path: '/admin/products', 
-    label: 'Products', 
-    icon: CubeIcon,
-    children: [
-      { path: '/admin/products', label: 'All Products' },
-      { path: '/admin/products/categories', label: 'Categories' },
-      { path: '/admin/products/inventory', label: 'Inventory' },
-    ]
-  },
-  { 
-    path: '/admin/orders', 
-    label: 'Orders', 
-    icon: QueueListIcon,
-    children: [
-      { path: '/admin/orders', label: 'All Orders' },
-      { path: '/admin/orders/pending', label: 'Pending' },
-      { path: '/admin/orders/completed', label: 'Completed' },
-      { path: '/admin/orders/cancelled', label: 'Cancelled' },
-    ]
-  },
-  { 
-    path: '/admin/customers', 
-    label: 'Customers', 
-    icon: UserGroupIcon,
-    children: [
-      { path: '/admin/customers', label: 'All Customers' },
-      { path: '/admin/customers/groups', label: 'Groups' },
-    ]
-  },
-  { 
-    path: '/admin/reports', 
-    label: 'Reports', 
-    icon: ChartBarIcon,
-    children: [
-      { path: '/admin/reports/sales', label: 'Sales' },
-      { path: '/admin/reports/inventory', label: 'Inventory' },
-      { path: '/admin/reports/customers', label: 'Customers' },
-    ]
-  },
-  { 
-    path: '/admin/settings', 
-    label: 'Settings', 
-    icon: CogIcon,
-    children: [
-      { path: '/admin/settings/general', label: 'General' },
-      { path: '/admin/settings/users', label: 'Users' },
-      { path: '/admin/settings/roles', label: 'Roles & Permissions' },
-    ]
-  },
-]
-
-// Close dropdown when clicking outside
-const handleClickOutside = (event) => {
-  if (isProfileOpen.value && !event.target.closest('.relative')) {
+const isSidebarOpen = ref(false)
+{{ ... }}
     isProfileOpen.value = false
   }
 }
@@ -274,12 +211,12 @@ const handleClickOutside = (event) => {
 // Close sidebar when route changes
 router.afterEach(() => {
   isSidebarOpen.value = false
+  isProfileOpen.value = false
 })
 
 // Add event listeners
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isProfileOpen.value) {
       isProfileOpen.value = false
     }

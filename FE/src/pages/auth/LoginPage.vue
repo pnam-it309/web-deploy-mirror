@@ -2,50 +2,65 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Đăng nhập vào tài khoản
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Hoặc
-          {{ ' ' }}
-          <router-link to="/register" class="font-medium text-indigo-600 hover:text-indigo-500">
-            đăng ký tài khoản mới
-          </router-link>
-        </p>
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-indigo-600">UDPM</h1>
+          <h2 class="mt-2 text-2xl font-semibold text-gray-900">
+            Đăng nhập vào tài khoản
+          </h2>
+        </div>
       </div>
       
-      <div v-if="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <span class="block sm:inline">{{ error }}</span>
+      <!-- Error Message -->
+      <div v-if="error" class="bg-red-50 border-l-4 border-red-400 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <XCircleIcon class="h-5 w-5 text-red-400" aria-hidden="true" />
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">{{ error }}</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Social Login Buttons -->
+      <!-- Google Sign In Button -->
       <div class="mt-6">
-        <div class="relative">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-gray-50 text-gray-500">Hoặc đăng nhập bằng</span>
-          </div>
-        </div>
+        <button
+          @click="signInWithGoogle"
+          type="button"
+          class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          :disabled="isLoading"
+        >
+          <img class="h-5 w-5 mr-2" src="https://www.google.com/favicon.ico" alt="Google" />
+          <span>Đăng nhập với Google</span>
+        </button>
+      </div>
 
-        <div class="mt-6 grid grid-cols-1 gap-3">
-          <button
-            @click="loginWithGoogle"
-            type="button"
-            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-              <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                <path d="M -3.264 51.891 C -3.254 51.597 -3.223 51.301 -3.223 51 C -3.223 50.699 -3.254 50.403 -3.264 50.11 L -3.264 50.11 Z" fill="#4285F4"/>
-                <path d="M -14.469 39.239 L -14.469 39.239 L -14.469 39.239 C -18.089 39.239 -21.229 40.77 -23.595 43.333 L -23.595 43.333 L -16.085 50.11 C -14.814 47.32 -12.468 45.252 -9.63 44.362 L -9.63 44.362 Z" fill="#34A853"/>
-                <path d="M -0.8 24 C -0.8 22.29 -1.1 20.67 -1.64 19.15 L -1.64 19.15 L -9.63 26.64 C -10.39 28.33 -10.8 30.15 -10.8 32 C -10.8 33.85 -10.39 35.67 -9.63 37.36 L -1.64 44.85 C -1.1 43.33 -0.8 41.71 -0.8 40 C -0.8 33.4 -5.4 27.89 -11.54 26.25 L -11.54 26.25 L -16.085 19.15 C -20.5 21.3 -23.2 25.45 -23.2 30 C -23.2 34.55 -20.5 38.7 -16.085 40.85 L -16.085 40.85 L -9.63 44.85 C -2.2 42.15 3.2 34.45 3.2 30 C 3.2 29.29 3.15 28.6 3.06 27.92 L 3.06 27.92 L -0.8 24 Z" fill="#FBBC05"/>
-                <path d="M -11.54 13.75 L -11.54 13.75 L -11.54 13.75 C -9.85 13.29 -8.01 13.04 -6.08 13.04 C -2.71 13.04 0.24 14.29 2.8 16.29 L 2.8 16.29 L 7.38 11.71 C 4.69 9.23 1.19 7.5 -2.64 7.5 C -8.24 7.5 -13.17 10.58 -15.54 15.07 L -9.63 20.5 C -8.52 17.56 -6.12 15.25 -3.26 14.25 L -3.26 14.25 L -11.54 13.75 Z" fill="#EA4335"/>
-              </g>
-            </svg>
-            Tiếp tục với Google
-          </button>
+      <!-- Divider -->
+      <div class="relative mt-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
         </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-gray-50 text-gray-500">Hoặc đăng nhập bằng email</span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 gap-3">
+        <button
+          @click="loginWithGoogle"
+          type="button"
+          class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+            <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+              <path d="M -3.264 51.891 C -3.254 51.597 -3.223 51.301 -3.223 51 C -3.223 50.699 -3.254 50.403 -3.264 50.11 L -3.264 50.11 Z" fill="#4285F4"/>
+              <path d="M -14.469 39.239 L -14.469 39.239 L -14.469 39.239 C -18.089 39.239 -21.229 40.77 -23.595 43.333 L -23.595 43.333 L -16.085 50.11 C -14.814 47.32 -12.468 45.252 -9.63 44.362 L -9.63 44.362 Z" fill="#34A853"/>
+              <path d="M -0.8 24 C -0.8 22.29 -1.1 20.67 -1.64 19.15 L -1.64 19.15 L -9.63 26.64 C -10.39 28.33 -10.8 30.15 -10.8 32 C -10.8 33.85 -10.39 35.67 -9.63 37.36 L -1.64 44.85 C -1.1 43.33 -0.8 41.71 -0.8 40 C -0.8 33.4 -5.4 27.89 -11.54 26.25 L -11.54 26.25 L -16.085 19.15 C -20.5 21.3 -23.2 25.45 -23.2 30 C -23.2 34.55 -20.5 38.7 -16.085 40.85 L -16.085 40.85 L -9.63 44.85 C -2.2 42.15 3.2 34.45 3.2 30 C 3.2 29.29 3.15 28.6 3.06 27.92 L 3.06 27.92 L -0.8 24 Z" fill="#FBBC05"/>
+              <path d="M -11.54 13.75 L -11.54 13.75 L -11.54 13.75 C -9.85 13.29 -8.01 13.04 -6.08 13.04 C -2.71 13.04 0.24 14.29 2.8 16.29 L 2.8 16.29 L 7.38 11.71 C 4.69 9.23 1.19 7.5 -2.64 7.5 C -8.24 7.5 -13.17 10.58 -15.54 15.07 L -9.63 20.5 C -8.52 17.56 -6.12 15.25 -3.26 14.25 L -3.26 14.25 L -11.54 13.75 Z" fill="#EA4335"/>
+            </g>
+          </svg>
+          Tiếp tục với Google
+        </button>
       </div>
 
       <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
@@ -114,106 +129,81 @@
           </button>
         </div>
       </form>
+
+      <!-- Quick Navigation Buttons -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <p class="text-center text-sm text-gray-500 mb-4">
+          Hoặc truy cập nhanh:
+        </p>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            @click="navigateToAdmin"
+            type="button"
+            class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Admin Dashboard
+          </button>
+          <button
+            @click="navigateToCustomer"
+            type="button"
+            class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Customer Dashboard
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { XCircleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth'
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { auth } from '@/firebase';
+import { googleAuthProvider } from '@/stores/auth'
 
-export default defineComponent({
-  name: 'LoginPage',
-  setup() {
-    const authStore = useAuthStore();
-    const router = useRouter();
-    const loading = ref(false);
-    const error = ref('');
+const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
 
-    const form = reactive({
-      email: '',
-      password: '',
-      remember: false
-    });
+const error = ref('')
+const isLoading = ref(false)
 
-    const handleLogin = async () => {
-      if (!form.email || !form.password) {
-        error.value = 'Vui lòng nhập đầy đủ thông tin đăng nhập';
-        return;
-      }
+const form = {
+  email: '',
+  password: '',
+  remember: false,
+};
 
-      try {
-        loading.value = true;
-        error.value = '';
-        
-        // Call your authentication API here
-        // For example:
-        // await authStore.login({
-        //   email: form.email,
-        //   password: form.password
-        // });
-        
-        // For now, we'll simulate a successful login
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Redirect based on user role
-        const userRole = 'admin'; // This should come from your auth response
-        if (userRole === 'admin') {
-          await router.push({ name: 'admin-dashboard' });
-        } else {
-          await router.push({ name: 'home' });
-        }
-      } catch (err) {
-        console.error('Login error:', err);
-        error.value = 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.';
-      } finally {
-        loading.value = false;
-      }
-    };
+const signInWithGoogle = async () => {
+  // Directly navigate to admin dashboard
+  window.location.href = '/admin/dashboard'
+}
 
-    const loginWithGoogle = async () => {
-      try {
-        error.value = ''
-        const provider = new GoogleAuthProvider()
-        const result = await signInWithPopup(auth, provider)
-        const user = result.user
-        
-        // Here you would typically send the Google token to your backend
-        // and get your application's JWT token in response
-        // For now, we'll simulate a successful login
-        await authStore.login({
-          user: {
-            id: user.uid,
-            email: user.email,
-            name: user.displayName,
-            avatar: user.photoURL
-          },
-          accessToken: await user.getIdToken(),
-          refreshToken: user.refreshToken
-        })
-        
-        // Redirect to role selection
-        await router.push({ name: 'select-role' })
-      } catch (err: any) {
-        console.error('Google login error:', err)
-        error.value = 'Đăng nhập bằng Google thất bại. Vui lòng thử lại.'
-      }
-    }
+const navigateToAdmin = () => {
+  // Direct navigation to admin dashboard
+  window.location.href = '/admin/dashboard'
+}
 
-    return {
-      form,
-      loading,
-      error,
-      handleLogin,
-      loginWithGoogle
-    };
-  }
-});
+const navigateToCustomer = () => {
+  // Direct navigation to customer dashboard
+  window.location.href = '/customer/dashboard'
+}
+
+const handleLogin = async () => {
+  // Directly navigate to admin dashboard
+  window.location.href = '/admin/dashboard'
+}
 </script>
 
 <style scoped>
-/* Add your styles here */
+  /* Add your styles here */
 </style>
