@@ -18,48 +18,48 @@ import java.util.List;
 @Tag(name = "Analytics", description = "Analytics API for Google Analytics integration")
 public class AnalyticsController {
 
-    private final GoogleAnalyticsService analyticsService;
-
-    @GetMapping("/page-views")
-    @Operation(summary = "Get page views data", 
-               description = "Retrieve page views data for a specific date range")
-    public ResponseEntity<List<List<Object>>> getPageViews(
-            @Parameter(description = "Start date in yyyy-MM-dd format")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @Parameter(description = "End date in yyyy-MM-dd format")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
-        List<List<Object>> result = analyticsService.getPageViews(
-            startDate.toString(), 
-            endDate.toString()
-        );
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/active-users")
-    @Operation(summary = "Get real-time active users",
-               description = "Get the number of active users in real-time")
-    public ResponseEntity<List<List<Object>>> getRealTimeActiveUsers() {
-        List<List<Object>> result = analyticsService.getRealTimeActiveUsers();
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/top-pages")
-    @Operation(summary = "Get top pages by views",
-               description = "Get the most viewed pages for a specific date range")
-    public ResponseEntity<List<List<Object>>> getTopPages(
-            @Parameter(description = "Start date in yyyy-MM-dd format")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @Parameter(description = "End date in yyyy-MM-dd format")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @Parameter(description = "Number of top pages to return", example = "10")
-            @RequestParam(defaultValue = "10") int limit) {
-        
-        List<List<Object>> result = analyticsService.getTopPages(
-            startDate.toString(),
-            endDate.toString(),
-            limit
-        );
-        return ResponseEntity.ok(result);
-    }
+//    private final GoogleAnalyticsService analyticsService;
+//
+//    @GetMapping("/page-views")
+//    @Operation(summary = "Get page views data",
+//               description = "Retrieve page views data for a specific date range")
+//    public ResponseEntity<List<List<Object>>> getPageViews(
+//            @Parameter(description = "Start date in yyyy-MM-dd format")
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+//            @Parameter(description = "End date in yyyy-MM-dd format")
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+//
+//        List<List<Object>> result = analyticsService.getPageViews(
+//            startDate.toString(),
+//            endDate.toString()
+//        );
+//        return ResponseEntity.ok(result);
+//    }
+//
+//    @GetMapping("/active-users")
+//    @Operation(summary = "Get real-time active users",
+//               description = "Get the number of active users in real-time")
+//    public ResponseEntity<List<List<Object>>> getRealTimeActiveUsers() {
+//        List<List<Object>> result = analyticsService.getRealTimeActiveUsers();
+//        return ResponseEntity.ok(result);
+//    }
+//
+//    @GetMapping("/top-pages")
+//    @Operation(summary = "Get top pages by views",
+//               description = "Get the most viewed pages for a specific date range")
+//    public ResponseEntity<List<List<Object>>> getTopPages(
+//            @Parameter(description = "Start date in yyyy-MM-dd format")
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+//            @Parameter(description = "End date in yyyy-MM-dd format")
+//            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+//            @Parameter(description = "Number of top pages to return", example = "10")
+//            @RequestParam(defaultValue = "10") int limit) {
+//
+//        List<List<Object>> result = analyticsService.getTopPages(
+//            startDate.toString(),
+//            endDate.toString(),
+//            limit
+//        );
+//        return ResponseEntity.ok(result);
+//    }
 }

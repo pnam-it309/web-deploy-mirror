@@ -9,10 +9,8 @@ import java.util.stream.Collectors;
 @Getter
 public enum Role {
 
-    ADMIN("ADMIN"),
-
-    MANAGE("Customer");
-
+    ADMIN("Administrator"),
+    CUSTOMER("Customer");
 
     private final String nameInVietnamese;
 
@@ -47,5 +45,4 @@ public enum Role {
                 .findFirst()
                 .orElse(null);
     }
-
 }

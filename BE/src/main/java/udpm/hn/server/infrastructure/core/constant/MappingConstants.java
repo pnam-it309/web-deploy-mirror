@@ -21,9 +21,15 @@ public final class MappingConstants {
     public static final String API_ADMIN_ORDER = API_ADMIN_PREFIX + "/orders";
     public static final String API_ADMIN_WAREHOUSE = API_ADMIN_PREFIX + "/warehouses";
     public static final String API_ADMIN_CUSTOMER = API_ADMIN_PREFIX + "/customers";
+    public static final String API_ADMIN_CATEGORY = API_ADMIN_PREFIX + "/categories";
     //CUSTOMER
     public static final String API_CUSTOMER_VIEW_PRODUCT = API_CUSTOMER_PREFIX + "/view_products";
     public static final String API_CUSTOMER_REGISTER = API_CUSTOMER_PREFIX + "/register";
+
+    //PUBLIC
+    public static final String API_PUBLIC_PREFIX = API_VERSION_PREFIX + "/public";
+    public static final String API_PUBLIC_PRODUCTS = API_PUBLIC_PREFIX + "/view_products";
+    public static final String API_PUBLIC_CATEGORIES = API_PUBLIC_PREFIX + "/categories";
 
 }
 

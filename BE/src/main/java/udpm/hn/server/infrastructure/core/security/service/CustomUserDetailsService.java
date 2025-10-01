@@ -8,10 +8,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import udpm.hn.server.entity.Staff;
+import udpm.hn.server.entity.Admin;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
+import udpm.hn.server.infrastructure.core.security.repository.AdminAuthRepository;
 import udpm.hn.server.infrastructure.core.security.repository.RoleAuthRepository;
-import udpm.hn.server.infrastructure.core.security.repository.StaffAuthRepository;
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 
 import java.util.List;
@@ -19,33 +19,33 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final StaffAuthRepository staffAuthRepository;
+    private final AdminAuthRepository adminAuthRepository;
     private final RoleAuthRepository roleAuthRepository;
-
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
-        System.out.println("EMAIL: " + email);
+        log.info("Loading user details for username: {}", username);
 
-        log.info("Đã chạy vào tronguser detail servie:{}",email);
+        // Find admin by username (can be email or username)
+        Optional<Admin> existingAdmin = adminAuthRepository.findByUsernameOrEmailAndStatus(username, username, EntityStatus.ACTIVE);
 
-        Optional<Staff> exitStaff = staffAuthRepository.findByEmailFptAndStatus(email, EntityStatus.ACTIVE);
+        if (existingAdmin.isPresent()) {
+            Admin admin = existingAdmin.get();
+            List<String> roles = roleAuthRepository.findRoleByAdminId(admin.getId());
 
-        if(exitStaff.isPresent()) {
-            Staff staffPre = exitStaff.get();
-            List<String> roles = roleAuthRepository.findRoleByStaffId(staffPre.getId());
-            return staffAuthRepository.findById(staffPre.getId())
-                    .map(staff -> UserPrincipal.create(staff,roles))
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with id : " + staffPre.getId()));
+            log.info("Found admin: {} with roles: {}", admin.getUsername(), roles);
+
+            return adminAuthRepository.findById(admin.getId())
+                    .map(adminUser -> UserPrincipal.create(adminUser, roles))
+                    .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + admin.getId()));
         }
 
-            // Student authentication is not currently supported
-        log.warn("Student authentication is not currently supported. Email: {}", email);
-        throw new UsernameNotFoundException("User not found with email: " + email);
+        log.warn("Admin not found with username: {}", username);
+        throw new UsernameNotFoundException("User not found with username: " + username);
     }
-
 }

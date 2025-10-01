@@ -6,9 +6,10 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.Value;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -20,6 +21,11 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
+@ConditionalOnProperty(
+    name = "google.sheets.enabled",
+    havingValue = "true",
+    matchIfMissing = false
+)
 public class GoogleSheetsConfig {
 
     private static final String APPLICATION_NAME = "FPL UDPM Catalog";
@@ -33,6 +39,11 @@ public class GoogleSheetsConfig {
     private String credentialsJson;
 
     @Bean
+    @ConditionalOnProperty(
+        name = "google.sheets.enabled",
+        havingValue = "true",
+        matchIfMissing = false
+    )
     public Sheets sheetsService() throws IOException, GeneralSecurityException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         return new Sheets.Builder(httpTransport, JSON_FACTORY, getCredentials(httpTransport))

@@ -18,6 +18,8 @@ java {
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+        canBeResolved = false
+        canBeConsumed = false
     }
 }
 
@@ -74,16 +76,15 @@ dependencies {
 
     // Google Cloud Libraries BOM
     implementation platform('com.google.cloud:libraries-bom:26.30.0')
-    
+
     // Google APIs
     implementation 'com.google.apis:google-api-services-sheets:v4-rev20220927-2.0.0'
     implementation 'com.google.apis:google-api-services-analytics:v3-rev20190807-2.0.0'
-    
+
     // Google Auth and API Client
     implementation 'com.google.auth:google-auth-library-oauth2-http'
     implementation 'com.google.api-client:google-api-client'
     implementation 'com.google.oauth-client:google-oauth-client-jetty'
-    
     // Google HTTP Client
     implementation 'com.google.http-client:google-http-client-jackson2'
 
@@ -112,10 +113,7 @@ dependencies {
     // Firebase Admin
     implementation 'com.google.firebase:firebase-admin:9.2.0'
 
-    // OneSignal REST API client
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    // Removed Matomo dependency - using simplified implementation
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -123,8 +121,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'org.apache.commons:commons-csv:1.10.0'
-    implementation 'com.cloudinary:cloudinary-http44:1.37.0'
+    // OkHttp for OneSignal
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 
 }
 
