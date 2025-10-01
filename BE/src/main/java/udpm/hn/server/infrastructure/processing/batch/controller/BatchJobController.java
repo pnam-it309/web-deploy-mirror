@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import udpm.hn.server.infrastructure.batch.service.BatchJobService;
+import udpm.hn.server.infrastructure.processing.batch.service.BatchJobService;
 
 @RestController
 @RequestMapping("/api/batch")

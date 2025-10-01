@@ -1,10 +1,7 @@
 package udpm.hn.server.infrastructure.core.security.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import udpm.hn.server.entity.Admin;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import udpm.hn.server.repository.RoleRepository;
 
 import java.util.List;
@@ -12,7 +9,22 @@ import java.util.List;
 public interface RoleAuthRepository extends RoleRepository {
     @Query(
             value = """
-                    
+
+                    SELECT DISTINCT
+                          r.code
+                      FROM
+                          Role r
+                      LEFT JOIN
+                       AdminRole ar ON r.id = ar.role.id
+                      WHERE
+                          ar.admin.id = :id
+                    """
+    )
+    List<String> findRoleByAdminId(@Param("id") String id);
+
+    @Query(
+            value = """
+
                     SELECT DISTINCT
                           r.code
                       FROM
@@ -24,39 +36,5 @@ public interface RoleAuthRepository extends RoleRepository {
                     """
     )
     List<String> findRoleByStaffId(@Param("id") String id);
-
-    @Query("""
-                SELECT DISTINCT r.code
-                FROM StaffRole sr
-                JOIN sr.staff s
-                JOIN sr.role r
-                JOIN StaffMajorFacility smf ON smf.staff.id = s.id
-                JOIN MajorFacility mf ON smf.majorFacility.id = mf.id
-                JOIN DepartmentFacility df ON mf.departmentFacility.id = df.id
-                WHERE df.facility.id = :facilityId
-                AND s.id = :staffId
-                AND s.status = :status
-            """)
-    List<String> findAllRoleCodesByFacilityIdAndStaffIdAndStatus(
-            @Param("staffId") String staffId,
-            @Param("facilityId") String facilityId,
-            @Param("status") EntityStatus status
-    );
-
-    @Query("""
-                SELECT DISTINCT r.code
-                FROM StaffRole sr
-                JOIN sr.staff s
-                JOIN sr.role r
-                JOIN StaffMajorFacility smf ON smf.staff.id = s.id
-                JOIN MajorFacility mf ON smf.majorFacility.id = mf.id
-                JOIN DepartmentFacility df ON mf.departmentFacility.id = df.id
-                WHERE df.facility.id = :facilityId
-                AND s.id = :staffId
-            """)
-    List<String> findAllRoleCodesByFacilityIdAndStaffId(
-            @Param("staffId") String staffId,
-            @Param("facilityId") String facilityId
-    );
 
 }

@@ -17,12 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import udpm.hn.server.entity.Admin;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
+import udpm.hn.server.infrastructure.core.constant.EntityStatus;
+import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
 import udpm.hn.server.infrastructure.core.exception.RedirectException;
-import udpm.hn.server.infrastructure.core.security.repository.StaffAuthRepository;
-import udpm.hn.server.infrastructure.core.security.repository.StaffRoleAuthRepository;
+import udpm.hn.server.infrastructure.core.security.repository.AdminAuthRepository;
 import udpm.hn.server.infrastructure.core.security.response.TokenInfoResponse;
-
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 import udpm.hn.server.utils.CookieUtils;
 import io.jsonwebtoken.Jwts;
@@ -39,18 +40,14 @@ public class TokenProvider {
     private final long TOKEN_EXP = System.currentTimeMillis() + 2 * 60 * 60 * 100000;
 
     @Setter(onMethod_ = @Autowired)
-    private StaffAuthRepository staffAuthRepository;
-
-
+    private AdminAuthRepository adminAuthRepository;
 
     @Setter(onMethod_ = @Autowired)
     private HttpServletRequest httpServletRequest;
 
-    private StaffRoleAuthRepository staffRoleAuthRepository;
-
     public String createToken(Authentication authentication) throws BadRequestException, JsonProcessingException {
 
-        log.info("Đã chạy vào tạo token :{}", authentication.toString());
+        log.info("Creating token for authentication: {}", authentication.toString());
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
@@ -62,18 +59,13 @@ public class TokenProvider {
         if (screenForRole.isEmpty()) {
             throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
         } else {
-            Staff staffUser = getCurrentStaffLogin(userPrincipal.getEmail());
+            Admin adminUser = getCurrentAdminLogin(userPrincipal.getEmail());
 
-            if (staffUser != null) {
-                tokenInfoResponse = getTokenSubjectResponse(staffUser);
+            if (adminUser != null) {
+                tokenInfoResponse = getTokenSubjectResponse(adminUser);
                 tokenInfoResponse.setRoleScreen(screenForRole.get());
             } else {
-                Student studentUser = getCurrentStudentLogin(userPrincipal.getEmail());
-                if (studentUser == null) {
-                    throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
-                }
-                tokenInfoResponse = getTokenSubjectResponseForStudent(studentUser);
-                tokenInfoResponse.setRoleScreen(screenForRole.get());
+                throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
             }
         }
 
@@ -104,51 +96,19 @@ public class TokenProvider {
                 .compact();
     }
 
-    private TokenInfoResponse getTokenSubjectResponse(Staff staff) throws JsonProcessingException {
+    private TokenInfoResponse getTokenSubjectResponse(Admin admin) throws JsonProcessingException {
         TokenInfoResponse response = new TokenInfoResponse();
-        Optional<StaffFacilityResponse> staffFacilityResponse = staffAuthRepository.findStaffWithFacilityById(staff.getId());
-        response.setUserId(staff.getId());
-        response.setFullName(staff.getName());
-        response.setUserCode(staff.getCode());
-        response.setPictureUrl(staff.getPicture());
-        List<String> rolesCode = staffRoleAuthRepository.getRoleCodesByStaffId(staff.getId());
-        response.setEmailFe(staff.getEmailFe() != null ? staff.getEmailFe() : "");
-        response.setEmailFPT(staff.getEmailFpt() != null ? staff.getEmailFpt() : "");
-        if (!rolesCode.isEmpty()) {
-            response.setRolesCode(rolesCode);
-            response.setRolesName(staffRoleAuthRepository.getRoleNamesByStaffId(staff.getId()));
-        }
-
+        response.setUserId(admin.getId());
+        response.setFullName(admin.getDisplayName());
+        response.setUserCode(admin.getUsername());
+        response.setPictureUrl(""); // Admin doesn't have picture field yet
+        response.setEmailFe(admin.getEmail() != null ? admin.getEmail() : "");
+        response.setEmailFPT(admin.getEmail() != null ? admin.getEmail() : "");
+        response.setRolesCode(List.of(admin.getRole().name()));
+        response.setRolesName(List.of(admin.getRole().name()));
         response.setHost(httpServletRequest.getRemoteHost());
         response.setRoleSwitch("true");
-        // kt và gán cơ sở
-        if (staffFacilityResponse.isPresent()) {
-            StaffFacilityResponse stf = staffFacilityResponse.get();
-            response.setIdFacility(stf.getFacilityId());
-        } else {
-            response.setIdFacility(null);
-        }
-        return response;
-    }
-
-    private TokenInfoResponse getTokenSubjectResponseForStudent(Student student) {
-        TokenInfoResponse response = new TokenInfoResponse();
-        Optional<StudentFacilityResponse> studentFacilityResponse = studentAuthRepository.findFacilityIdByStudentId(student.getId());
-        response.setUserId(student.getId());
-        response.setFullName(student.getName());
-        response.setUserCode(student.getCode());
-        response.setPictureUrl(student.getImage());
-        response.setEmailSV(student.getEmail());
-        response.setRolesCode(Collections.singletonList(Role.MEMBER.name()));
-        response.setRolesName(Collections.singletonList(Role.MEMBER.name()));
-        response.setHost(httpServletRequest.getRemoteHost());
-        response.setRoleSwitch("true");
-        if (studentFacilityResponse.isPresent()) {
-            StudentFacilityResponse stf = studentFacilityResponse.get();
-            response.setIdFacility(stf.getFacilityId());
-        } else {
-            response.setIdFacility(null);
-        }
+        response.setIdFacility(null); // No facility concept
 
         return response;
     }
@@ -190,10 +150,10 @@ public class TokenProvider {
         return String.valueOf(claims.get("roleScreen"));
     }
 
-    public List<udpm.hn.server.entity.Role> getRolesCodesFromToken(String token) {
+    public List<String> getRolesCodesFromToken(String token) {
         Claims claims = getClaimsToken(token);
         System.out.println("Claims từ token: " + claims);
-        return (List<udpm.hn.server.entity.Role>) claims.get("rolesCode");
+        return (List<String>) claims.get("rolesCode");
     }
 
     public String getEmailFromToken(String token) {
@@ -235,28 +195,8 @@ public class TokenProvider {
         return false;
     }
 
-    private Staff getCurrentStaffLogin(String email) {
-        Optional<Staff> staffFPT = staffAuthRepository.findByEmailFpt(email);
-        return staffFPT.orElse(null);
-    }
-
-    private Student getCurrentStudentLogin(String email) {
-        Optional<Student> student = studentAuthRepository.findByEmailAndStatus(email, EntityStatus.ACTIVE);
-        return student.orElse(null);
-    }
-
-    @Autowired
-    public void setStaffRoleAuthRepository(StaffRoleAuthRepository staffRoleAuthRepository) {
-        this.staffRoleAuthRepository = staffRoleAuthRepository;
-    }
-
-    @Autowired
-    public void setStaffAuthRepository(StaffAuthRepository staffAuthRepository) {
-        this.staffAuthRepository = staffAuthRepository;
-    }
-
-    @Autowired
-    public void setStudentAuthRepository(StudentAuthRepository studentAuthRepository) {
-        this.studentAuthRepository = studentAuthRepository;
+    private Admin getCurrentAdminLogin(String email) {
+        Optional<Admin> admin = adminAuthRepository.findByEmailAndStatus(email, EntityStatus.ACTIVE);
+        return admin.orElse(null);
     }
 }
