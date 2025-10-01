@@ -16,6 +16,7 @@ const NotFoundPage = () => import('@/pages/404/NotFound.vue')
 // Admin components
 const AdminLayout = () => import('@/layouts/AdminLayout.vue')
 const AdminDashboard = () => import('@/pages/admin/dashboard/AdminDashboard.vue')
+const WebSocketTest = () => import('@/pages/admin/websocket-test.vue')
 
 // Customer components
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
@@ -90,6 +91,12 @@ const routes: RouteRecordRaw[] = [
         name: ROUTES.ADMIN.children.DASHBOARD.name,
         component: AdminDashboard,
         meta: { title: 'Tổng quan' }
+      },
+      {
+        path: '/admin/websocket-test',
+        name: 'websocket-test',
+        component: WebSocketTest,
+        meta: { title: 'WebSocket Test' }
       }
     ]
   },

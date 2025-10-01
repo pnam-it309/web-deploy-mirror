@@ -4,15 +4,15 @@ import { ref } from 'vue'
 import SidebarItem from './SidebarItem.vue'
 import SidebarDropdown from './SidebarDropDown.vue'
 import { 
-  DashboardOutlined, 
+  HomeOutlined, 
   ShoppingOutlined, 
-  UnorderedListOutlined, 
+  ShoppingCartOutlined, 
   FileTextOutlined,
-  TeamOutlined,
   UserOutlined,
-  ImportOutlined,
-  SettingOutlined,
-  ProfileOutlined
+  EnvironmentOutlined,
+  QuestionCircleOutlined,
+  InfoCircleOutlined,
+  PhoneOutlined
 } from '@ant-design/icons-vue'
 
 const isCollapsed = ref(false)
@@ -20,57 +20,52 @@ const isMobileMenuOpen = ref(false)
 
 const menuItems = [
   {
-    icon: DashboardOutlined,
-    label: 'Dashboard',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name,
+    icon: HomeOutlined,
+    label: 'Trang chủ',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name,
   },
   {
     icon: ShoppingOutlined,
     label: 'Sản phẩm',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.PRODUCTS.name,
-    children: [
-      { label: 'Danh sách sản phẩm', routeName: ROUTES_CONSTANTS.ADMIN.children.PRODUCTS.name },
-      { label: 'Thêm sản phẩm', routeName: ROUTES_CONSTANTS.ADMIN.children.PRODUCT_CREATE.name }
-    ]
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.PRODUCTS.name,
   },
   {
-    icon: UnorderedListOutlined,
-    label: 'Danh mục',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.CATEGORIES.name,
+    icon: ShoppingCartOutlined,
+    label: 'Giỏ hàng',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.CART.name,
   },
   {
     icon: FileTextOutlined,
     label: 'Đơn hàng',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.ORDERS.name,
-  },
-  {
-    icon: TeamOutlined,
-    label: 'Khách hàng',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.CUSTOMERS.name,
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.ORDERS.name,
   },
   {
     icon: UserOutlined,
-    label: 'Nhân viên',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.STAFF.name,
-    children: [
-      { label: 'Danh sách nhân viên', routeName: ROUTES_CONSTANTS.ADMIN.children.STAFF.name },
-      { label: 'Thêm nhân viên', routeName: ROUTES_CONSTANTS.ADMIN.children.STAFF_CREATE.name }
-    ]
+    label: 'Tài khoản',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.PROFILE.name,
   },
   {
-    icon: ImportOutlined,
-    label: 'Nhập dữ liệu',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.IMPORT.name,
+    icon: EnvironmentOutlined,
+    label: 'Địa chỉ',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.ADDRESSES.name,
+  },
+]
+
+const helpItems = [
+  {
+    icon: QuestionCircleOutlined,
+    label: 'Câu hỏi thường gặp',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.FAQ.name,
   },
   {
-    icon: SettingOutlined,
-    label: 'Cài đặt',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.SETTINGS.name,
+    icon: InfoCircleOutlined,
+    label: 'Về chúng tôi',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.ABOUT.name,
   },
   {
-    icon: ProfileOutlined,
-    label: 'Hồ sơ',
-    routeName: ROUTES_CONSTANTS.ADMIN.children.PROFILE.name,
+    icon: PhoneOutlined,
+    label: 'Liên hệ',
+    routeName: ROUTES_CONSTANTS.CUSTOMER.children.CONTACT.name,
   },
 ]
 </script>
@@ -135,26 +130,45 @@ const menuItems = [
 
     <!-- Navigation -->
     <div class="flex-1 overflow-y-auto py-4">
-      <ul>
-        <li v-for="(item, index) in menuItems" :key="index">
-          <template v-if="!item.children">
+      <!-- Main Menu -->
+      <div class="mb-6">
+        <h3 
+          v-if="!isCollapsed" 
+          class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+        >
+          Menu chính
+        </h3>
+        <ul>
+          <li v-for="(item, index) in menuItems" :key="index">
             <SidebarItem 
               :item="item" 
               :index="index" 
               :is-collapsed="isCollapsed"
               @item-click="isMobileMenuOpen = false"
             />
-          </template>
-          <template v-else>
-            <SidebarDropdown 
-              :items="item.children" 
-              :page="item"
+          </li>
+        </ul>
+      </div>
+
+      <!-- Help & Support -->
+      <div>
+        <h3 
+          v-if="!isCollapsed" 
+          class="px-4 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider"
+        >
+          Hỗ trợ
+        </h3>
+        <ul>
+          <li v-for="(item, index) in helpItems" :key="'help-' + index">
+            <SidebarItem 
+              :item="item" 
+              :index="'help-' + index"
               :is-collapsed="isCollapsed"
               @item-click="isMobileMenuOpen = false"
             />
-          </template>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- User Profile -->
@@ -167,7 +181,7 @@ const menuItems = [
           <UserOutlined class="text-lg" />
         </div>
         <div class="ml-3">
-          <p class="text-sm font-medium text-gray-900">Quản trị viên</p>
+          <p class="text-sm font-medium text-gray-900">Khách hàng</p>
           <p class="text-xs text-gray-500">Xem hồ sơ</p>
         </div>
       </div>
