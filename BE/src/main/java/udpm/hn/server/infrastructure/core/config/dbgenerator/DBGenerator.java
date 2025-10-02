@@ -10,16 +10,16 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class DBGenerator {
-    @Value("${db.generator.is-generated}")
+    @Value("${db.generator.is-generated:false}")
     private String isGenerated;
 
-    @Value("${db.generator.user-email}")
+    @Value("${db.generator.user-email:nickhunter3009@gmail.com}")
     private String userEmail;
 
-    @Value("${db.generator.user-code}")
+    @Value("${db.generator.user-code:ADMIN001}")
     private String userCode;
 
-    @Value("${db.generator.user-name}")
+    @Value("${db.generator.user-name:Admin}")
     private String userName;
 
 

@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import udpm.hn.server.infrastructure.core.security.service.CustomUserDetailsService;
+import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -43,14 +45,16 @@ import static udpm.hn.server.utils.Helper.appendWildcard;
 @Slf4j
 public class SecurityConfig {
 
-    @Value("${frontend.url}")
+    @Value("${frontend.url:http://localhost:6789}")
     private String allowedOrigin;
 
     private final CorsConfigurationSource corsConfigurationSource;
+    private final TokenProvider tokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter();
+        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
     }
 
     @Bean

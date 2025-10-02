@@ -34,19 +34,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 //    @Setter(onMethod_ = @Autowired)
 //    private TokenProvider tokenProvider;
 //
-//    @Setter(onMethod_ = @Autowired)
 //    private RefreshTokenService refreshTokenService;
 //
 //    @Setter(onMethod_ = @Autowired)
 //    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 //
-//    @Value("${frontend.url}")
+//    @Value("${frontend.url:http://localhost:6789}")
 //    private String DEFAULT_TARGET_URL_TUTOR_CLIENT;
 //
 //    @Override
 //    public void onAuthenticationSuccess(
 //            HttpServletRequest request,
-//            HttpServletResponse response,
 //            Authentication authentication
 //    ) throws IOException {
 //
