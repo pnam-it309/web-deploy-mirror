@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure.config;
+package udpm.hn.server.infrastructure.core.config;
 
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;

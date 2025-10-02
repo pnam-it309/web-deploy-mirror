@@ -1,4 +1,4 @@
-package udpm.hn.server.core.customer.ViewProduct.Controller;
+package udpm.hn.server.core.customer.viewproduct.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
