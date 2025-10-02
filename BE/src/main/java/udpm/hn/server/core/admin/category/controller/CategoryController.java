@@ -1,8 +1,17 @@
 package udpm.hn.server.core.admin.category.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import udpm.hn.server.core.admin.category.dto.request.CategoryCreateRequest;
+import udpm.hn.server.core.admin.category.dto.request.CategoryUpdateRequest;
+import udpm.hn.server.core.admin.category.dto.response.CategoryResponse;
+import udpm.hn.server.core.admin.category.service.CategoryService;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 
 @RestController
@@ -10,33 +19,38 @@ import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 @RequiredArgsConstructor
 public class CategoryController {
 
+    private final CategoryService categoryService;
+
     @GetMapping
-    public ResponseEntity<?> getAllCategories() {
-        // TODO: Implement get all categories
-        return ResponseEntity.ok("Get all categories - to be implemented");
+    public ResponseEntity<Page<CategoryResponse>> getAllCategories(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody Object categoryRequest) {
-        // TODO: Implement create category
-        return ResponseEntity.ok("Create category - to be implemented");
+    public ResponseEntity<CategoryResponse> createCategory(
+            @Valid @RequestBody CategoryCreateRequest request) {
+        return new ResponseEntity<>(
+                categoryService.createCategory(request),
+                HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable String id) {
-        // TODO: Implement get category by ID
-        return ResponseEntity.ok("Get category by ID - to be implemented");
+    public ResponseEntity<CategoryResponse> getCategoryById(
+            @PathVariable String id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable String id, @RequestBody Object categoryRequest) {
-        // TODO: Implement update category
-        return ResponseEntity.ok("Update category - to be implemented");
+    public ResponseEntity<CategoryResponse> updateCategory(
+            @PathVariable String id,
+            @Valid @RequestBody CategoryUpdateRequest request) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable String id) {
-        // TODO: Implement delete category
-        return ResponseEntity.ok("Delete category - to be implemented");
+    public ResponseEntity<Void> deleteCategory(@PathVariable String id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

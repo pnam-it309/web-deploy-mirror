@@ -1,14 +1,12 @@
-package udpm.hn.server.core.admin.products.controller;
+package udpm.hn.server.core.admin.warehouses.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import udpm.hn.server.core.admin.products.service.ManageProductService;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 
+@RequestMapping(MappingConstants.API_ADMIN_WAREHOUSE)
 @RestController
-@RequestMapping(MappingConstants.API_ADMIN_PRODUCT)
 @RequiredArgsConstructor
-public class ProductViewController {
-    private final ManageProductService manageProductService;
+public class WarehouseController {
 }
