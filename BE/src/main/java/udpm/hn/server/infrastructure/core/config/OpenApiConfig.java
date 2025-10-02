@@ -14,10 +14,10 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${openapi.dev-url}")
+    @Value("${openapi.dev-url:http://localhost:9999}")
     private String devUrl;
 
-    @Value("${openapi.prod-url}")
+    @Value("${openapi.prod-url:https://your-production-url.com}")
     private String prodUrl;
 
     @Bean

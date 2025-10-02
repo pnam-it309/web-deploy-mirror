@@ -18,7 +18,7 @@ import java.io.IOException;
 @Slf4j
 public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
-    @Value("${frontend.url}")
+    @Value("${frontend.url:http://localhost:6789}")
     private String fontEndUrl;
 
     HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;

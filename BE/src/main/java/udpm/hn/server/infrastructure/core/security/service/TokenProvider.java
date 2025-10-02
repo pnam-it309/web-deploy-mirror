@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -32,18 +33,16 @@ import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:U3VwZXJTZWNyZXRLZXlGb3JKd3RTaWduYXR1cmUxMjM0NTY3ODk=}")
     private String tokenSecret;
 
     private final long TOKEN_EXP = System.currentTimeMillis() + 2 * 60 * 60 * 100000;
 
-    @Setter(onMethod_ = @Autowired)
-    private AdminAuthRepository adminAuthRepository;
-
-    @Setter(onMethod_ = @Autowired)
-    private HttpServletRequest httpServletRequest;
+    private final AdminAuthRepository adminAuthRepository;
+    private final HttpServletRequest httpServletRequest;
 
     public String createToken(Authentication authentication) throws BadRequestException, JsonProcessingException {
 

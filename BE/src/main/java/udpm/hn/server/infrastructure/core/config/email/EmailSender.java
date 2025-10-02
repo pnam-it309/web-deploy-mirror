@@ -19,14 +19,18 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class EmailSender {
 
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String sender;
 
     @Async
     public void sendEmail(String[] toEmails, String subject, String titleEmail, String bodyEmail) {
+        if (javaMailSender == null) {
+            log.warn("JavaMailSender not configured, skipping email send");
+            return;
+        }
         String htmlBody = MailConstant.BODY_STARTS +
                 titleEmail +
                 MailConstant.BODY_BODY +

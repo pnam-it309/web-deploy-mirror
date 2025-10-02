@@ -1,5 +1,3 @@
-package udpm.hn.server.infrastructure.processing.search;
-
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
@@ -12,12 +10,22 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
+/**
+ * Cấu hình Elasticsearch cho ứng dụng.
+ * Hỗ trợ kết nối với Elasticsearch có hoặc không có xác thực.
+ * Mặc định kết nối đến localhost:9200 nếu không cấu hình.
+ */
 @Configuration
-@EnableElasticsearchRepositories(basePackages = "udpm.hn.server.infrastructure.search.repository")
+@EnableElasticsearchRepositories(
+    basePackages = "udpm.hn.server.infrastructure.processing.search.repository",
+    considerNestedRepositories = true
+)
 public class ElasticsearchConfig {
 
     @Value("${spring.elasticsearch.uris:http://localhost:9200}")
@@ -29,7 +37,8 @@ public class ElasticsearchConfig {
     @Value("${spring.elasticsearch.password:}")
     private String password;
 
-    @Bean
+    @Bean(destroyMethod = "close")
+    @Primary
     public RestClient restClient() {
         // Parse the URI to get host and port
         HttpHost host = HttpHost.create(elasticsearchUris);
@@ -42,8 +51,8 @@ public class ElasticsearchConfig {
                 AuthScope.ANY,
                 new UsernamePasswordCredentials(username, password)
             );
-            
-            builder.setHttpClientConfigCallback((HttpAsyncClientBuilder httpClientBuilder) -> 
+
+            builder.setHttpClientConfigCallback((HttpAsyncClientBuilder httpClientBuilder) ->
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
             );
         }

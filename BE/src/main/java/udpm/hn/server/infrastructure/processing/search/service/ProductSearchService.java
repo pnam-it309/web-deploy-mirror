@@ -1,64 +1,59 @@
 package udpm.hn.server.infrastructure.processing.search.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.infrastructure.processing.search.model.ProductDocument;
-import udpm.hn.server.infrastructure.processing.search.repository.ProductSearchRepository;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ProductSearchService {
-
-    private final ProductSearchRepository productSearchRepository;
-
+    
+    public ProductSearchService() {
+        log.warn("ProductSearchService is running in mock mode. All search functionality will return empty results.");
+    }
+    
     /**
-     * Search products by name or description with pagination - simplified implementation
+     * Mock implementation of product search
      */
     public Page<ProductDocument> searchProducts(String query, int page, int size) {
-        log.info("Searching products: {}", query);
-        // Simplified implementation - return empty results for now
-        return Page.empty();
+        log.warn("Search functionality is disabled. Returning empty results for query: " + query);
+        return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
     }
-
+    
     /**
-     * Filter products by category and price range - simplified implementation
+     * Mock implementation of product filtering
      */
     public Page<ProductDocument> filterProducts(String category, Double minPrice, Double maxPrice, int page, int size) {
-        log.info("Filtering products - Category: {}, Price range: {} - {}", category, minPrice, maxPrice);
-        // Simplified implementation - return empty results for now
-        return Page.empty();
+        log.warn("Filter functionality is disabled. Returning empty results");
+        return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
     }
-
+    
     /**
-     * Find products in stock with pagination - simplified implementation
+     * Mock implementation of in-stock products search
      */
     public Page<ProductDocument> findInStockProducts(int page, int size) {
-        log.info("Finding in-stock products");
-        // Simplified implementation - return empty results for now
-        return Page.empty();
+        log.warn("In-stock search is disabled. Returning empty results");
+        return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), 0);
     }
-
+    
     /**
-     * Get product suggestions based on search term - simplified implementation
+     * Mock implementation of product suggestions
      */
     public List<String> getProductSuggestions(String term) {
-        log.info("Getting product suggestions: {}", term);
-        // Simplified implementation - return empty results for now
-        return List.of();
+        log.warn("Product suggestions are disabled. Returning empty results");
+        return Collections.emptyList();
     }
-
+    
     /**
-     * Update product stock quantity - simplified implementation
+     * Mock implementation of stock update
      */
     public void updateStock(String productId, int quantityChange) {
-        log.info("Updating stock for product {}: {}", productId, quantityChange);
-        // Simplified implementation - no actual update for now
+        log.warn("Stock update is disabled. No changes made for product: " + productId);
     }
 }

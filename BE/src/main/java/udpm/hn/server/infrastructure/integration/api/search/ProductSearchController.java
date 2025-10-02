@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +16,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products/search")
-@RequiredArgsConstructor
 @Tag(name = "Product Search", description = "API for searching and filtering products")
+@Slf4j
 public class ProductSearchController {
 
     private final ProductSearchService productSearchService;
+    
+    @Autowired(required = false)
+    public ProductSearchController(ProductSearchService productSearchService) {
+        this.productSearchService = productSearchService;
+        if (productSearchService == null) {
+            log.warn("ProductSearchService is not available. Search endpoints will return empty results.");
+        }
+    }
 
     @GetMapping
     @Operation(summary = "Search products by query",
@@ -32,6 +42,11 @@ public class ProductSearchController {
             
             @Parameter(description = "Number of items per page", example = "10")
             @RequestParam(defaultValue = "10") int size) {
+        
+        if (productSearchService == null) {
+            log.warn("ProductSearchService not available, returning empty results");
+            return ResponseEntity.ok(Page.empty());
+        }
         
         return ResponseEntity.ok(productSearchService.searchProducts(query, page, size));
     }
@@ -55,6 +70,11 @@ public class ProductSearchController {
             @Parameter(description = "Number of items per page", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         
+        if (productSearchService == null) {
+            log.warn("ProductSearchService not available, returning empty results");
+            return ResponseEntity.ok(Page.empty());
+        }
+        
         return ResponseEntity.ok(
                 productSearchService.filterProducts(category, minPrice, maxPrice, page, size)
         );
@@ -70,6 +90,11 @@ public class ProductSearchController {
             @Parameter(description = "Number of items per page", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         
+        if (productSearchService == null) {
+            log.warn("ProductSearchService not available, returning empty results");
+            return ResponseEntity.ok(Page.empty());
+        }
+        
         return ResponseEntity.ok(productSearchService.findInStockProducts(page, size));
     }
 
@@ -79,6 +104,11 @@ public class ProductSearchController {
     public ResponseEntity<List<String>> getSuggestions(
             @Parameter(description = "Search term for suggestions", required = true)
             @RequestParam String term) {
+        
+        if (productSearchService == null) {
+            log.warn("ProductSearchService not available, returning empty results");
+            return ResponseEntity.ok(List.of());
+        }
         
         return ResponseEntity.ok(productSearchService.getProductSuggestions(term));
     }
@@ -92,6 +122,11 @@ public class ProductSearchController {
             
             @Parameter(description = "Quantity to add (positive) or remove (negative)", required = true)
             @RequestParam int quantity) {
+        
+        if (productSearchService == null) {
+            log.warn("ProductSearchService not available, skipping stock update");
+            return ResponseEntity.ok().build();
+        }
         
         productSearchService.updateStock(id, quantity);
         return ResponseEntity.ok().build();

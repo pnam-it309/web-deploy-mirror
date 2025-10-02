@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.infrastructure.integration.api.auth.dto.LoginRequest;
 import udpm.hn.server.infrastructure.integration.api.auth.dto.UserDetailsImpl;
-import udpm.hn.server.infrastructure.core.security.JwtService;
 
 import java.util.HashMap;
 import java.util.Map;

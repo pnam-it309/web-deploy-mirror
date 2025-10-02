@@ -14,6 +14,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "spring.batch.job.enabled", havingValue = "true", matchIfMissing = false)
 public class SampleBatchJobConfig {
     
     private final WebSocketService webSocketService;
@@ -65,19 +67,24 @@ public class SampleBatchJobConfig {
                 .build();
     }
 
-//    @Bean
-//    public Step sampleStep(JobRepository jobRepository,
-//                          PlatformTransactionManager transactionManager,
-//                          ItemReader<SyncHistory> reader,
-//                          ItemProcessor<SyncHistory, SyncHistory> processor,
-//                          ItemWriter<SyncHistory> writer) {
-//        return new StepBuilder("sampleStep", jobRepository)
-//                .<SyncHistory, SyncHistory>chunk(10, transactionManager)
-//                .reader(reader)
-//                .processor(processor)
-//                .writer(writer)
-//                .build();
-//    }
+    @Bean
+    public Step sampleStep(JobRepository jobRepository,
+                          PlatformTransactionManager transactionManager) {
+        return new StepBuilder("sampleStep", jobRepository)
+                .<String, String>chunk(10, transactionManager)
+                .reader(() -> "Sample Item")
+                .processor(item -> {
+                    // Simple processor that converts to uppercase
+                    return item.toUpperCase();
+                })
+                .writer(chunk -> {
+                    // Simple writer that logs the items
+                    for (String item : chunk) {
+                        System.out.println("Processing item: " + item);
+                    }
+                })
+                .build();
+    }
 //
 //    @Bean
 //    public ItemProcessor<SyncHistory, SyncHistory> processor() {
