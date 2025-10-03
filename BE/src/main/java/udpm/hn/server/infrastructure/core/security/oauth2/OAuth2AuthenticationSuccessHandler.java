@@ -99,4 +99,77 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 //    private String buildSuccessUrl(String targetUrl, String token) throws MalformedURLException, URISyntaxException {
 //        return targetUrl + "?state=" + token;
 //    }
+@Setter(onMethod_ = @Autowired)
+private TokenProvider tokenProvider;
+
+    @Setter(onMethod_ = @Autowired)
+    private RefreshTokenService refreshTokenService;
+
+    @Setter(onMethod_ = @Autowired)
+    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+
+    @Value("${frontend.url:http://localhost:6789}")
+    private String DEFAULT_TARGET_URL_TUTOR_CLIENT;
+
+    @Override
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) throws IOException {
+        log.info("✅ OAuth2 Login thành công");
+
+        String targetUrl = determineTargetUrl(request, response, authentication);
+        if (response.isCommitted()) {
+            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            return;
+        }
+        clearAuthenticationAttributes(request, response);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    protected String determineTargetUrl(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) {
+        try {
+            Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
+                    .map(Cookie::getValue);
+
+            if (redirectUri.isEmpty())
+                throw new RedirectException("Redirect uri not found! Please try again later!");
+
+            String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+
+            // Tạo access token
+            String token = tokenProvider.createToken(authentication);
+
+            // Tạo refresh token
+            String refreshToken = refreshTokenService.createRefreshToken(authentication).getRefreshToken();
+
+            log.info("🎟️ Token: {}", token);
+            log.info("🔁 Refresh Token: {}", refreshToken);
+
+            return buildSuccessUrl(targetUrl, TokenUriResponse.getState(token, refreshToken));
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+            return buildErrorUri(request, response, e.getMessage());
+        }
+    }
+
+    protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
+        super.clearAuthenticationAttributes(request);
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+    }
+
+    private String buildErrorUri(HttpServletRequest request, HttpServletResponse response, String message) {
+        Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
+                .map(Cookie::getValue);
+        return redirectUri.orElse(DEFAULT_TARGET_URL_TUTOR_CLIENT) + "?error=" + message;
+    }
+
+    private String buildSuccessUrl(String targetUrl, String state) throws MalformedURLException, URISyntaxException {
+        return targetUrl + "?state=" + state;
+    }
 }
