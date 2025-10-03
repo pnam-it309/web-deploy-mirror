@@ -116,8 +116,8 @@
         </div>
       </header>
 
-      <!-- Main content -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+      <!-- Main content area -->
+      <main class="flex-1 overflow-y-auto focus:outline-none bg-gray-50">
         <div class="p-4 sm:p-6">
           <router-view />
         </div>
@@ -136,24 +136,36 @@
               </button>
             </div>
             <div class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-              <router-link v-for="(item, index) in navItems" :key="item?.path || index" :to="item?.path || '#'"
-                v-if="item"
-                class="flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
-                :class="[$route.path.startsWith(item.path) ? 'bg-gray-900 text-white' : '']"
-                @click="isSidebarOpen = false">
-                <component :is="item.icon" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-300" />
-                {{ item.label }}
-              </router-link>
-
-              <div v-for="(item, index) in navItems" :key="'mobile-group-' + (item?.path || index)"
-                v-if="item && item.children && item.children.length > 0">
-                <router-link v-for="child in item.children" :key="child.path" :to="child.path"
-                  class="flex items-center pl-12 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
-                  :class="[$route.path.startsWith(child.path) ? 'bg-gray-900 text-white' : '']"
+              <template v-for="(navItem, index) in navItems" :key="navItem?.path || index">
+                <router-link v-if="navItem && (!navItem.children || navItem.children.length === 0)" 
+                  :to="navItem.path"
+                  class="flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
+                  :class="{'bg-gray-900 text-white': $route.path === navItem.path}"
                   @click="isSidebarOpen = false">
-                  {{ child.label }}
+                  <component :is="navItem.icon" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-300" />
+                  {{ navItem.label }}
                 </router-link>
-              </div>
+
+                <div v-else-if="navItem && navItem.children && navItem.children.length > 0" class="space-y-1">
+                  <button @click="toggleSubmenu(navItem)"
+                    class="flex items-center w-full px-4 py-3 text-sm font-medium text-left text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
+                    :class="{'bg-gray-900 text-white': $route.path.startsWith(navItem.path)}">
+                    <component :is="navItem.icon" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-300" />
+                    <span class="flex-1">{{ navItem.label }}</span>
+                    <ChevronDownIcon :class="{'rotate-180': navItem.open}" class="w-4 h-4 transform transition-transform" />
+                  </button>
+
+                  <div v-show="navItem.open" class="pl-4 space-y-1">
+                    <router-link v-for="child in navItem.children" :key="child.path" :to="child.path"
+                      class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
+                      :class="{'bg-gray-800 text-white': $route.path === child.path}"
+                      @click="isSidebarOpen = false">
+                      <span class="w-1.5 h-1.5 mr-3 rounded-full bg-current"></span>
+                      {{ child.label }}
+                    </router-link>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -196,29 +208,36 @@
   transition: all 0.3s ease-in-out;
 }
 
+/* Focus styles */
 .focus-style {
-  @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+  outline: none;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(99 102 241 / var(--tw-ring-opacity));
+  --tw-ring-offset-width: 2px;
 }
 </style>
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, computed, markRaw, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth' // Thay bằng store của bạn
 import {
-  HomeIcon,
-  UsersIcon,
-  ShoppingBagIcon,
-  DocumentTextIcon,
-  ChevronDownIcon,
   Bars3Icon,
   XMarkIcon,
+  BellIcon,
+  ChevronDownIcon,
+  HomeIcon,
+  ShoppingBagIcon,
+  DocumentTextIcon,
   ArrowPathIcon,
   UserGroupIcon,
   ChartBarIcon,
-  Cog6ToothIcon,
-  ArrowUpTrayIcon,
-  CubeIcon,
-  CogIcon,
+  UsersIcon,
+  PlusCircleIcon,
+  TagIcon,
+  UserPlusIcon
 } from '@heroicons/vue/24/outline'
 
 const authStore = useAuthStore()
@@ -233,50 +252,182 @@ const userInitials = computed(() => {
   return name.substring(0, 2).toUpperCase()
 })
 
+// Define NavItem interface
+interface NavItem {
+  label: string;
+  path: string;
+  icon: any;
+}
+
+// Define NavItem interface
+interface NavItem {
+  label: string;
+  path: string;
+  icon: any;
+  children: NavItem[];
+  open: boolean;
+}
+
 // KHAI BÁO navItems (Đã sửa thành ref)
-const navItems = ref([
-  { label: 'Dashboard', path: '/admin/dashboard', icon: HomeIcon, children: [], open: false },
+const navItems = ref<NavItem[]>([
+  { 
+    label: 'Dashboard', 
+    path: '/admin', 
+    icon: markRaw(HomeIcon),
+    children: [], 
+    open: false
+  },
   {
     label: 'Sản phẩm',
     path: '/admin/products',
-    icon: ShoppingBagIcon,
+    icon: markRaw(ShoppingBagIcon),
     open: false,
     children: [
-      { label: 'Danh sách sản phẩm', path: '/admin/products' },
-      { label: 'Thêm sản phẩm', path: '/admin/products/new' },
-      { label: 'Quản lý Danh mục', path: '/admin/products/categories' },
+      { 
+        label: 'Danh sách sản phẩm', 
+        path: '/admin/products',
+        icon: markRaw(ShoppingBagIcon),
+        children: [],
+        open: false
+      },
+      { 
+        label: 'Thêm sản phẩm', 
+        path: '/admin/products/new',
+        icon: markRaw(PlusCircleIcon),
+        children: [],
+        open: false
+      },
+      { 
+        label: 'Quản lý Danh mục', 
+        path: '/admin/products/categories',
+        icon: markRaw(TagIcon),
+        children: [],
+        open: false
+      },
     ],
   },
   {
     label: 'Đơn hàng',
     path: '/admin/orders',
-    icon: DocumentTextIcon,
+    icon: markRaw(DocumentTextIcon),
     open: false,
     children: [
-      { label: 'Đơn hàng mới', path: '/admin/orders/new' },
-      { label: 'Quản lý tất cả', path: '/admin/orders/all' },
+      { 
+        label: 'Đơn hàng mới', 
+        path: '/admin/orders/new',
+        icon: markRaw(PlusCircleIcon),
+        children: [],
+        open: false
+      },
+      { 
+        label: 'Quản lý tất cả', 
+        path: '/admin/orders/all',
+        icon: markRaw(DocumentTextIcon),
+        children: [],
+        open: false
+      },
+      { 
+        label: 'Thống kê', 
+        path: '/admin/orders/stats',
+        icon: markRaw(ChartBarIcon),
+        children: [],
+        open: false
+      },
     ],
   },
   {
     label: 'Quản lý Khách hàng',
     path: '/admin/customers',
-    icon: UsersIcon,
-    children: [],
+    icon: markRaw(UsersIcon),
     open: false,
+    children: [
+      {
+        label: 'Danh sách khách hàng',
+        path: '/admin/customers',
+        icon: markRaw(UsersIcon),
+        children: [],
+        open: false
+      },
+      {
+        label: 'Thêm khách hàng',
+        path: '/admin/customers/new',
+        icon: markRaw(UserPlusIcon),
+        children: [],
+        open: false
+      }
+    ]
   },
   {
-    label: 'Giao Dịch',
+    label: 'Giao dịch',
     path: '/admin/transactions',
-    icon: ArrowPathIcon,
+    icon: markRaw(ArrowPathIcon),
     open: false,
-    children: [{ label: 'Báo cáo giao dịch', path: '/admin/transactions/report' }],
+    children: [
+      {
+        label: 'Báo cáo giao dịch',
+        path: '/admin/transactions/report',
+        icon: markRaw(DocumentTextIcon),
+        children: [],
+        open: false
+      }
+    ]
   },
-  { label: 'Đối tác', path: '/admin/partners', icon: UserGroupIcon, children: [], open: false },
-  { label: 'Bán hàng', path: '/admin/sales', icon: ChartBarIcon, children: [], open: false },
+  {
+    label: 'Đối tác',
+    path: '/admin/partners',
+    icon: markRaw(UserGroupIcon),
+    open: false,
+    children: [
+      {
+        label: 'Danh sách đối tác',
+        path: '/admin/partners',
+        icon: markRaw(UserGroupIcon),
+        children: [],
+        open: false
+      }
+    ]
+  },
+  {
+    label: 'Bán hàng',
+    path: '/admin/sales',
+    icon: markRaw(ChartBarIcon),
+    open: false,
+    children: [
+      {
+        label: 'Thống kê bán hàng',
+        path: '/admin/sales/stats',
+        icon: markRaw(ChartBarIcon),
+        children: [],
+        open: false
+      }
+    ]
+  },
 ])
 
-const route = useRoute()
+// Using router for navigation
 const router = useRouter()
+const route = useRoute()
+
+// Log route changes
+watch(() => route, (newRoute) => {
+  console.log('🔵 ROUTE CHANGED TO:', {
+    path: newRoute.path,
+    fullPath: newRoute.fullPath,
+    name: newRoute.name,
+    params: newRoute.params,
+    query: newRoute.query
+  })
+}, { deep: true, immediate: true })
+
+// Log available routes
+console.log('🟢 AVAILABLE ROUTES:', router.getRoutes())
+console.log('🔵 CURRENT ROUTE:', {
+  path: route.path,
+  fullPath: route.fullPath,
+  name: route.name,
+  params: route.params,
+  query: route.query
+})
 const isProfileOpen = ref(false)
 const isSidebarOpen = ref(false)
 
@@ -311,7 +462,8 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 // Close sidebar and profile when route changes
-router.afterEach(() => {
+router.afterEach((to, from) => {
+  console.log('Route changed from:', from.path, 'to:', to.path)
   isSidebarOpen.value = false
   isProfileOpen.value = false
 })
@@ -327,20 +479,13 @@ onMounted(() => {
 })
 
 // Cleanup
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-// Logout function
-const logout = () => {
-  router.push('/login')
-}
 </script>
 
 <style scoped>
 /* Custom scrollbar matching the dark theme */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -350,6 +495,10 @@ const logout = () => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #4a5568;
   border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #718096;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {

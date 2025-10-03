@@ -12,7 +12,6 @@ watchEffect(() => {
 <template>
   <div>
     <router-view />
-    <Toaster />
     <button
       class="fixed bottom-3 right-3 rounded-full px-3 py-2 text-xs bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow"
       @click="dark = !dark"

@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
-import router from './app/router'
+import router from './routes/router'
 import { useAuthStore } from './stores/auth'
 import websocketPlugin from '@/services/socket/websocketPlugin'
 import './theme/index.css'
