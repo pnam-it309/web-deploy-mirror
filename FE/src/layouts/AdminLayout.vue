@@ -50,6 +50,7 @@
                 <div class="w-1 h-1 mr-3 rounded-full bg-current"></div>
                 {{ child.label }}
               </router-link>
+              
             </div>
           </template>
         </nav>
@@ -243,8 +244,8 @@ const navItems = ref([
     open: false,
     children: [
       { label: 'Danh sách sản phẩm', path: '/admin/products' },
-      { label: 'Thêm sản phẩm', path: '/admin/products/new' },
-      { label: 'Quản lý Danh mục', path: '/admin/products/categories' },
+      // { label: 'Thêm sản phẩm', path: '/admin/products/new' },
+      // { label: 'Quản lý Danh mục', path: '/admin/products/categories' },
     ],
   },
   {
@@ -253,6 +254,7 @@ const navItems = ref([
     icon: DocumentTextIcon,
     open: false,
     children: [
+      { label: 'Danh sách đơn hàng', path: '/admin/orders' },
       { label: 'Đơn hàng mới', path: '/admin/orders/new' },
       { label: 'Quản lý tất cả', path: '/admin/orders/all' },
     ],
