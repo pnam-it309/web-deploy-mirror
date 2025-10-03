@@ -19,7 +19,8 @@ const AdminDashboard = () => import('@/pages/admin/DashboardPage.vue')
 const AdminUsers = () => import('@/pages/admin/UsersPage.vue')
 const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
 const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
-const AdminOrders = () => import('@/pages/admin/OrdersPage.vue')
+const AdminOrders = () => import('@/pages/admin/orders/OrderPage.vue')
+const AdminOrderCreateModal = () => import('@/pages/admin/orders/OrderCreateModal.vue')
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
 
 // Customer pages
@@ -132,7 +133,10 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Quản lý đơn hàng',
           apiEndpoint: '/api/admin/orders'
-        }
+        },
+        children: [
+          { path: 'new', name: 'admin-orders-new', component: AdminOrderCreateModal},
+        ]
       },
       {
         path: 'settings',
