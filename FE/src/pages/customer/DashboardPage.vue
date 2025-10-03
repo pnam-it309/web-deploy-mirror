@@ -70,7 +70,7 @@
       <div class="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
         <ul class="divide-y divide-gray-200">
           <li v-for="order in recentOrders" :key="order.id">
-            <router-link :to="`/customer/orders/${order.id}" class="block hover:bg-gray-50">
+            <router-link :to="`/customer/orders/${order.id}`" class="block hover:bg-gray-50">
               <div class="px-4 py-4 sm:px-6">
                 <div class="flex items-center justify-between">
                   <p class="text-sm font-medium text-indigo-600 truncate">
