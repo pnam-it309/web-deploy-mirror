@@ -279,14 +279,13 @@
       </div>
     </div>
 
-    <!-- Import Dialog -->
-    <ImportProductsDialog
-      :open="showImportDialog"
-      @close="showImportDialog = false"
-      @imported="handleProductsImported"
+    <!-- Product create modal: show when route name === 'admin-products-new' -->
+    <ProductCreateModal
+      v-if="showCreateModal"
+      @close="closeCreateModal"
+      @created="onProductCreated"
     />
 
-    <!-- Delete Confirmation Dialog -->
     <ConfirmationDialog
       :open="showDeleteDialog"
       title="Xác nhận xóa"
@@ -300,8 +299,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useProductStore } from '@/stores/productStore.ts';
 import {
   PlusIcon,
@@ -316,9 +315,11 @@ import {
   XMarkIcon
 } from '@heroicons/vue/24/outline';
 import ConfirmationDialog from '@/components/common/ConfirmationDialog.vue';
-import ImportProductsDialog from '@/components/admin/ImportProductsDialog.vue';
+import ProductCreateModal from '@/pages/admin/product/ProductCreateModal.vue'
+// import ImportProductsDialog from '@/components/admin/ImportProductsDialog.vue';
 
 const router = useRouter();
+const route = useRoute();
 const productStore = useProductStore();
 
 // Mock data - replace with actual API calls
@@ -359,6 +360,9 @@ const filters = ref({
 const selectedProducts = ref<number[]>([]);
 const showDeleteDialog = ref(false);
 const showImportDialog = ref(false);
+
+// NEW: showCreateModal synchronized with route
+const showCreateModal = ref(false);
 
 // Pagination
 const itemsPerPage = 10;
@@ -521,6 +525,36 @@ const handleProductsImported = (importedProducts: any[]) => {
   showImportDialog.value = false;
   // Refresh products list
   // fetchProducts();
+};
+
+// NEW: sync modal open with route name (so visiting /admin/products/new opens modal)
+watch(
+  () => route.name,
+  (name) => {
+    showCreateModal.value = (name === 'admin-products-new');
+  },
+  { immediate: true }
+);
+
+// NEW: close modal => navigate back to product list route (clear URL)
+const closeCreateModal = () => {
+  router.push({ name: 'admin-products' });
+};
+
+// NEW: when modal emits created, add to products list and navigate back
+const onProductCreated = (newProduct: any) => {
+  // If you use productStore, prefer to call store action here
+  // productStore.create(newProduct) or productStore.fetchAll()
+  // For now we update local mock list:
+  if (newProduct) {
+    // ensure id exists (mock) - if backend returns new id, adjust accordingly
+    if (!newProduct.id) {
+      newProduct.id = Date.now();
+    }
+    products.value.unshift(newProduct);
+  }
+  // close modal by navigating back
+  router.push({ name: 'admin-products' });
 };
 
 // Lifecycle hooks
