@@ -22,131 +22,132 @@ const WebSocketTest = () => import('@/pages/admin/websocket-test.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 const HomePage = () => import('@/pages/customer/HomePage.vue')
 
+
 // Add REGISTER to ROUTES_CONSTANTS
 const ROUTES = {
   ...ROUTES_CONSTANTS,
   REGISTER: {
     path: '/register',
-    name: 'register'
-  }
+    name: 'register',
+  },
 }
 
 const routes: RouteRecordRaw[] = [
   // Root redirect to login
   {
     path: '/',
-    redirect: { name: ROUTES.LOGIN.name }
+    redirect: { name: ROUTES.LOGIN.name },
   },
-  
+
   // Auth routes
   {
     path: ROUTES.LOGIN.path,
     name: ROUTES.LOGIN.name,
     component: LoginPage,
-    meta: { 
+    meta: {
       requiresAuth: false,
       title: 'Đăng nhập',
-      layout: 'auth'
-    }
+      layout: 'auth',
+    },
   },
   {
     path: ROUTES.REGISTER.path,
     name: ROUTES.REGISTER.name,
     component: RegisterPage,
-    meta: { 
+    meta: {
       requiresAuth: false,
       title: 'Đăng ký',
-      layout: 'auth'
-    }
+      layout: 'auth',
+    },
   },
   {
     path: '/select-role',
     name: 'select-role',
     component: RoleSelection,
-    meta: { 
+    meta: {
       requiresAuth: true,
       title: 'Chọn vai trò',
-      layout: 'auth'
-    }
+      layout: 'auth',
+    },
   },
-  
+
   // Admin routes
   {
     path: ROUTES.ADMIN.path,
     name: ROUTES.ADMIN.name,
     component: AdminLayout,
-    meta: { 
+    meta: {
       requiresAuth: true,
       requiresRole: ROLES.ADMIN,
       title: 'Admin Dashboard',
-      layout: 'admin'
+      layout: 'admin',
     },
     children: [
       {
         path: '',
-        redirect: { name: ROUTES.ADMIN.children.DASHBOARD.name }
+        redirect: { name: ROUTES.ADMIN.children.DASHBOARD.name },
       },
       {
         path: ROUTES.ADMIN.children.DASHBOARD.path,
         name: ROUTES.ADMIN.children.DASHBOARD.name,
         component: AdminDashboard,
-        meta: { title: 'Tổng quan' }
+        meta: { title: 'Tổng quan' },
       },
       {
         path: '/admin/websocket-test',
         name: 'websocket-test',
         component: WebSocketTest,
-        meta: { title: 'WebSocket Test' }
-      }
-    ]
+        meta: { title: 'WebSocket Test' },
+      },
+    ],
   },
-  
+
   // Customer routes
   {
     path: ROUTES.CUSTOMER.path,
     name: ROUTES.CUSTOMER.name,
     component: CustomerLayout,
-    meta: { 
+    meta: {
       requiresAuth: true,
       requiresRole: ROLES.CUSTOMER,
       title: 'Trang chủ',
-      layout: 'customer'
+      layout: 'customer',
     },
     children: [
       {
         path: '',
         name: ROUTES.CUSTOMER.children.HOME.name,
         component: HomePage,
-        meta: { title: 'Trang chủ' }
-      }
-    ]
+        meta: { title: 'Trang chủ' },
+      },
+    ],
   },
-  
+
   // Error pages
   {
     path: ROUTES.NOT_FOUND.path,
     name: ROUTES.NOT_FOUND.name,
     component: NotFoundPage,
-    meta: { layout: 'error' }
+    meta: { layout: 'error' },
   },
   {
     path: ROUTES.FORBIDDEN.path,
     name: ROUTES.FORBIDDEN.name,
     component: ForbiddenPage,
-    meta: { layout: 'error' }
+    meta: { layout: 'error' },
   },
   {
     path: ROUTES.UNAUTHORIZED.path,
     name: ROUTES.UNAUTHORIZED.name,
     component: UnauthorizedPage,
-    meta: { layout: 'error' }
+    meta: { layout: 'error' },
   },
-  
+
   // Catch all route - must be last
   {
     path: '/:pathMatch(.*)*',
-    redirect: { name: ROUTES.NOT_FOUND.name }
-  }
+    redirect: { name: ROUTES.NOT_FOUND.name },
+  },
 ]
 
 const router = createRouter({
@@ -158,27 +159,27 @@ const router = createRouter({
     } else {
       return { top: 0 }
     }
-  }
+  },
 })
 
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresRole = to.meta.requiresRole as string | undefined
   const isAuthenticated = authStore.isAuthenticated
   const userRole = authStore.userRole || authStore.user?.roleSwitch
 
   // Set page title if available
-  document.title = to.meta.title 
-    ? `${to.meta.title} | ${import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'}` 
-    : (import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog')
+  document.title = to.meta.title
+    ? `${to.meta.title} | ${import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'}`
+    : import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'
 
   // Redirect to login if not authenticated and route requires auth
   if (requiresAuth && !isAuthenticated) {
     return next({
       name: ROUTES.LOGIN.name,
-      query: { redirect: to.fullPath }
+      query: { redirect: to.fullPath },
     })
   }
 
@@ -211,10 +212,10 @@ router.beforeEach(async (to, from, next) => {
     await authStore.logout()
     return next({
       name: ROUTES.LOGIN.name,
-      query: { error: 'unauthorized_role' }
+      query: { error: 'unauthorized_role' },
     })
   }
-  
+
   next()
 })
 
