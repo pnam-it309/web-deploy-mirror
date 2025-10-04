@@ -4,7 +4,7 @@ import { ROLES } from '@/constants/roles'
 import { useAuthStore } from '@/stores/auth'
 
 // Lazy load components for better performance
-const LoginPage = () => import('@/pages/auth/LoginPage.vue')
+const LoginPage = () => import('@/pages/SelectionPage.vue')
 const RegisterPage = () => import('@/pages/auth/RegisterPage.vue')
 const RoleSelection = () => import('@/pages/auth/RoleSelection.vue')
 
@@ -21,7 +21,6 @@ const WebSocketTest = () => import('@/pages/admin/websocket-test.vue')
 // Customer components
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 const HomePage = () => import('@/pages/customer/HomePage.vue')
-
 
 // Add REGISTER to ROUTES_CONSTANTS
 const ROUTES = {

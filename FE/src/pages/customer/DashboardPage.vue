@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
     <h1 class="text-2xl font-semibold text-gray-900">My Dashboard</h1>
-    
+
     <!-- Welcome Section -->
     <div class="mt-6 bg-indigo-700 rounded-lg shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
       <div class="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
@@ -26,7 +26,7 @@
         <img class="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20" src="https://tailwindui.com/img/component-images/full-width-with-sidebar.jpg" alt="App screenshot">
       </div>
     </div>
-    
+
     <!-- Quick Stats -->
     <div class="mt-8">
       <h2 class="text-lg font-medium text-gray-900">Quick Stats</h2>
@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Recent Orders -->
     <div class="mt-8">
       <div class="flex justify-between items-center">
@@ -66,11 +66,11 @@
           View all
         </router-link>
       </div>
-      
+
       <div class="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
         <ul class="divide-y divide-gray-200">
           <li v-for="order in recentOrders" :key="order.id">
-            <router-link :to="`/customer/orders/${order.id}" class="block hover:bg-gray-50">
+            <router-link :to="`/customer/orders/${order.id}`" class="block hover:bg-gray-50">
               <div class="px-4 py-4 sm:px-6">
                 <div class="flex items-center justify-between">
                   <p class="text-sm font-medium text-indigo-600 truncate">
@@ -110,7 +110,7 @@
         </ul>
       </div>
     </div>
-    
+
     <!-- Recommended Products -->
     <div class="mt-8">
       <h2 class="text-lg font-medium text-gray-900">Recommended For You</h2>
