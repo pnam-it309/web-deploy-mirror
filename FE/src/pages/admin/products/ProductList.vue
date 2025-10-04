@@ -221,7 +221,7 @@ export default defineComponent({
   name: 'ProductList',
   setup() {
     const router = useRouter();
-    
+
     // Sample data - replace with actual API calls
     const products = ref([
       // Sample product data
@@ -267,9 +267,9 @@ export default defineComponent({
     });
 
     const formatCurrency = (value: number) => {
-      return new Intl.NumberFormat('vi-VN', { 
-        style: 'currency', 
-        currency: 'VND' 
+      return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
       }).format(value);
     };
 
@@ -295,17 +295,17 @@ export default defineComponent({
       try {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Replace with actual API call
         // const response = await productApi.getProducts({
         //   page: pagination.currentPage,
         //   perPage: pagination.perPage,
         //   ...filters
         // });
-        
+
         // products.value = response.data;
         // pagination.total = response.meta.total;
-        
+
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -345,7 +345,7 @@ export default defineComponent({
     };
 
     const editProduct = (id: number) => {
-      router.push({ 
+      router.push({
         name: 'admin-product-edit',
         params: { id }
       });

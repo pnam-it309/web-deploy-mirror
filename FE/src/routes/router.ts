@@ -3,10 +3,10 @@ import { ROUTES_CONSTANTS } from '@/constants/path'
 import { ROLES } from '@/constants/roles'
 import { useAuthStore } from '@/stores/auth'
 
-// Lazy load components for better performance
-const LoginPage = () => import('@/pages/SelectionPage.vue')
-const RegisterPage = () => import('@/pages/auth/RegisterPage.vue')
-const RoleSelection = () => import('@/pages/auth/RoleSelection.vue')
+// Import the ProductsPage component
+const ProductsPage = () => import('@/pages/admin/product/ProductsPage.vue')
+// Import the CustomerList component
+const CustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
 
 // Error pages
 const ForbiddenPage = () => import('@/pages/403/Forbidden.vue')
@@ -22,83 +22,119 @@ const WebSocketTest = () => import('@/pages/admin/websocket-test.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 const HomePage = () => import('@/pages/customer/HomePage.vue')
 
-// Add REGISTER to ROUTES_CONSTANTS
+// Selection Page
+const SelectionPage = () => import('@/pages/log/SelectionPage.vue')
+
+// Routes configuration
 const ROUTES = {
   ...ROUTES_CONSTANTS,
-  REGISTER: {
-    path: '/register',
-    name: 'register',
+  SELECTION: {
+    path: '/',
+    name: 'selection',
   },
+  ADMIN: {
+    ...ROUTES_CONSTANTS.ADMIN,
+    name: 'admin',
+    children: {
+      ...ROUTES_CONSTANTS.ADMIN.children,
+      DASHBOARD: {
+        ...ROUTES_CONSTANTS.ADMIN.children.DASHBOARD,
+        name: 'admin-dashboard'
+      }
+    }
+  },
+  CUSTOMER: {
+    ...ROUTES_CONSTANTS.CUSTOMER,
+    name: 'customer',
+    children: {
+      ...ROUTES_CONSTANTS.CUSTOMER.children,
+      HOME: {
+        ...ROUTES_CONSTANTS.CUSTOMER.children.HOME,
+        name: 'customer-dashboard'
+      }
+    }
+  }
 }
 
 const routes: RouteRecordRaw[] = [
-  // Root redirect to login
+  // Selection Page as root
   {
-    path: '/',
-    redirect: { name: ROUTES.LOGIN.name },
-  },
-
-  // Auth routes
-  {
-    path: ROUTES.LOGIN.path,
-    name: ROUTES.LOGIN.name,
-    component: LoginPage,
+    path: ROUTES.SELECTION.path,
+    name: ROUTES.SELECTION.name,
+    component: SelectionPage,
     meta: {
       requiresAuth: false,
-      title: 'Đăng nhập',
-      layout: 'auth',
-    },
-  },
-  {
-    path: ROUTES.REGISTER.path,
-    name: ROUTES.REGISTER.name,
-    component: RegisterPage,
-    meta: {
-      requiresAuth: false,
-      title: 'Đăng ký',
-      layout: 'auth',
-    },
-  },
-  {
-    path: '/select-role',
-    name: 'select-role',
-    component: RoleSelection,
-    meta: {
-      requiresAuth: true,
-      title: 'Chọn vai trò',
-      layout: 'auth',
-    },
+      title: 'Chọn chế độ đăng nhập',
+      layout: 'default'
+    }
   },
 
   // Admin routes
   {
     path: ROUTES.ADMIN.path,
-    name: ROUTES.ADMIN.name,
     component: AdminLayout,
     meta: {
-      requiresAuth: true,
+      requiresAuth: false, // Changed to false to bypass login
       requiresRole: ROLES.ADMIN,
-      title: 'Admin Dashboard',
-      layout: 'admin',
+      title: 'Admin'
     },
     children: [
       {
         path: '',
-        redirect: { name: ROUTES.ADMIN.children.DASHBOARD.name },
+        redirect: { name: ROUTES.ADMIN.children.DASHBOARD.name }
       },
       {
         path: ROUTES.ADMIN.children.DASHBOARD.path,
         name: ROUTES.ADMIN.children.DASHBOARD.name,
         component: AdminDashboard,
-        meta: { title: 'Tổng quan' },
+        meta: {
+          title: 'Tổng quan',
+          requiresAuth: true,
+          requiresRole: ROLES.ADMIN
+        }
       },
       {
-        path: '/admin/websocket-test',
-        name: 'websocket-test',
+        path: ROUTES.ADMIN.children.IMPORT.path,
+        name: ROUTES.ADMIN.children.IMPORT.name,
         component: WebSocketTest,
-        meta: { title: 'WebSocket Test' },
+        meta: {
+          title: 'Nhập dữ liệu',
+          requiresAuth: true,
+          requiresRole: ROLES.ADMIN
+        }
       },
-    ],
+      {
+        path: ROUTES.ADMIN.children.PRODUCTS.path,
+        name: ROUTES.ADMIN.children.PRODUCTS.name,
+        component: ProductsPage,
+        meta: {
+          title: 'Quản lý sản phẩm',
+          requiresAuth: true,
+          requiresRole: ROLES.ADMIN
+        }
+      },
+      {
+        path: ROUTES.ADMIN.children.PRODUCT_CREATE.path,
+        name: ROUTES.ADMIN.children.PRODUCT_CREATE.name,
+        component: () => import('@/pages/admin/product/ProductCreateModal.vue'),
+        meta: {
+          title: 'Thêm sản phẩm mới',
+          requiresAuth: true,
+          requiresRole: ROLES.ADMIN
+        }
+      },
+      // Customers Management
+      {
+        path: ROUTES.ADMIN.children.CUSTOMERS.path,
+        name: ROUTES.ADMIN.children.CUSTOMERS.name,
+        component: CustomerList,
+        meta: {
+          title: 'Quản lý khách hàng',
+          requiresAuth: true,
+          requiresRole: ROLES.ADMIN
+        }
+      }
+    ]
   },
 
   // Customer routes
@@ -164,15 +200,20 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const requiresRole = to.meta.requiresRole as string | undefined
   const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.userRole || authStore.user?.roleSwitch
+  const userRole = authStore.userRole || authStore.user?.roleScreen
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+  const requiresRole = to.meta.requiresRole as string | undefined
 
-  // Set page title if available
+  // Set page title
   document.title = to.meta.title
     ? `${to.meta.title} | ${import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'}`
     : import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'
+
+  // Skip auth check for admin routes
+  if (to.path.startsWith('/admin')) {
+    return next()
+  }
 
   // Redirect to login if not authenticated and route requires auth
   if (requiresAuth && !isAuthenticated) {
@@ -182,7 +223,13 @@ router.beforeEach(async (to, from, next) => {
     })
   }
 
-  // Redirect to role selection if authenticated but no role is set
+  // Check if user has required role
+  if (requiresRole && userRole !== requiresRole) {
+    return next({ name: ROUTES.FORBIDDEN.name })
+  }
+
+  // Continue with the navigation
+  next()
   if (isAuthenticated && !userRole && to.name !== 'select-role') {
     return next({ name: 'select-role' })
   }
