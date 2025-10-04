@@ -12,6 +12,6 @@ export const useUIStore = defineStore('ui', {
     },
     closeQuote() {
       this.isQuoteOpen = false
-    }
-  }
+    },
+  },
 })
