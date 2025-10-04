@@ -20,7 +20,7 @@ import javax.sql.DataSource;
  */
 
 @Configuration
-@EnableBatchProcessing
+@EnableBatchProcessing  // Kích hoạt tính năng xử lý batch của Spring
 public class BatchConfig {
 
     // Nguồn dữ liệu để lưu trữ thông tin batch

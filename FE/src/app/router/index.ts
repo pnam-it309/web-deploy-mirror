@@ -17,8 +17,7 @@ const ProductDetailPage = () => import('@/pages/product-detail/ProductDetailPage
 // Admin pages
 const AdminDashboard = () => import('@/pages/admin/DashboardPage.vue')
 const AdminUsers = () => import('@/pages/admin/UsersPage.vue')
-const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
-const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
+const AdminProducts = () => import('@/pages/admin/ProductsPage.vue')
 const AdminOrders = () => import('@/pages/admin/OrdersPage.vue')
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
 
@@ -69,7 +68,7 @@ const routes: RouteRecordRaw[] = [
     component: ProductDetailPage,
     meta: { public: true }
   },
-
+  
   // Auth routes (for internal auth if needed later)
   {
     path: '/auth',
@@ -97,8 +96,8 @@ const routes: RouteRecordRaw[] = [
       }
     ]
   },
-
-  // Admin routes with layout
+  
+    // Admin routes with layout
   {
     path: '/admin',
     component: AdminLayout,
@@ -107,7 +106,7 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'admin-dashboard',
         component: { render: () => h(AdminDashboard) },
-        meta: {
+        meta: { 
           title: 'Dashboard',
           requiresAuth: true,
           apiEndpoint: '/api/admin/dashboard'
@@ -117,19 +116,16 @@ const routes: RouteRecordRaw[] = [
         path: 'products',
         name: 'admin-products',
         component: AdminProducts,
-        meta: {
+        meta: { 
           title: 'Quản lý sản phẩm',
           apiEndpoint: '/api/admin/products'
-        },
-        children: [
-          { path: 'new', name: 'admin-products-new', component: AdminProductCreateModal},
-        ]
+        }
       },
       {
         path: 'orders',
         name: 'admin-orders',
         component: AdminOrders,
-        meta: {
+        meta: { 
           title: 'Quản lý đơn hàng',
           apiEndpoint: '/api/admin/orders'
         }
@@ -138,7 +134,7 @@ const routes: RouteRecordRaw[] = [
         path: 'settings',
         name: 'admin-settings',
         component: AdminSettings,
-        meta: {
+        meta: { 
           title: 'Cài đặt',
           apiEndpoint: '/api/admin/settings'
         }
@@ -147,7 +143,7 @@ const routes: RouteRecordRaw[] = [
         path: 'users',
         name: 'admin-users',
         component: AdminUsers,
-        meta: {
+        meta: { 
           title: 'Quản lý người dùng',
           apiEndpoint: '/api/admin/users'
         }
@@ -159,7 +155,7 @@ const routes: RouteRecordRaw[] = [
       }
     ]
   },
-
+  
   // Customer routes with layout
   {
     path: '/customer',
@@ -196,7 +192,7 @@ const routes: RouteRecordRaw[] = [
       }
     ]
   },
-
+  
   // 404 Not Found - Redirect to selection page
   {
     path: '/:pathMatch(.*)*',
