@@ -21,6 +21,8 @@ const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
 const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
 const AdminOrders = () => import('@/pages/admin/OrdersPage.vue')
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
+const AdminManageCustormers = () => import('@/pages/admin/manage_customer/CustomerPage.vue')
+const AdminManageCustomerCreateModal = () => import('@/pages/admin/manage_customer/CustomerCreateModal.vue')
 
 // Customer pages
 const CustomerDashboard = () => import('@/pages/customer/DashboardPage.vue')
@@ -134,6 +136,18 @@ const routes: RouteRecordRaw[] = [
           apiEndpoint: '/api/admin/orders'
         }
       },
+      {
+  path: '/admin/customers',
+  name: 'admin-customers',
+  component: AdminManageCustormers,
+  children: [
+    {
+      path: 'new',
+      name: 'admin-customers-new',
+      component: AdminManageCustomerCreateModal 
+    }
+  ]
+},
       {
         path: 'settings',
         name: 'admin-settings',
