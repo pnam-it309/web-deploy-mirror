@@ -11,14 +11,28 @@ import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import java.math.BigDecimal;
 
 public interface ProductsReponse extends IsIdentify {
+    String getId();
+
     String getSku();
+
     String getName();
-  String getShortDescription();
-    BigDecimal price() ;
-Integer getStockQuantity();
-   String getBrandId();
-   String getCategoryId();
-  String getStatus();
-  String  getProductDetailId();
-  String getImagesId();
+
+    String getShortDescription();
+
+    BigDecimal price();
+
+    Integer getStockQuantity();
+    String getUnit();
+
+    String getBrandName();
+
+    String getCategoryName();
+
+    String getStatus();
+
+    String getProductDetailId();
+
+    String getUrl();
+
+    Long getCreatedDate();
 }
