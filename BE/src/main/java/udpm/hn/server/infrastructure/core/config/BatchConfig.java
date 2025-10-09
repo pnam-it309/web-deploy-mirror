@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 import javax.sql.DataSource;
 
@@ -20,23 +23,16 @@ import javax.sql.DataSource;
  */
 
 @Configuration
-@EnableBatchProcessing  // Kích hoạt tính năng xử lý batch của Spring
+@EnableBatchProcessing
+@EnableTransactionManagement
 public class BatchConfig {
 
-    // Nguồn dữ liệu để lưu trữ thông tin batch
     private final DataSource dataSource;
-    
-    // Quản lý transaction cho các job batch
-    private final PlatformTransactionManager transactionManager;
+    private final LocalContainerEntityManagerFactoryBean entityManagerFactory;
 
-    /**
-     * Khởi tạo BatchConfig với các dependency cần thiết
-     * @param dataSource Nguồn dữ liệu để lưu trữ thông tin batch
-     * @param transactionManager Quản lý transaction cho các job
-     */
-    public BatchConfig(DataSource dataSource, PlatformTransactionManager transactionManager) {
+    public BatchConfig(DataSource dataSource, LocalContainerEntityManagerFactoryBean entityManagerFactory) {
         this.dataSource = dataSource;
-        this.transactionManager = transactionManager;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     /**
@@ -45,13 +41,13 @@ public class BatchConfig {
      * @throws Exception Nếu có lỗi khi khởi tạo JobRepository
      */
     @Bean
-    public JobRepository jobRepository() throws Exception {
+    public JobRepository jobRepository(PlatformTransactionManager transactionManager) throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
-        factory.setDataSource(dataSource);  // Thiết lập nguồn dữ liệu
-        factory.setTransactionManager(transactionManager);  // Thiết lập transaction manager
-        factory.setIsolationLevelForCreate("ISOLATION_DEFAULT");  // Mức cô lập mặc định
-        factory.setTablePrefix("BATCH_");  // Tiền tố cho các bảng batch
-        factory.afterPropertiesSet();  // Xác thực và khởi tạo
+        factory.setDataSource(dataSource);
+        factory.setTransactionManager(transactionManager);
+        factory.setIsolationLevelForCreate("ISOLATION_DEFAULT");
+        factory.setTablePrefix("BATCH_");
+        factory.afterPropertiesSet();
         return factory.getObject();
     }
 
@@ -63,11 +59,18 @@ public class BatchConfig {
      * @throws Exception Nếu có lỗi khi khởi tạo JobLauncher
      */
     @Bean
-    public JobLauncher jobLauncher() throws Exception {
+    public JobLauncher jobLauncher(JobRepository jobRepository) throws Exception {
         TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository());  // Thiết lập job repository
-        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());  // Sử dụng executor bất đồng bộ
-        jobLauncher.afterPropertiesSet();  // Xác thực và khởi tạo
+        jobLauncher.setJobRepository(jobRepository);
+        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor("batch-"));
+        jobLauncher.afterPropertiesSet();
         return jobLauncher;
+    }
+    
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
+        return transactionManager;
     }
 }

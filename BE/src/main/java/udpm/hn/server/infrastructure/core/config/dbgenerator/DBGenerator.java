@@ -4,10 +4,12 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import udpm.hn.server.infrastructure.core.config.dbgenerator.repository.DBGRoleRepository;
-import udpm.hn.server.infrastructure.core.config.dbgenerator.repository.DBGStaffRepository;
-import udpm.hn.server.infrastructure.core.config.dbgenerator.repository.DBGStaffRoleRepository;
+import udpm.hn.server.entity.Admin;
+import udpm.hn.server.entity.AdminRole;
+import udpm.hn.server.infrastructure.core.constant.Roles;
+import udpm.hn.server.infrastructure.core.config.dbgenerator.repository.*;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
+
 
 import java.util.Optional;
 
@@ -26,11 +28,11 @@ public class DBGenerator {
     @Value("${db.generator.user-name}")
     private String userName;
 
-//    private final DBGStaffRepository staffRepository;
-//
-//    private final DBGRoleRepository roleRepository;
-//
-//    private final DBGStaffRoleRepository staffRoleRepository;
+    private final DBGAdminRepository adminRepository;
+
+    private final DBGRoleRepository roleRepository;
+
+    private final DBGAdminRoleRepository adminRoleRepository;
 
     @PostConstruct
     public void init() {
@@ -43,55 +45,52 @@ public class DBGenerator {
     }
 
     private void generateData() {
-//        Optional<Staff> staffOptional = staffRepository.findByEmailFpt(userEmail);
-//        Staff staff;
-//        if (staffOptional.isEmpty()) {
-//            staff = new Staff();
-//            staff.setEmailFpt(userEmail);
-//            staff.setCode(userCode);
-//            staff.setName(userName);
-//            staff.setStatus(EntityStatus.ACTIVE);
-//            staffRepository.save(staff);
-//        }else {
-//            staff = staffOptional.get();
-//        }
-//
-//        addRoleToUser(staff, Role.ADMIN.name());
-//        addRoleToUser(staff, Role.MANAGE.name());
-//        addRoleToUser(staff, "MANAGE");
-//        addRoleToUser(staff, "MEMBER");
+        Optional<Admin> staffOptional = adminRepository.findByEmail(userEmail);
+        Admin admin;
+        if (staffOptional.isEmpty()) {
+            admin = new Admin();
+            admin.setEmail(userEmail);
+            admin.setCode(userCode);
+            admin.setName(userName);
+            admin.setStatus(EntityStatus.ACTIVE);
+            adminRepository.save(admin);
+        }else {
+            admin = staffOptional.get();
+        }
+
+        addRoleToUser(admin, Roles.ADMIN.name());
+        addRoleToUser(admin, Roles.CUSTOMER.name());
     }
 
     private void generateRole() {
-//        createRoleIfNotExist(Role.ADMIN.name(), Role.getVietnameseNameByRole(Role.ADMIN.name()));
-//        createRoleIfNotExist(Role.MANAGE.name(), Role.getVietnameseNameByRole(Role.MANAGE.name()));
-//        createRoleIfNotExist(Role.MEMBER.name(), Role.getVietnameseNameByRole(Role.MEMBER.name()));
+        createRoleIfNotExist(Roles.ADMIN.name(), Roles.getVietnameseNameByRole(Roles.ADMIN.name()));
+        createRoleIfNotExist(Roles.CUSTOMER.name(), Roles.getVietnameseNameByRole(Roles.CUSTOMER.name()));
     }
 
     private void createRoleIfNotExist(String roleCode,String roleName) {
-//        if (roleRepository.findByCode(roleCode).isEmpty()) {
-//            udpm.hn.server.entity.Role role = new udpm.hn.server.entity.Role();
-//            role.setCode(roleCode);
-//            role.setName(roleName);
-//            role.setStatus(EntityStatus.ACTIVE);
-//            roleRepository.save(role);
-//        }
+        if (roleRepository.findByCode(roleCode).isEmpty()) {
+            udpm.hn.server.entity.Role role = new udpm.hn.server.entity.Role();
+            role.setCode(roleCode);
+            role.setName(roleName);
+            role.setStatus(EntityStatus.ACTIVE);
+            roleRepository.save(role);
+        }
     }
 
-//    private void addRoleToUser(Staff staff, String roleName) {
-//        Optional<udpm.hn.server.entity.Role> roleOptional = roleRepository.findByCode(roleName);
-//
-//        if (roleOptional.isPresent()) {
-//            udpm.hn.server.entity.Role role = roleOptional.get();
-//            // Kiểm tra xem user đã có role này chưa
-//            if (!staffRoleRepository.existsByStaffAndRole(staff, role)) {
-//                StaffRole roleUser = new StaffRole();
-//                roleUser.setStaff(staff);
-//                roleUser.setRole(role);
-//                roleUser.setStatus(EntityStatus.ACTIVE);
-//                staffRoleRepository.save(roleUser);
-//            }
-//        }
-//     }
+    private void addRoleToUser(Admin admin, String roleName) {
+        Optional<udpm.hn.server.entity.Role> roleOptional = roleRepository.findByCode(roleName);
+
+        if (roleOptional.isPresent()) {
+            udpm.hn.server.entity.Role role = roleOptional.get();
+            // Kiểm tra xem user đã có role này chưa
+            if (!adminRoleRepository.existsByAdminAndRole(admin, role)) {
+                AdminRole roleUser = new AdminRole();
+                roleUser.setRole(role);
+                roleUser.setStatus(EntityStatus.ACTIVE);
+                adminRoleRepository.save(roleUser);
+            }
+        }
+    }
+
 
 }

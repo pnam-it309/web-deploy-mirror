@@ -8,19 +8,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import udpm.hn.server.entity.Admin;
-import udpm.hn.server.entity.Staff;
+import udpm.hn.server.entity.Customer;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 @Slf4j
 public class UserPrincipal implements OAuth2User, UserDetails {
-    // User identification
-    @Getter
+    // phân quyền
     private final String id;
 
-    @Getter
     private final String email;
 
     private String password;
@@ -36,7 +35,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         this.authorities = authorities;
     }
 
-    public static UserPrincipal create(Staff staff, List<String> roles) {
+    public static UserPrincipal create(Admin staff, List<String> roles) {
         List<SimpleGrantedAuthority> authorities = roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
@@ -51,32 +50,32 @@ public class UserPrincipal implements OAuth2User, UserDetails {
         return userPrincipal;
     }
 
-//    public static UserPrincipal create(Student student, List<String> roles) {
-//        List<SimpleGrantedAuthority> authorities = roles.stream()
-//                .map(SimpleGrantedAuthority::new)
-//                .toList();
-//        log.info("authorities student: {}", authorities);
-//
-//        UserPrincipal userPrincipal = new UserPrincipal(
-//                student.getId(),
-//                student.getEmail(),
-//                authorities
-//        );
-//
-//        return userPrincipal;
-//    }
+    public static UserPrincipal create(Customer customer, List<String> roles) {
+        List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+        log.info("authorities customer: {}", authorities);
 
-    public static UserPrincipal create(Staff staff, Map<String, Object> attributes, List<String> roles) {
+        UserPrincipal userPrincipal = new UserPrincipal(
+                customer.getId(),
+                customer.getEmail(),
+                authorities
+        );
+
+        return userPrincipal;
+    }
+
+    public static UserPrincipal create(Admin staff, Map<String, Object> attributes, List<String> roles) {
         UserPrincipal userPrincipal = UserPrincipal.create(staff, roles);
         userPrincipal.setAttributes(attributes);
         return userPrincipal;
     }
 
-//    public static UserPrincipal create(Student student, Map<String, Object> attributes, List<String> roles) {
-//        UserPrincipal userPrincipal = UserPrincipal.create(student, roles);
-//        userPrincipal.setAttributes(attributes);
-//        return userPrincipal;
-//    }
+    public static UserPrincipal create(Customer customer, Map<String, Object> attributes, List<String> roles) {
+        UserPrincipal userPrincipal = UserPrincipal.create(customer, roles);
+        userPrincipal.setAttributes(attributes);
+        return userPrincipal;
+    }
 
     @Override
     public String getPassword() {

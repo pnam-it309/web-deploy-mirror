@@ -1,16 +1,10 @@
 package udpm.hn.server.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import udpm.hn.server.entity.base.PrimaryEntity;
 
 import java.io.Serializable;
@@ -22,15 +16,13 @@ import java.io.Serializable;
 @ToString
 @Setter
 @Entity
-@Table(name = "staff_role")
-public class StaffRole extends PrimaryEntity implements Serializable {
-
+@Table(name = "customer_role")
+public class Customerole extends PrimaryEntity implements Serializable {
     @ManyToOne
-    @JoinColumn(name = "id_staff")
-    private Staff staff;
+    @JoinColumn(name = "id_ustomer")
+    private Customer customer;
 
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
-
 }

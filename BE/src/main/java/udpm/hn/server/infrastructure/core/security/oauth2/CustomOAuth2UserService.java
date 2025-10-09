@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import udpm.hn.server.entity.Staff;
+import udpm.hn.server.entity.Admin;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
@@ -109,7 +109,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processAdmin(OAuth2UserInfo oAuth2UserInfo, String role) {
         log.info("Processing admin user: {}", oAuth2UserInfo.getEmail());
 
-        Optional<Staff> staffOptional = staffAuthRepository.findByEmailAndStatus(
+        Optional<Admin> staffOptional = staffAuthRepository.findByEmailAndStatus(
                 oAuth2UserInfo.getEmail(),
                 EntityStatus.ACTIVE
         );
@@ -118,11 +118,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             List<String> roleUser = roleAuthRepository.findRoleByStaffId(staffOptional.get().getId());
 
             if (roleUser.contains(role)) {
-                Staff staff = staffOptional.get();
+                Admin admin = staffOptional.get();
                 // Update staff information
-                staff.setPicture(oAuth2UserInfo.getImageUrl());
-                staffAuthRepository.save(staff);
-                return UserPrincipal.create(staff, oAuth2UserInfo.getAttributes(), roleUser);
+                admin.setPicture(oAuth2UserInfo.getImageUrl());
+                staffAuthRepository.save(admin);
+                return UserPrincipal.create(admin, oAuth2UserInfo.getAttributes(), roleUser);
             } else {
                 log.warn("User {} does not have required role: {}", oAuth2UserInfo.getEmail(), role);
                 CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
@@ -138,7 +138,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processCustomer(OAuth2UserInfo oAuth2UserInfo, String role) {
         log.info("Processing customer user: {}", oAuth2UserInfo.getEmail());
 
-        Optional<Staff> staffOptional = staffAuthRepository.findByEmailAndStatus(
+        Optional<Admin> staffOptional = staffAuthRepository.findByEmailAndStatus(
                 oAuth2UserInfo.getEmail(),
                 EntityStatus.ACTIVE
         );
@@ -147,11 +147,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             List<String> roleUser = roleAuthRepository.findRoleByStaffId(staffOptional.get().getId());
 
             if (roleUser.contains(role)) {
-                Staff staff = staffOptional.get();
+                Admin admin = staffOptional.get();
                 // Update staff information
-                staff.setPicture(oAuth2UserInfo.getImageUrl());
-                staffAuthRepository.save(staff);
-                return UserPrincipal.create(staff, oAuth2UserInfo.getAttributes(), roleUser);
+                admin.setPicture(oAuth2UserInfo.getImageUrl());
+                staffAuthRepository.save(admin);
+                return UserPrincipal.create(admin, oAuth2UserInfo.getAttributes(), roleUser);
             } else {
                 log.warn("User {} does not have required role: {}", oAuth2UserInfo.getEmail(), role);
                 CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);

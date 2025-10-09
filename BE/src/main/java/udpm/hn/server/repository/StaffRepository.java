@@ -3,17 +3,19 @@ package udpm.hn.server.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import udpm.hn.server.entity.Staff;
+import org.springframework.stereotype.Repository;
+import udpm.hn.server.entity.Admin;
 
 import java.util.Optional;
 
-public interface StaffRepository extends JpaRepository<Staff, String> {
+@Repository
+public interface StaffRepository extends JpaRepository<Admin, String> {
 
-    Optional<Staff> findByEmail(String email);
+    Optional<Admin> findByEmail(String email);
 
     @Query("""
-            select s.email from Staff s 
-            where s.id = :idStaff
+            select s.email from Admin s 
+            where s.id = :idAdmin
     """)
-    String getEmailById(@Param("idStaff") String idStaff);
+    String getEmailById(@Param("idAdmin") String idStaff);
 }
