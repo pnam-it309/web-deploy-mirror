@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import udpm.hn.server.entity.base.PrimaryEntity;
 import udpm.hn.server.infrastructure.core.constant.EntityProperties;
+import udpm.hn.server.infrastructure.core.constant.EntityUnit;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -31,8 +32,9 @@ public class QuoteItem extends PrimaryEntity implements Serializable {
     @Column(nullable = false)
     private Integer quantity = 1;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = EntityProperties.LENGTH_CODE)
-    private String unit;
+    private EntityUnit unitSnapshot;
 
     @Column(length = EntityProperties.LENGTH_DESCRIPTION)
     private String notes;

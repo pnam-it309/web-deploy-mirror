@@ -6,6 +6,7 @@ import lombok.Setter;
 import udpm.hn.server.entity.base.PrimaryEntity;
 import udpm.hn.server.infrastructure.core.constant.EntityProperties;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
+import udpm.hn.server.infrastructure.core.constant.EntityUnit;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -46,6 +47,10 @@ public class Product extends PrimaryEntity implements Serializable {
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private EntityStatus status = EntityStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = EntityProperties.LENGTH_CODE)
+    private EntityUnit unit;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private ProductDetail productDetail;

@@ -13,17 +13,20 @@ import udpm.hn.server.repository.ProductRepository;
 public interface ProductExtendReponsitory extends ProductRepository {
     @Query(
             value = """
-        SELECT
+  SELECT
            ROW_NUMBER() OVER (ORDER BY p.created_date DESC) AS orderNumber,
+           p.id as id,
            p.sku AS sku,
            p.name AS name,
            p.short_description AS shortDescription,
            p.price AS price,
            p.stock_quantity AS stockQuantity,
+           p.unit AS unit,
            b.name AS brandName,
-           c.name AS categoriesName,
+           c.name AS categoryName,
            pd.id AS productDetailId,
-           i.id AS imagesId,
+           p.status as status,
+           i.url as url,
            p.created_date AS createdDate
         FROM catalog_web.products p
         JOIN catalog_web.product_details pd ON pd.product_id = p.id
@@ -38,6 +41,7 @@ public interface ProductExtendReponsitory extends ProductRepository {
            )
            AND (:#{#request.brandId} IS NULL OR b.id = :#{#request.brandId})
            AND (:#{#request.categoryId} IS NULL OR c.id = :#{#request.categoryId})
+               AND (:#{#request.status} IS NULL OR p.status = :#{#request.status})
         """,
             countQuery = """
         SELECT COUNT(DISTINCT p.id)
@@ -54,6 +58,7 @@ public interface ProductExtendReponsitory extends ProductRepository {
            )
            AND (:#{#request.brandId} IS NULL OR b.id = :#{#request.brandId})
            AND (:#{#request.categoryId} IS NULL OR c.id = :#{#request.categoryId})
+            AND (:#{#request.status} IS NULL OR p.status = :#{#request.status})
         """,
             nativeQuery = true
     )
