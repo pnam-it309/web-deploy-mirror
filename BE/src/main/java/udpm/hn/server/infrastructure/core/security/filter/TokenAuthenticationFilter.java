@@ -4,22 +4,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import udpm.hn.server.infrastructure.core.config.global.GlobalVariables;
+import udpm.hn.server.infrastructure.core.constant.GlobalVariablesConstant;
 import udpm.hn.server.infrastructure.core.security.service.CustomUserDetailsService;
 import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -28,6 +31,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private GlobalVariables globalVariables;
 
     @Override
     protected void doFilterInternal(
@@ -36,48 +40,39 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            log.debug("Processing authentication for: {}", request.getRequestURI());
-            
+
+            log.info("request nhân vào trong dofiletr :{} ", request.toString());
+
             String jwt = getJwtFromRequest(request);
-            
-            if (jwt != null && !jwt.isEmpty()) {
-                log.debug("JWT token found: {}...", jwt.substring(0, Math.min(10, jwt.length())));
-                
-                if (tokenProvider.validateToken(jwt)) {
-                    String userEmail = tokenProvider.getEmailFromToken(jwt);
-                    
-                    if (userEmail != null && !userEmail.isEmpty()) {
-                        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
-                        
-                        if (userDetails != null) {
-                            log.debug("Authenticated user: {}", userEmail);
-                            
-                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                            
-                            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                            SecurityContextHolder.getContext().setAuthentication(authentication);
-                        } else {
-                            log.warn("User not found with email: {}", userEmail);
-                        }
-                    } else {
-                        log.warn("No email found in JWT token");
-                    }
-                } else {
-                    log.warn("Invalid JWT token");
-                }
-            } else {
-                log.debug("No JWT token found in request headers");
+
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                String userId = tokenProvider.getUserIdFromToken(jwt);
+                String userEmail = tokenProvider.getEmailFromToken(jwt);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
+                List<String> roleCodes = tokenProvider.getRolesCodesFromToken(jwt);
+
+                // Convert role codes to SimpleGrantedAuthority
+                List<SimpleGrantedAuthority> authorities = roleCodes.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .collect(Collectors.toList());
+
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        authorities
+                );
+
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_USER_ID, userId);
+                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_ROLE_CODE, String.join(",", roleCodes));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
             }
         } catch (Exception ex) {
-            log.error("Failed to set user authentication in security context", ex);
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed: " + ex.getMessage());
-            return;
+            log.error("Could not set user authentication in security context", ex);
         }
-        
         filterChain.doFilter(request, response);
     }
 

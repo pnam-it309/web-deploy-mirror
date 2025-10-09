@@ -149,10 +149,12 @@ public class TokenProvider {
         return String.valueOf(claims.get("roleScreen"));
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getRolesCodesFromToken(String token) {
         Claims claims = getClaimsToken(token);
-        System.out.println("Claims từ token: " + claims);
-        return (List<String>) claims.get("rolesCode");
+        System.out.println("Claims from token: " + claims);
+        List<String> roles = claims.get("rolesCode", List.class);
+        return roles != null ? roles : Collections.emptyList();
     }
 
     public String getEmailFromToken(String token) {

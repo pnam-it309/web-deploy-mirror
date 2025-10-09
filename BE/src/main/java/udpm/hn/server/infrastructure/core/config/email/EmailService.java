@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure.processing.email;
+package udpm.hn.server.infrastructure.core.config.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
