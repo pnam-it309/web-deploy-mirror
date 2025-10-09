@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure.core.security;
+package udpm.hn.server.infrastructure.core.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -85,5 +85,10 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String generateRefreshToken(){
+
+        return "";
     }
 }

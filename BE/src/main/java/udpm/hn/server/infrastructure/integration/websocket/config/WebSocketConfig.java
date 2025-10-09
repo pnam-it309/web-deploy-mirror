@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure.integration.websocket;
+package udpm.hn.server.infrastructure.integration.websocket.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.config.annotation.*;
 import udpm.hn.server.infrastructure.integration.websocket.interceptor.WebSocketChannelInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Cấu hình WebSocket cho ứng dụng
@@ -27,6 +28,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // Interceptor để xử lý các kênh WebSocket
     private final WebSocketChannelInterceptor webSocketChannelInterceptor;
 
+    @Value("${frontend.url}")
+    public String ALLOWED_ORIGIN;
+
+    @Value("${ws.applicationPrefix}")
+    private String applicationPrefix;
+
+    @Value("${ws.topicPrefix}")
+    private String topicPrefix;
+
+    @Value("${ws.registerEndpoint}")
+    private String registerEndpoint;
+
     /**
      * Cấu hình message broker cho WebSocket
      * - Định nghĩa các tiền tố cho đích đến tin nhắn
@@ -44,7 +57,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         
         // Tiền tố cho các đích đến từ phía client
         config.setApplicationDestinationPrefixes("/app");
-        
+
+        config.enableSimpleBroker(topicPrefix);
+        config.setApplicationDestinationPrefixes(applicationPrefix);
         // Tiền tố cho các đích đến cụ thể của người dùng
         config.setUserDestinationPrefix("/user");
         
@@ -65,10 +80,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")  // Đường dẫn endpoint WebSocket
-                .setAllowedOriginPatterns("*")  // Cho phép tất cả các origin (nên hạn chế trong môi trường production)
-                .withSockJS()  // Hỗ trợ SockJS cho các trình duyệt không hỗ trợ WebSocket
-                .setSuppressCors(true);  // Tắt CORS cho WebSocket
+        registry
+                .addEndpoint(registerEndpoint)
+                .addInterceptors(new WebSocketInterceptor())
+                .setAllowedOrigins(ALLOWED_ORIGIN)
+                .withSockJS();
     }
     
     /**
