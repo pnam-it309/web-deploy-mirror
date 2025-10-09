@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
     <h1 class="text-2xl font-semibold text-gray-900">My Dashboard</h1>
-    
+
     <!-- Welcome Section -->
     <div class="mt-6 bg-indigo-700 rounded-lg shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
       <div class="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
@@ -13,20 +13,24 @@
             Check out what's new in your account or start shopping for your next favorite product.
           </p>
           <div class="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-            <router-link to="/catalog" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">
+            <router-link to="/catalog"
+              class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">
               Start Shopping
             </router-link>
-            <router-link to="/customer/orders" class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70">
+            <router-link to="/customer/orders"
+              class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70">
               View Orders
             </router-link>
           </div>
         </div>
       </div>
       <div class="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1">
-        <img class="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20" src="https://tailwindui.com/img/component-images/full-width-with-sidebar.jpg" alt="App screenshot">
+        <img
+          class="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20"
+          src="https://tailwindui.com/img/component-images/full-width-with-sidebar.jpg" alt="App screenshot">
       </div>
     </div>
-    
+
     <!-- Quick Stats -->
     <div class="mt-8">
       <h2 class="text-lg font-medium text-gray-900">Quick Stats</h2>
@@ -57,7 +61,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Recent Orders -->
     <div class="mt-8">
       <div class="flex justify-between items-center">
@@ -66,11 +70,11 @@
           View all
         </router-link>
       </div>
-      
+
       <div class="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
         <ul class="divide-y divide-gray-200">
           <li v-for="order in recentOrders" :key="order.id">
-            <router-link :to="`/customer/orders/${order.id}" class="block hover:bg-gray-50">
+            <router-link :to="`/customer/orders/${order.id}`" class="block hover:bg-gray-50">
               <div class="px-4 py-4 sm:px-6">
                 <div class="flex items-center justify-between">
                   <p class="text-sm font-medium text-indigo-600 truncate">
@@ -91,15 +95,21 @@
                       {{ order.items }} items
                     </p>
                     <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                      <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                      <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                          clip-rule="evenodd" />
                       </svg>
                       {{ formatDate(order.date) }}
                     </p>
                   </div>
                   <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                        clip-rule="evenodd" />
                     </svg>
                     {{ order.total }}
                   </div>
@@ -110,14 +120,16 @@
         </ul>
       </div>
     </div>
-    
+
     <!-- Recommended Products -->
     <div class="mt-8">
       <h2 class="text-lg font-medium text-gray-900">Recommended For You</h2>
       <div class="mt-4 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
         <div v-for="product in recommendedProducts" :key="product.id" class="group relative">
-          <div class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
-            <img :src="product.imageSrc" :alt="product.name" class="w-full h-full object-center object-cover lg:w-full lg:h-full">
+          <div
+            class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+            <img :src="product.imageSrc" :alt="product.name"
+              class="w-full h-full object-center object-cover lg:w-full lg:h-full">
           </div>
           <div class="mt-4 flex justify-between">
             <div>
