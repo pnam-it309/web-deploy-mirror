@@ -24,5 +24,6 @@ public class ProductsRequest extends PageableRequest {
          String name;
          String brandId;
          String categoryId;
+         String status;
 
 }

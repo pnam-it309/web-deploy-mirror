@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import udpm.hn.server.entity.Admin;
+import udpm.hn.server.entity.Staff;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,11 +23,6 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     @Getter
     private final String email;
 
-    private final String username;
-
-    @Getter
-    private final Admin.Role role;
-
     private String password;
 
     private final Collection<? extends GrantedAuthority> authorities;
@@ -34,51 +30,62 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     @Setter
     private Map<String, Object> attributes;
 
-    public UserPrincipal(String id, String email, String username, Admin.Role role, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(String id, String email, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
-        this.username = username;
-        this.role = role;
         this.authorities = authorities;
     }
 
-    public static UserPrincipal create(Admin admin, List<String> roles) {
-        // Convert role enum to granted authorities
+    public static UserPrincipal create(Staff staff, List<String> roles) {
         List<SimpleGrantedAuthority> authorities = roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-
-        log.info("Creating UserPrincipal for Admin: {} with roles: {}", admin.getUsername(), authorities);
+        log.info("authorities staff: {}", authorities);
 
         UserPrincipal userPrincipal = new UserPrincipal(
-                admin.getId(),
-                admin.getEmail(),
-                admin.getUsername(),
-                admin.getRole(),
+                staff.getId(),
+                staff.getEmail(),
                 authorities
         );
 
         return userPrincipal;
     }
 
-    public static UserPrincipal create(Admin admin, Map<String, Object> attributes, List<String> roles) {
-        UserPrincipal userPrincipal = UserPrincipal.create(admin, roles);
+//    public static UserPrincipal create(Student student, List<String> roles) {
+//        List<SimpleGrantedAuthority> authorities = roles.stream()
+//                .map(SimpleGrantedAuthority::new)
+//                .toList();
+//        log.info("authorities student: {}", authorities);
+//
+//        UserPrincipal userPrincipal = new UserPrincipal(
+//                student.getId(),
+//                student.getEmail(),
+//                authorities
+//        );
+//
+//        return userPrincipal;
+//    }
+
+    public static UserPrincipal create(Staff staff, Map<String, Object> attributes, List<String> roles) {
+        UserPrincipal userPrincipal = UserPrincipal.create(staff, roles);
         userPrincipal.setAttributes(attributes);
         return userPrincipal;
     }
+
+//    public static UserPrincipal create(Student student, Map<String, Object> attributes, List<String> roles) {
+//        UserPrincipal userPrincipal = UserPrincipal.create(student, roles);
+//        userPrincipal.setAttributes(attributes);
+//        return userPrincipal;
+//    }
 
     @Override
     public String getPassword() {
         return this.password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
 
     @Override

@@ -2,9 +2,11 @@ package udpm.hn.server.infrastructure.core.security.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +42,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
             log.info("Found admin: {} with roles: {}", admin.getUsername(), roles);
 
-            return adminAuthRepository.findById(admin.getId())
-                    .map(adminUser -> UserPrincipal.create(adminUser, roles))
-                    .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + admin.getId()));
+            // Create UserPrincipal with admin details
+            List<SimpleGrantedAuthority> authorities = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .collect(Collectors.toList());
+
+            return new UserPrincipal(
+                    admin.getId(),
+                    admin.getEmail(),
+                    authorities
+            );
         }
 
         log.warn("Admin not found with username: {}", username);

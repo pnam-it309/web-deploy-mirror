@@ -149,48 +149,118 @@ public class TokenProvider {
         return String.valueOf(claims.get("roleScreen"));
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getRolesCodesFromToken(String token) {
         Claims claims = getClaimsToken(token);
-        System.out.println("Claims từ token: " + claims);
-        return (List<String>) claims.get("rolesCode");
+        System.out.println("Claims from token: " + claims);
+        List<String> roles = claims.get("rolesCode", List.class);
+        return roles != null ? roles : Collections.emptyList();
     }
 
     public String getEmailFromToken(String token) {
-        Claims claims = getClaimsToken(token);
-        String email = claims.get("email", String.class);
-        if (email != null && !email.isEmpty()) {
+        try {
+            if (token == null || token.isEmpty()) {
+                log.warn("Token is null or empty");
+                return null;
+            }
+            
+            Claims claims = getClaimsToken(token);
+            if (claims == null) {
+                log.warn("No claims found in token");
+                return null;
+            }
+            
+            // Try to get email from claims
+            String email = claims.get("email", String.class);
+            if (email != null && !email.isEmpty()) {
+                return email;
+            }
+            
+            // Fallback to emailFPT or emailSV if available
+            email = claims.get("emailFPT", String.class);
+            if (email == null || email.isEmpty()) {
+                email = claims.get("emailSV", String.class);
+            }
+            
             return email;
+        } catch (Exception e) {
+            log.error("Error getting email from token: {}", e.getMessage());
+            return null;
         }
-        return claims.get("email", String.class);
     }
 
-    // giải mã
+    // Decode JWT token and return claims
     private Claims getClaimsToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            if (token == null || token.isEmpty()) {
+                log.warn("Token is null or empty");
+                return null;
+            }
+            
+            return Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            log.error("Error parsing JWT token: {}", e.getMessage());
+            return null;
+        }
     }
 
     public boolean validateToken(String authToken) {
+        if (authToken == null || authToken.isEmpty()) {
+            log.warn("Token is null or empty");
+            return false;
+        }
+
         try {
-            Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
                     .build()
-                    .parseClaimsJws(authToken);
+                    .parseClaimsJws(authToken)
+                    .getBody();
+
+            // Additional validation
+            if (claims.getExpiration() == null) {
+                log.error("Token has no expiration");
+                return false;
+            }
+
+            if (claims.getExpiration().before(new Date())) {
+                log.error("Token has expired");
+                return false;
+            }
+
+            // Check if email exists in claims
+            String email = claims.get("email", String.class);
+            if (email == null || email.isEmpty()) {
+                // Try alternative email fields
+                email = claims.get("emailFPT", String.class);
+                if (email == null || email.isEmpty()) {
+                    email = claims.get("emailSV", String.class);
+                    if (email == null || email.isEmpty()) {
+                        log.error("No email found in token claims");
+                        return false;
+                    }
+                }
+            }
+
             return true;
         } catch (SignatureException ex) {
-            log.error("Invalid JWT signature");
+            log.error("Invalid JWT signature: {}", ex.getMessage());
         } catch (MalformedJwtException ex) {
-            log.error("Invalid JWT token");
+            log.error("Invalid JWT token: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.error("JWT token is expired: {}", ex.getMessage());
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.error("JWT token is unsupported: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty.");
+            log.error("JWT claims string is empty: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Error validating token: {}", ex.getMessage());
         }
+        
         return false;
     }
 

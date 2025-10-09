@@ -22,31 +22,20 @@ import java.util.List;
 @ToString
 @Table(name = "staff")
 @DynamicUpdate
-    public class Staff extends PrimaryEntity implements Serializable {
+public class Staff extends PrimaryEntity implements Serializable {
 
-    @Column(name = "code",length = EntityProperties.LENGTH_NAME)
+    @Column(name = "code", length = EntityProperties.LENGTH_NAME)
     private String code;
 
-    @Column(name = "name",length = EntityProperties.LENGTH_NAME)
+    @Column(name = "name", length = EntityProperties.LENGTH_NAME)
     private String name;
 
-    @Column(name = "email_fe", length = EntityProperties.LENGTH_NAME)
-    @Nationalized
-    private String emailFe;
-
-    @Column(name = "email_fpt", length = EntityProperties.LENGTH_NAME)
-    @Nationalized
-    private String emailFpt;
+    @Column(name = "email", length = EntityProperties.LENGTH_NAME)
+    private String email;
 
     @Column(name = "picture", length = EntityProperties.LENGTH_PICTURE)
     private String picture;
 
-    public Staff(String code, String name, String emailFe, String picture) {
-        this.code = code;
-        this.name = name;
-        this.emailFe = emailFe;
-        this.picture = picture;
-    }
 
 //    @OneToMany(mappedBy = "staff")
 //    private List<StaffRole> staffRoles;
