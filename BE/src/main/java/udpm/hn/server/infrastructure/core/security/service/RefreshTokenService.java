@@ -5,7 +5,6 @@ import udpm.hn.server.entity.RefreshToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import udpm.hn.server.infrastructure.core.security.repository.AdminAuthRepository;
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 import udpm.hn.server.repository.RefreshTokenAuthRepository;
 import udpm.hn.server.utils.DateTimeUtil;
@@ -21,15 +20,12 @@ public class RefreshTokenService {
 
     private final RefreshTokenAuthRepository refreshTokenRepository;
 
-    private final AdminAuthRepository adminRepository;
 
     @Autowired
     public RefreshTokenService(
-            RefreshTokenAuthRepository refreshTokenRepository,
-            AdminAuthRepository adminRepository
+            RefreshTokenAuthRepository refreshTokenRepository
     ) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.adminRepository = adminRepository;
     }
 
     public Optional<RefreshToken> findByToken(String refreshToken) {
@@ -40,7 +36,6 @@ public class RefreshTokenService {
         // thông tin user đã login
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        Optional<udpm.hn.server.entity.Admin> admin = adminRepository.findByEmailAndStatus(userPrincipal.getEmail(), udpm.hn.server.infrastructure.core.constant.EntityStatus.ACTIVE);
         Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByUserId(userPrincipal.getId());
 
         if (optionalRefreshToken.isPresent()) {

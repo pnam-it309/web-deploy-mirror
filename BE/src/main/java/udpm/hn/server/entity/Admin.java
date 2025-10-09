@@ -1,50 +1,42 @@
 package udpm.hn.server.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import udpm.hn.server.entity.base.PrimaryEntity;
 import udpm.hn.server.infrastructure.core.constant.EntityProperties;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 
 import java.io.Serializable;
-import java.time.Instant;
 
+@Entity
 @Getter
 @Setter
-@Entity
-@Table(name = "admins")
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Table(name = "admin")
+@DynamicUpdate
 public class Admin extends PrimaryEntity implements Serializable {
-    @Column(length = EntityProperties.LENGTH_CODE, nullable = false, unique = true)
-    private String username;
 
-    @Column(name = "password_hash", length = EntityProperties.LENGTH_CODE * 2, nullable = false)
-    private String passwordHash;
+    @Column(name = "code", length = EntityProperties.LENGTH_NAME)
+    private String code;
 
-    @Column(name = "display_name", length = EntityProperties.LENGTH_NAME)
-    private String displayName;
+    @Column(name = "name", length = EntityProperties.LENGTH_NAME)
+    private String name;
 
-    @Column(length = EntityProperties.LENGTH_NAME)
+    @Column(name = "email", length = EntityProperties.LENGTH_NAME)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Role role = Role.ADMIN;
-    
-    @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
-    private EntityStatus status = EntityStatus.ACTIVE;
+    @Column(name = "picture", length = EntityProperties.LENGTH_PICTURE)
+    private String picture;
 
-    @Column(name = "last_login")
-    private Long lastLogin;
 
-    public enum Role {
-        ADMIN,
-        CUSTOMER
-    }
+//    @OneToMany(mappedBy = "staff")
+//    private List<StaffRole> staffRoles;
 
-    // Helper method to set last login timestamp
-    public void setLastLoginNow() {
-        this.lastLogin = Instant.now().getEpochSecond();
-    }
+
 }
