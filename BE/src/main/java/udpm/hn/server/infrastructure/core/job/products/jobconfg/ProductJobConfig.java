@@ -60,9 +60,10 @@ public class ProductJobConfig {
     }
 
     @Bean
-    public Step importProductStep(JobRepository jobRepository, ItemReader<ProductExcelRequest> reader,
-                                  ItemProcessor<ProductExcelRequest, Product> processor,
-                                  ItemWriter<Product> writer) {
+    public Step importProductStep(JobRepository jobRepository, 
+                                 ItemReader<ProductExcelRequest> reader,
+                                 @Qualifier("productExcelProcessor") ItemProcessor<ProductExcelRequest, Product> processor,
+                                 @Qualifier("productExcelWriter") ItemWriter<Product> writer) {
         return new StepBuilder("importProductStep", jobRepository)
                 .<ProductExcelRequest, Product>chunk(100, transactionManager)
                 .reader(reader)

@@ -44,7 +44,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
         UserPrincipal userPrincipal = new UserPrincipal(
                 staff.getId(),
-                staff.getEmailFpt(),
+                staff.getEmail(),
                 authorities
         );
 
