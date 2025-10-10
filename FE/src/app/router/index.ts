@@ -1,4 +1,10 @@
-import { createRouter, createWebHistory, type RouteRecordRaw, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
+} from 'vue-router'
 import { ROUTES_CONSTANTS } from '@/constants/path'
 import { h } from 'vue'
 
@@ -16,13 +22,21 @@ const ProductDetailPage = () => import('@/pages/product-detail/ProductDetailPage
 
 // Admin pages
 const AdminDashboard = () => import('@/pages/admin/DashboardPage.vue')
+const AdminDashBoard2 = () => import('@/pages/admin/dashboard/DashboardPage.vue')
 const AdminUsers = () => import('@/pages/admin/UsersPage.vue')
 const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
 const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
+const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetailModal.vue')
 const AdminOrders = () => import('@/pages/admin/OrdersPage.vue')
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
 const AdminManageCustormers = () => import('@/pages/admin/manage_customer/CustomerPage.vue')
-const AdminManageCustomerCreateModal = () => import('@/pages/admin/manage_customer/CustomerCreateModal.vue')
+const AdminManageCustomerCreateModal = () =>
+  import('@/pages/admin/manage_customer/CustomerCreateModal.vue')
+
+const AdminCategories = () => import('@/pages/admin/categories/CategoryPage.vue')
+const AdminCategoryCreateModal = () => import('@/pages/admin/categories/CategoryCreateModal.vue')
+const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
+const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
 
 // Customer pages
 const CustomerDashboard = () => import('@/pages/customer/DashboardPage.vue')
@@ -31,13 +45,21 @@ const CustomerProfile = () => import('@/pages/customer/ProfilePage.vue')
 const CustomerSettings = () => import('@/pages/customer/SettingsPage.vue')
 
 // Authentication guard - Completely bypassed
-const requireAuth = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+const requireAuth = (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
   next()
 }
 
 // Role-based guard - Completely bypassed
 const requireRole = (roles: string[]) => {
-  return (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+  return (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
     next()
   }
 }
@@ -46,30 +68,30 @@ const routes: RouteRecordRaw[] = [
   // Redirect root to selection page
   {
     path: '/',
-    redirect: '/selection'
+    redirect: '/selection',
   },
   // Redirect login to selection page
   {
     path: ROUTES_CONSTANTS.LOGIN.path,
-    redirect: '/selection'
+    redirect: '/selection',
   },
   {
     path: '/selection',
     name: 'selection',
     component: () => import('@/pages/SelectionPage.vue'),
-    meta: { public: true }
+    meta: { public: true },
   },
   {
     path: '/catalog',
     name: 'catalog',
     component: CatalogPage,
-    meta: { public: true }
+    meta: { public: true },
   },
   {
     path: '/product/:id',
     name: 'product-detail',
     component: ProductDetailPage,
-    meta: { public: true }
+    meta: { public: true },
   },
 
   // Auth routes (for internal auth if needed later)
@@ -83,21 +105,21 @@ const routes: RouteRecordRaw[] = [
         path: 'internal-login',
         name: 'internal-login',
         component: LoginPage,
-        meta: { public: true }
+        meta: { public: true },
       },
       {
         path: 'register',
         name: 'register',
         component: RegisterPage,
-        meta: { public: true }
+        meta: { public: true },
       },
       {
         path: 'forgot-password',
         name: 'forgot-password',
         component: ForgotPasswordPage,
-        meta: { public: true }
-      }
-    ]
+        meta: { public: true },
+      },
+    ],
   },
 
   // Admin routes with layout
@@ -112,8 +134,18 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Dashboard',
           requiresAuth: true,
-          apiEndpoint: '/api/admin/dashboard'
-        }
+          apiEndpoint: '/api/admin/dashboard',
+        },
+      },
+      {
+        path: 'dashboard',
+        name: 'admin-dashboard2',
+        component: AdminDashBoard2,
+        meta: {
+          title: 'Dashboard',
+          apiEndpoint: '/api/admin/dashboard2',
+        },
+     
       },
       {
         path: 'products',
@@ -121,11 +153,27 @@ const routes: RouteRecordRaw[] = [
         component: AdminProducts,
         meta: {
           title: 'Quản lý sản phẩm',
-          apiEndpoint: '/api/admin/products'
+          apiEndpoint: '/api/admin/products',
         },
         children: [
-          { path: 'new', name: 'admin-products-new', component: AdminProductCreateModal},
-        ]
+          { path: 'new', 
+            name: 'admin-products-new', 
+            component: AdminProductCreateModal 
+          },
+          { path: ':id', name: 'admin-products-detail', component: AdminProductDetailModal }
+          ],
+
+      },
+
+      {
+        path: 'categories',
+        name: 'admin-categories',
+        component: AdminCategories,
+        meta: {
+          title: 'Quản lý danh mục sản phẩm',
+          apiEndpoint: '/api/admin/categories',
+        },
+        children: [{ path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal }],
       },
       {
         path: 'orders',
@@ -133,29 +181,39 @@ const routes: RouteRecordRaw[] = [
         component: AdminOrders,
         meta: {
           title: 'Quản lý đơn hàng',
-          apiEndpoint: '/api/admin/orders'
-        }
+          apiEndpoint: '/api/admin/orders',
+        },
       },
       {
-  path: '/admin/customers',
-  name: 'admin-customers',
-  component: AdminManageCustormers,
-  children: [
-    {
-      path: 'new',
-      name: 'admin-customers-new',
-      component: AdminManageCustomerCreateModal 
-    }
-  ]
-},
+        path: 'brand',
+        name: 'admin-brand',
+        component: AdminBrand,
+        meta: {
+          title: 'Quản lý brand',
+          apiEndpoint: '/api/admin/brand',
+        },
+        children: [{ path: 'new', name: 'admin-brand-new', component: AdminBrandCreateModal }],
+      },
+      {
+        path: '/admin/customers',
+        name: 'admin-customers',
+        component: AdminManageCustormers,
+        children: [
+          {
+            path: 'new',
+            name: 'admin-customers-new',
+            component: AdminManageCustomerCreateModal,
+          },
+        ],
+      },
       {
         path: 'settings',
         name: 'admin-settings',
         component: AdminSettings,
         meta: {
           title: 'Cài đặt',
-          apiEndpoint: '/api/admin/settings'
-        }
+          apiEndpoint: '/api/admin/settings',
+        },
       },
       {
         path: 'users',
@@ -163,15 +221,15 @@ const routes: RouteRecordRaw[] = [
         component: AdminUsers,
         meta: {
           title: 'Quản lý người dùng',
-          apiEndpoint: '/api/admin/users'
-        }
+          apiEndpoint: '/api/admin/users',
+        },
       },
       // Redirect any unmatched admin routes to dashboard
       {
         path: ':pathMatch(.*)*',
-        redirect: { name: 'admin-dashboard' }
-      }
-    ]
+        redirect: { name: 'admin-dashboard' },
+      },
+    ],
   },
 
   // Customer routes with layout
@@ -184,19 +242,19 @@ const routes: RouteRecordRaw[] = [
         path: 'dashboard',
         name: 'customer-dashboard',
         component: CustomerDashboard,
-        meta: { title: 'My Dashboard' }
+        meta: { title: 'My Dashboard' },
       },
       {
         path: 'orders',
         name: 'customer-orders',
         component: CustomerOrders,
-        meta: { title: 'My Orders' }
+        meta: { title: 'My Orders' },
       },
       {
         path: 'profile',
         name: 'customer-profile',
         component: CustomerProfile,
-        meta: { title: 'My Profile' }
+        meta: { title: 'My Profile' },
       },
       // {
       //   path: 'settings',
@@ -206,16 +264,16 @@ const routes: RouteRecordRaw[] = [
       // Redirect any unmatched customer routes to dashboard
       {
         path: ':pathMatch(.*)*',
-        redirect: { name: 'customer-dashboard' }
-      }
-    ]
+        redirect: { name: 'customer-dashboard' },
+      },
+    ],
   },
 
   // 404 Not Found - Redirect to selection page
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/selection'
-  }
+    redirect: '/selection',
+  },
 ]
 
 const router = createRouter({
@@ -223,7 +281,7 @@ const router = createRouter({
   routes,
   scrollBehavior() {
     return { top: 0, behavior: 'smooth' }
-  }
+  },
 })
 
 // Navigation guard - Allow all routes
