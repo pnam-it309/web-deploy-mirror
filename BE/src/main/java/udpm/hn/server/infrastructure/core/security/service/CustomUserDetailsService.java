@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import udpm.hn.server.entity.Admin;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
-import udpm.hn.server.infrastructure.core.security.repository.AdminAuthRepository;
 import udpm.hn.server.infrastructure.core.security.repository.RoleAuthRepository;
+import udpm.hn.server.infrastructure.core.security.repository.StaffAuthRepository;
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 
 import java.util.List;
@@ -22,30 +22,29 @@ import java.util.Optional;
 @Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final AdminAuthRepository adminAuthRepository;
+    private final StaffAuthRepository staffAuthRepository;
     private final RoleAuthRepository roleAuthRepository;
+
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
-        log.info("Loading user details for username: {}", username);
+        System.out.println("EMAIL: " + email);
 
-        // Find admin by username (can be email or username)
-        Optional<Admin> existingAdmin = adminAuthRepository.findByUsernameOrEmailAndStatus(username, username, EntityStatus.ACTIVE);
+        log.info("Đã chạy vào tronguser detail servie:{}",email);
 
-        if (existingAdmin.isPresent()) {
-            Admin admin = existingAdmin.get();
-            List<String> roles = roleAuthRepository.findRoleByAdminId(admin.getId());
+        Optional<Admin> exitStaff = staffAuthRepository.findByEmailAndStatus(email, EntityStatus.ACTIVE);
 
-            log.info("Found admin: {} with roles: {}", admin.getUsername(), roles);
-
-            return adminAuthRepository.findById(admin.getId())
-                    .map(adminUser -> UserPrincipal.create(adminUser, roles))
-                    .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + admin.getId()));
+        if(exitStaff.isPresent()) {
+            Admin adminPre = exitStaff.get();
+            List<String> roles = roleAuthRepository.findRoleByStaffId(adminPre.getId());
+            return staffAuthRepository.findById(adminPre.getId())
+                    .map(staff -> UserPrincipal.create(staff,roles))
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found with id : " + adminPre.getId()));
         }
 
-        log.warn("Admin not found with username: {}", username);
-        throw new UsernameNotFoundException("User not found with username: " + username);
+        throw new UsernameNotFoundException("User not found with email: " + email);
     }
+
 }

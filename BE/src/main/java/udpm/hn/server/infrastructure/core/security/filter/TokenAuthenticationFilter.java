@@ -4,30 +4,38 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import udpm.hn.server.entity.Role;
+import udpm.hn.server.infrastructure.core.config.global.GlobalVariables;
+import udpm.hn.server.infrastructure.core.constant.GlobalVariablesConstant;
 import udpm.hn.server.infrastructure.core.security.service.CustomUserDetailsService;
 import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
+@Component
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final GlobalVariables globalVariables;
 
     @Override
     protected void doFilterInternal(
@@ -37,15 +45,19 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
 
-           log.info("request nhân vào trong dofiletr :{} ", request.toString());
+            log.info("request nhân vào trong dofiletr :{} ", request.toString());
 
             String jwt = getJwtFromRequest(request);
 
             log.info("doFilterInternal==>jwt = {}", jwt);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+                String userId = tokenProvider.getUserIdFromToken(jwt);
                 String userEmail = tokenProvider.getEmailFromToken(jwt);
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
+                String facilityId = tokenProvider.getIdFacilityFromToken(jwt);
+//                String roleCode = tokenProvider.getRolesFromToken(jwt);
+                List<Role> roleCode = tokenProvider.getRolesCodesFromToken(jwt);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -54,6 +66,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 );
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_USER_ID, userId);
+                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_ROLE_CODE, roleCode);
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -71,5 +86,4 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }

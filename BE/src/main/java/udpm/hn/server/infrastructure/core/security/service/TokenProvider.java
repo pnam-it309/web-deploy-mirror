@@ -6,7 +6,6 @@ import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -14,16 +13,15 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.entity.Admin;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
 import udpm.hn.server.infrastructure.core.exception.RedirectException;
-import udpm.hn.server.infrastructure.core.security.repository.AdminAuthRepository;
+import udpm.hn.server.infrastructure.core.security.repository.StaffAuthRepository;
+import udpm.hn.server.infrastructure.core.security.repository.StaffRoleAuthRepository;
 import udpm.hn.server.infrastructure.core.security.response.TokenInfoResponse;
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 import udpm.hn.server.utils.CookieUtils;
@@ -33,20 +31,27 @@ import java.util.*;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TokenProvider {
 
-    @Value("${jwt.secret:U3VwZXJTZWNyZXRLZXlGb3JKd3RTaWduYXR1cmUxMjM0NTY3ODk=}")
-    private String tokenSecret;
-
+    private final String tokenSecret;
     private final long TOKEN_EXP = System.currentTimeMillis() + 2 * 60 * 60 * 100000;
-
-    private final AdminAuthRepository adminAuthRepository;
+    private final StaffAuthRepository staffAuthRepository;
     private final HttpServletRequest httpServletRequest;
+    private final StaffRoleAuthRepository staffRoleAuthRepository;
+
+    public TokenProvider(String tokenSecret, 
+                        StaffAuthRepository staffAuthRepository, 
+                        HttpServletRequest httpServletRequest, 
+                        StaffRoleAuthRepository staffRoleAuthRepository) {
+        this.tokenSecret = tokenSecret;
+        this.staffAuthRepository = staffAuthRepository;
+        this.httpServletRequest = httpServletRequest;
+        this.staffRoleAuthRepository = staffRoleAuthRepository;
+    }
 
     public String createToken(Authentication authentication) throws BadRequestException, JsonProcessingException {
 
-        log.info("Creating token for authentication: {}", authentication.toString());
+        log.info("Đã chạy vào tạo token :{}", authentication.toString());
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
@@ -58,13 +63,10 @@ public class TokenProvider {
         if (screenForRole.isEmpty()) {
             throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
         } else {
-            Admin adminUser = getCurrentAdminLogin(userPrincipal.getEmail());
+            Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
 
             if (adminUser != null) {
-                tokenInfoResponse = getTokenSubjectResponse(adminUser);
                 tokenInfoResponse.setRoleScreen(screenForRole.get());
-            } else {
-                throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
             }
         }
 
@@ -95,22 +97,7 @@ public class TokenProvider {
                 .compact();
     }
 
-    private TokenInfoResponse getTokenSubjectResponse(Admin admin) throws JsonProcessingException {
-        TokenInfoResponse response = new TokenInfoResponse();
-        response.setUserId(admin.getId());
-        response.setFullName(admin.getDisplayName());
-        response.setUserCode(admin.getUsername());
-        response.setPictureUrl(""); // Admin doesn't have picture field yet
-        response.setEmailFe(admin.getEmail() != null ? admin.getEmail() : "");
-        response.setEmailFPT(admin.getEmail() != null ? admin.getEmail() : "");
-        response.setRolesCode(List.of(admin.getRole().name()));
-        response.setRolesName(List.of(admin.getRole().name()));
-        response.setHost(httpServletRequest.getRemoteHost());
-        response.setRoleSwitch("true");
-        response.setIdFacility(null); // No facility concept
 
-        return response;
-    }
 
     private static Map<String, Object> getBodyClaims(TokenInfoResponse tokenInfoResponse) {
 
@@ -127,7 +114,6 @@ public class TokenProvider {
         claims.put("host", tokenInfoResponse.getHost());
         claims.put("roleScreen", tokenInfoResponse.getRoleScreen());
         claims.put("roleSwitch", tokenInfoResponse.getRoleSwitch());
-        claims.put("idFacility", tokenInfoResponse.getIdFacility());
         claims.put("email", tokenInfoResponse.getEmailFPT() != null ? tokenInfoResponse.getEmailFPT() : tokenInfoResponse.getEmailSV());
 
         return claims;
@@ -149,10 +135,10 @@ public class TokenProvider {
         return String.valueOf(claims.get("roleScreen"));
     }
 
-    public List<String> getRolesCodesFromToken(String token) {
+    public List<udpm.hn.server.entity.Role> getRolesCodesFromToken(String token) {
         Claims claims = getClaimsToken(token);
         System.out.println("Claims từ token: " + claims);
-        return (List<String>) claims.get("rolesCode");
+        return (List<udpm.hn.server.entity.Role>) claims.get("rolesCode");
     }
 
     public String getEmailFromToken(String token) {
@@ -194,8 +180,12 @@ public class TokenProvider {
         return false;
     }
 
-    private Admin getCurrentAdminLogin(String email) {
-        Optional<Admin> admin = adminAuthRepository.findByEmailAndStatus(email, EntityStatus.ACTIVE);
-        return admin.orElse(null);
+    private Admin getCurrentStaffLogin(String email) {
+        Optional<Admin> staffFPT = staffAuthRepository.findByEmail(email);
+        return staffFPT.orElse(null);
     }
+
+
+    // Constructor injection is handled by @RequiredArgsConstructor
+
 }

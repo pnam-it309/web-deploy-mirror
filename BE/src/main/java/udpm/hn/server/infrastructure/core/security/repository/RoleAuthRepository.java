@@ -30,9 +30,9 @@ public interface RoleAuthRepository extends RoleRepository {
                       FROM
                           Role r
                       LEFT JOIN
-                       StaffRole sr ON r.id = sr.role.id
+                       AdminRole sr ON r.id = sr.role.id
                       WHERE
-                          sr.staff.id = :id
+                          sr.admin.id = :id
                     """
     )
     List<String> findRoleByStaffId(@Param("id") String id);
