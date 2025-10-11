@@ -26,8 +26,8 @@ const AdminDashBoard2 = () => import('@/pages/admin/dashboard/DashboardPage.vue'
 const AdminUsers = () => import('@/pages/admin/UsersPage.vue')
 const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
 const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
-const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetailModal.vue')
-const AdminOrders = () => import('@/pages/admin/OrdersPage.vue')
+const AdminOrders = () => import('@/pages/admin/orders/OrderPage.vue')
+const AdminOrderCreateModal = () => import('@/pages/admin/orders/OrderCreateModal.vue')
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
 const AdminManageCustormers = () => import('@/pages/admin/manage_customer/CustomerPage.vue')
 const AdminManageCustomerCreateModal = () =>
@@ -181,30 +181,11 @@ const routes: RouteRecordRaw[] = [
         component: AdminOrders,
         meta: {
           title: 'Quản lý đơn hàng',
-          apiEndpoint: '/api/admin/orders',
+          apiEndpoint: '/api/admin/orders'
         },
-      },
-      {
-        path: 'brand',
-        name: 'admin-brand',
-        component: AdminBrand,
-        meta: {
-          title: 'Quản lý brand',
-          apiEndpoint: '/api/admin/brand',
-        },
-        children: [{ path: 'new', name: 'admin-brand-new', component: AdminBrandCreateModal }],
-      },
-      {
-        path: '/admin/customers',
-        name: 'admin-customers',
-        component: AdminManageCustormers,
         children: [
-          {
-            path: 'new',
-            name: 'admin-customers-new',
-            component: AdminManageCustomerCreateModal,
-          },
-        ],
+          { path: 'new', name: 'admin-orders-new', component: AdminOrderCreateModal},
+        ]
       },
       {
         path: 'settings',
