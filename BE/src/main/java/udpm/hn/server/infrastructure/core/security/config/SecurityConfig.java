@@ -2,14 +2,14 @@ package udpm.hn.server.infrastructure.core.security.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,43 +18,44 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import udpm.hn.server.infrastructure.core.config.global.GlobalVariables;
+import udpm.hn.server.infrastructure.core.exception.RestAuthenticationEntryPoint;
+import udpm.hn.server.infrastructure.core.security.oauth2.CustomOAuth2UserService;
+import udpm.hn.server.infrastructure.core.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
+import udpm.hn.server.infrastructure.core.security.oauth2.OAuth2AuthenticationFailureHandler;
+import udpm.hn.server.infrastructure.core.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import udpm.hn.server.infrastructure.core.security.service.CustomUserDetailsService;
 import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
-import udpm.hn.server.infrastructure.core.constant.Role;
 import udpm.hn.server.infrastructure.core.security.filter.TokenAuthenticationFilter;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import udpm.hn.server.utils.Helper;
 
 import static udpm.hn.server.utils.Helper.appendWildcard;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(
+@EnableGlobalMethodSecurity(
         securedEnabled = true,
-        jsr250Enabled = true,
-        prePostEnabled = true
+        jsr250Enabled = true
 )
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
 
-    @Value("${frontend.url:http://localhost:6789}")
-    private String allowedOrigin;
-
-    private final CorsConfigurationSource corsConfigurationSource;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private final TokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final GlobalVariables globalVariables;
+    private TokenAuthenticationFilter tokenAuthenticationFilter;
+
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService);
+        return new TokenAuthenticationFilter(tokenProvider,customUserDetailsService,globalVariables);
     }
 
     @Bean
@@ -64,8 +65,8 @@ public class SecurityConfig {
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     public AuthenticationManager authenticationManager(
-            PasswordEncoder passwordEncoder,
-            UserDetailsService userDetailsService
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
     ) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);
@@ -73,72 +74,76 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
-//     @Bean
-//     CorsConfigurationSource corsConfigurationSource() {
-//         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//         CorsConfiguration config = new CorsConfiguration();
-//         source.registerCorsConfiguration("/**", config.applyPermitDefaultValues());
-//         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "*"));
-//         config.setAllowedOrigins(Collections.singletonList(allowedOrigin));
-//         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT", "OPTIONS", "PATCH", "DELETE"));
-//         config.setAllowCredentials(true);
-//         config.setExposedHeaders(List.of("Authorization"));
-//         return source;
-//     }
-
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.info("Initializing security filter chain");
 
-        log.info("Security configuration initialized");
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(AbstractHttpConfigurer::disable)
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(c -> c.configurationSource(corsConfigurationSource));
-        http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.formLogin(AbstractHttpConfigurer::disable);
-        http.httpBasic(AbstractHttpConfigurer::disable);
-
-        // Public endpoints - no authentication required
-        http.authorizeHttpRequests(auth -> auth.requestMatchers(
-                        "/",
-                        "/error",
-                        "/favicon.ico",
-                        "/*/*.png",
-                        "/*/*.gif",
-                        "/*/*.svg",
-                        "/*/*.jpg",
-                        "/*/*.html",
-                        "/*/*.css",
-                        "/*/*.js",
-                        "/ws/**"
-                )
-                .permitAll());
-
-        // Authentication endpoints
-        http.authorizeHttpRequests(
-                auth -> auth.requestMatchers(
-                        "/auth/**",
-                        appendWildcard(MappingConstants.API_AUTH_PREFIX)
-                )
-                        .permitAll()
+        // Public endpoints
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/",
+                "/error",
+                "/favicon.ico",
+                "/*/*.png",
+                "/*/*.gif",
+                "/*/*.svg",
+                "/*/*.jpg",
+                "/*/*.html",
+                "/*/*.css",
+                "/*/*.js",
+                "/auth/**",
+                "/oauth2/**",
+                appendWildcard(MappingConstants.API_AUTH_PREFIX)
+            ).permitAll()
         );
 
         // Public API endpoints
-        http.authorizeHttpRequests(
-                auth -> auth
-                        .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY)).permitAll()
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_CATEGORIES)).permitAll()
+            .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_PRODUCTS)).permitAll()
+            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_REGISTER)).permitAll()
         );
 
-        // Protected API endpoints
-        http.authorizeHttpRequests(
-                auth -> auth
-                        .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX)).hasAnyAuthority(Role.ADMIN.name())
-                        .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX)).hasAnyAuthority(Role.CUSTOMER.name(), Role.ADMIN.name())
+        // Customer API endpoints
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_VIEW_PRODUCT)).hasAuthority("CUSTOMER")
         );
 
-        // All other requests require authentication
-        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+        // Admin API endpoints
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX + "/*")).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_IMPORT)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PRODUCT)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_ORDER)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_WAREHOUSE)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CUSTOMER)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY)).hasAuthority("ADMIN")
+            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_BRAND)).hasAuthority("ADMIN")
+        );
 
+        // OAuth2 configuration
+        http.oauth2Login(oauth2 -> oauth2
+            .authorizationEndpoint(a -> a.baseUri("/oauth2/authorize"))
+            .redirectionEndpoint(r -> r.baseUri("/oauth2/callback/**"))
+            .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+            .authorizationEndpoint(a -> a.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+            .successHandler(oAuth2AuthenticationSuccessHandler)
+            .failureHandler(oAuth2AuthenticationFailureHandler)
+        );
+
+        // Add token authentication filter
         http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
+
+
 }

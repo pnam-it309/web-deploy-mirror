@@ -29,9 +29,9 @@ export const PREFIX_API_ADMIN = `${API_URL}/admin` as string
 // Product Management
 export const API_ADMIN_PRODUCT = `${PREFIX_API_ADMIN}/products` as string
 export const API_ADMIN_PRODUCT_UPLOAD = `${API_ADMIN_PRODUCT}/import_data` as string
-export const API_ADMIN_PRODUCT_STATS = `${API_ADMIN_PRODUCT}/stats` as string
+export const API_ADMIN_PRODUCT_STATS = `${API_ADMIN_PRODUCT}/status` as string
 export const API_ADMIN_CATEGORY = `${PREFIX_API_ADMIN}/categories` as string
-
+export const API_ADMIN_BRAND = `${PREFIX_API_ADMIN}/brand` as string
 // Order Management
 export const API_ADMIN_ORDER = `${PREFIX_API_ADMIN}/orders` as string
 export const API_ADMIN_ORDER_STATS = `${API_ADMIN_ORDER}/stats` as string

@@ -2,16 +2,17 @@ package udpm.hn.server.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.springframework.data.jpa.repository.Query;
-import udpm.hn.server.entity.StaffRole;
+import org.springframework.stereotype.Repository;
+import udpm.hn.server.entity.AdminRole;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface StaffRoleRepository extends JpaRepository<StaffRole, String> {
+@Repository
+public interface StaffRoleRepository extends JpaRepository<AdminRole, String> {
 
-    List<StaffRole> findByStaffIdAndRoleId(String idStaff, String  idRole);
+    List<AdminRole> findByAdminIdAndRoleId(String idAdmin, String  idRole);
 
-    Optional<StaffRole> findByRoleIdAndStaffId(String idRole , String idStaff);
+    Optional<AdminRole> findByRoleIdAndAdminId(String idRole , String adminId);
 
 }

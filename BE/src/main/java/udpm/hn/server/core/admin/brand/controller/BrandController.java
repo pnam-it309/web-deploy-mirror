@@ -12,11 +12,12 @@ import udpm.hn.server.core.admin.brand.dto.request.BrandCreateRequest;
 import udpm.hn.server.core.admin.brand.dto.request.BrandUpdateRequest;
 import udpm.hn.server.core.admin.brand.dto.response.BrandResponse;
 import udpm.hn.server.core.admin.brand.service.BrandService;
+import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/admin/brands")
+@RequestMapping(MappingConstants.API_ADMIN_BRAND)
 @RequiredArgsConstructor
 public class BrandController {
 
@@ -42,7 +43,7 @@ public class BrandController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/get-all-brands")
     public ResponseEntity<Page<BrandResponse>> getAllBrands(
             @PageableDefault(size = 20) Pageable pageable) {
         Page<BrandResponse> response = brandService.getAllBrands(pageable);
