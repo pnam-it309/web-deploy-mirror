@@ -14,29 +14,29 @@
     <div class="overflow-x-auto bg-white shadow rounded-lg">
       <table class="w-full text-left border-collapse">
         <thead class="bg-gray-100">
-          <tr>
-            <th class="p-3 border-b">#</th>
-            <th class="p-3 border-b">Tên thương hiệu</th>
-            <th class="p-3 border-b">Mã code</th>
-            <th class="p-3 border-b">Slug</th>
-            <th class="p-3 border-b">Mô tả</th>
-            <th class="p-3 border-b">Trạng thái</th>
-            <th class="p-3 border-b">Logo</th>
-            <th class="p-3 border-b text-center">Hành động</th>
-          </tr>
+        <tr>
+          <th class="p-3 border-b">#</th>
+          <th class="p-3 border-b">Tên thương hiệu</th>
+          <th class="p-3 border-b">Mã code</th>
+          <th class="p-3 border-b">Slug</th>
+          <th class="p-3 border-b">Mô tả</th>
+          <th class="p-3 border-b">Trạng thái</th>
+          <th class="p-3 border-b">Logo</th>
+          <th class="p-3 border-b text-center">Hành động</th>
+        </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(brand, index) in brands"
-            :key="brand.id"
-            class="hover:bg-gray-50"
-          >
-            <td class="p-3 border-b">{{ index + 1 }}</td>
-            <td class="p-3 border-b font-medium">{{ brand.name }}</td>
-            <td class="p-3 border-b">{{ brand.code }}</td>
-            <td class="p-3 border-b">{{ brand.slug }}</td>
-            <td class="p-3 border-b truncate max-w-xs">{{ brand.description }}</td>
-            <td class="p-3 border-b">
+        <tr
+          v-for="(brand, index) in brands"
+          :key="brand.id"
+          class="hover:bg-gray-50"
+        >
+          <td class="p-3 border-b">{{ index + 1 }}</td>
+          <td class="p-3 border-b font-medium">{{ brand.name }}</td>
+          <td class="p-3 border-b">{{ brand.code }}</td>
+          <td class="p-3 border-b">{{ brand.slug }}</td>
+          <td class="p-3 border-b truncate max-w-xs">{{ brand.description }}</td>
+          <td class="p-3 border-b">
               <span
                 :class="[
                   'px-2 py-1 rounded text-sm font-semibold',
@@ -47,36 +47,36 @@
               >
                 {{ brand.status }}
               </span>
-            </td>
-            <td class="p-3 border-b">
-              <img
-                v-if="brand.logoUrl"
-                :src="brand.logoUrl"
-                alt="Logo"
-                class="w-10 h-10 object-contain"
-              />
-            </td>
-            <td class="p-3 border-b text-center space-x-2">
-              <button
-                @click="viewDetail(brand)"
-                class="text-blue-600 hover:underline"
-              >
-                Xem
-              </button>
-              <button
-                @click="editBrand(brand)"
-                class="text-yellow-600 hover:underline"
-              >
-                Sửa
-              </button>
-              <button
-                @click="deleteBrand(brand)"
-                class="text-red-600 hover:underline"
-              >
-                Xoá
-              </button>
-            </td>
-          </tr>
+          </td>
+          <td class="p-3 border-b">
+            <img
+              v-if="brand.logoUrl"
+              :src="brand.logoUrl"
+              alt="Logo"
+              class="w-10 h-10 object-contain"
+            />
+          </td>
+          <td class="p-3 border-b text-center space-x-2">
+            <button
+              @click="viewDetail(brand)"
+              class="text-blue-600 hover:underline"
+            >
+              Xem
+            </button>
+            <button
+              @click="editBrand(brand)"
+              class="text-yellow-600 hover:underline"
+            >
+              Sửa
+            </button>
+            <button
+              @click="deleteBrand(brand)"
+              class="text-red-600 hover:underline"
+            >
+              Xoá
+            </button>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>

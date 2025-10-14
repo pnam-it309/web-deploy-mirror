@@ -13,7 +13,8 @@ import {
   signInWithPopup, 
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  type UserCredential
+  type UserCredential,
+  type User as FirebaseUser
 } from 'firebase/auth'
 import { auth } from '@/firebase'
 
@@ -104,24 +105,24 @@ export const useAuthStore = defineStore('auth', () => {
       accessToken.value = token
       
       localStorageAction.set(USER_INFO_STORAGE_KEY, userData)
-      localStorageAction.set(ACCESS_TOKEN_STORAGE_KEY, token)
       
       return result
-    } catch (error) {
+      } catch (error) {
       console.error('Google login error:', error)
       throw error
     }
   }
   
-  const handleOAuthCallback = async (params: { code: string; state?: string }) => {
-    // This would be implemented based on your OAuth provider
-    // For now, we'll just return the current user
+  // Handle OAuth callback (if using OAuth)
+  const handleOAuthCallback = async (params: { code: string; state?: string }): Promise<{ user: UserInformation | null }> => {
+    // Implementation of OAuth callback handling
+    // This is a placeholder - implement according to your OAuth provider
+    console.log('OAuth callback received:', params.code, params.state)
     return { user: user.value }
   }
   
   const logout = async () => {
     try {
-      await firebaseSignOut(auth)
     } catch (error) {
       console.error('Logout error:', error)
       throw error
@@ -154,6 +155,31 @@ export const useAuthStore = defineStore('auth', () => {
     clearUserRole()
   }
 
+  // Initialize auth state
+  const initializeAuth = async () => {
+    try {
+      // Check if user is already logged in
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        // User is signed in, update the store with proper UserInformation type
+        user.value = {
+          userId: currentUser.uid,
+          userCode: currentUser.uid, // Using UID as userCode for now
+          fullName: currentUser.displayName || undefined,
+          rolesNames: [],
+          rolesCodes: [],
+          email: currentUser.email || undefined,
+          pictureUrl: currentUser.photoURL || undefined,
+          roleSwitch: undefined,
+          roleScreen: undefined,
+          idFacility: null
+        };
+      }
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+    }
+  };
+
   return { 
     // State
     user,
@@ -170,6 +196,7 @@ export const useAuthStore = defineStore('auth', () => {
     handleOAuthCallback,
     logout: enhancedLogout,
     setUserRole,
-    clearUserRole
+    clearUserRole,
+    initializeAuth
   }
 })

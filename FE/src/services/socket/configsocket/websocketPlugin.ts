@@ -1,5 +1,5 @@
 import { App } from "vue";
-import { websocketService } from "@/services/socket/configsocket/websocket.ts";
+import { websocketService } from "./websocket";
 
 export default {
   install(app: App) {

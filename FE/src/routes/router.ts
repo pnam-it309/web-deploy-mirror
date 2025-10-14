@@ -1,268 +1,283 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { ROUTES_CONSTANTS } from '@/constants/path'
-import { ROLES } from '@/constants/roles'
-import { useAuthStore } from '@/stores/auth'
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
+} from 'vue-router'
+// Using direct paths instead of constants to avoid potential circular dependencies
+import { h } from 'vue'
 
-// Import the ProductsPage component
-const ProductsPage = () => import('@/pages/admin/product/ProductsPage.vue')
-// Import the CustomerList component
-const CustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
-
-// Error pages
-const ForbiddenPage = () => import('@/pages/403/Forbidden.vue')
-const UnauthorizedPage = () => import('@/pages/401/Unauthorized.vue')
-const NotFoundPage = () => import('@/pages/404/NotFound.vue')
-
-// Admin components
+// Layouts
+const AuthLayout = () => import('@/layouts/AuthLayout.vue')
 const AdminLayout = () => import('@/layouts/AdminLayout.vue')
-const AdminDashboard = () => import('@/pages/admin/dashboard/AdminDashboard.vue')
-const WebSocketTest = () => import('@/pages/admin/websocket-test.vue')
-
-// Customer components
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
-const HomePage = () => import('@/pages/customer/HomePage.vue')
 
-// Selection Page
-const SelectionPage = () => import('@/pages/log/SelectionPage.vue')
+// Public pages
+const ProductDetailPage = () => import('@/pages/product-detail/ProductDetailPage.vue')
 
-// Routes configuration
-const ROUTES = {
-  ...ROUTES_CONSTANTS,
-  SELECTION: {
-    path: '/',
-    name: 'selection',
-  },
-  ADMIN: {
-    ...ROUTES_CONSTANTS.ADMIN,
-    name: 'admin',
-    children: {
-      ...ROUTES_CONSTANTS.ADMIN.children,
-      DASHBOARD: {
-        ...ROUTES_CONSTANTS.ADMIN.children.DASHBOARD,
-        name: 'admin-dashboard'
-      }
-    }
-  },
-  CUSTOMER: {
-    ...ROUTES_CONSTANTS.CUSTOMER,
-    name: 'customer',
-    children: {
-      ...ROUTES_CONSTANTS.CUSTOMER.children,
-      HOME: {
-        ...ROUTES_CONSTANTS.CUSTOMER.children.HOME,
-        name: 'customer-dashboard'
-      }
-    }
+// Admin pages
+const AdminDashBoard = () => import('@/pages/admin/dashboard/DashboardPage.vue')
+const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
+const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
+const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetailModal.vue')
+const AdminOrders = () => import('@/pages/admin/orders/OrderPage.vue')
+const AdminOrderCreateModal = () => import('@/pages/admin/orders/OrderCreateModal.vue')
+const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
+// const AdminManageCustormers = () => import('@/pages/admin/manage_customer/CustomerPage.vue')
+// const AdminManageCustomerCreateModal = () =>
+  import('@/pages/admin/manage_customer/CustomerCreateModal.vue')
+
+const AdminCategories = () => import('@/pages/admin/categories/CategoryPage.vue')
+const AdminCategoryCreateModal = () => import('@/pages/admin/categories/CategoryCreateModal.vue')
+// Admin customers
+const AdminCustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
+const AdminCustomerCreate = () => import('@/pages/admin/customers/CustomerCreate.vue')
+const AdminCustomerDetail = () => import('@/pages/admin/customers/CustomerDetail.vue')
+// const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
+// const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
+
+// Customer pages
+const CustomerDashboard = () => import('@/pages/customer/DashboardPage.vue')
+const CustomerOrders = () => import('@/pages/customer/OrdersPage.vue')
+const CustomerProfile = () => import('@/pages/customer/ProfilePage.vue')
+// const CustomerSettings = () => import('@/pages/customer/SettingsPage.vue')
+
+// Authentication guard - Completely bypassed
+const requireAuth = (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
+  next()
+}
+
+// Role-based guard - Completely bypassed
+const requireRole = (roles: string[]) => {
+  return (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    next()
   }
 }
 
 const routes: RouteRecordRaw[] = [
-  // Selection Page as root
+  // Redirect root to selection page
   {
-    path: ROUTES.SELECTION.path,
-    name: ROUTES.SELECTION.name,
-    component: SelectionPage,
-    meta: {
-      requiresAuth: false,
-      title: 'Chọn chế độ đăng nhập',
-      layout: 'default'
-    }
+    path: '/',
+    redirect: '/selection',
+  },
+  // Redirect login to selection page
+  {
+    path: '/login',
+    redirect: '/selection',
+  },
+  {
+    path: '/selection',
+    name: 'selection',
+    component: () => import('@/pages/log/SelectionPage.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/product/:id',
+    name: 'product-detail',
+    component: ProductDetailPage,
+    meta: { public: true },
   },
 
-  // Admin routes
+  // Auth routes (for internal auth if needed later)
   {
-    path: ROUTES.ADMIN.path,
+    path: '/auth',
+    component: AuthLayout,
+    meta: { public: true },
+    children: [
+      // These routes are kept for future internal auth if needed
+      // {
+      //   path: 'internal-login',
+      //   name: 'internal-login',
+      //   component: LoginPage,
+      //   meta: { public: true },
+      // },
+      // {
+      //   path: 'register',
+      //   name: 'register',
+      //   component: RegisterPage,
+      //   meta: { public: true },
+      // },
+      // {
+      //   path: 'forgot-password',
+      //   name: 'forgot-password',
+      //   component: ForgotPasswordPage,
+      //   meta: { public: true },
+      // },
+    ],
+  },
+
+  // Admin routes with layout
+  {
+    path: '/admin',
     component: AdminLayout,
-    meta: {
-      requiresAuth: false, // Changed to false to bypass login
-      requiresRole: ROLES.ADMIN,
-      title: 'Admin'
-    },
     children: [
       {
         path: '',
-        redirect: { name: ROUTES.ADMIN.children.DASHBOARD.name }
-      },
-      {
-        path: ROUTES.ADMIN.children.DASHBOARD.path,
-        name: ROUTES.ADMIN.children.DASHBOARD.name,
-        component: AdminDashboard,
+        name: 'admin-dashboard',
+        component: { render: () => h(AdminDashBoard) },
         meta: {
-          title: 'Tổng quan',
+          title: 'Dashboard',
           requiresAuth: true,
-          requiresRole: ROLES.ADMIN
-        }
+          apiEndpoint: '/api/admin/dashboard',
+        },
       },
       {
-        path: ROUTES.ADMIN.children.IMPORT.path,
-        name: ROUTES.ADMIN.children.IMPORT.name,
-        component: WebSocketTest,
+        path: 'dashboard',
+        name: 'admin-dashboard2',
+        component: AdminDashBoard,
         meta: {
-          title: 'Nhập dữ liệu',
-          requiresAuth: true,
-          requiresRole: ROLES.ADMIN
-        }
+          title: 'Dashboard',
+          apiEndpoint: '/api/admin/dashboard2',
+        },
+
       },
       {
-        path: ROUTES.ADMIN.children.PRODUCTS.path,
-        name: ROUTES.ADMIN.children.PRODUCTS.name,
-        component: ProductsPage,
+        path: 'products',
+        name: 'admin-products',
+        component: AdminProducts,
         meta: {
           title: 'Quản lý sản phẩm',
-          requiresAuth: true,
-          requiresRole: ROLES.ADMIN
-        }
+          apiEndpoint: '/api/admin/products',
+        },
+        children: [
+          { path: 'new',
+            name: 'admin-products-new',
+            component: AdminProductCreateModal
+          },
+          { path: ':id', name: 'admin-products-detail', component: AdminProductDetailModal }
+        ],
+
       },
+
       {
-        path: ROUTES.ADMIN.children.PRODUCT_CREATE.path,
-        name: ROUTES.ADMIN.children.PRODUCT_CREATE.name,
-        component: () => import('@/pages/admin/product/ProductCreateModal.vue'),
+        path: 'categories',
+        name: 'admin-categories',
+        component: AdminCategories,
         meta: {
-          title: 'Thêm sản phẩm mới',
-          requiresAuth: true,
-          requiresRole: ROLES.ADMIN
-        }
+          title: 'Quản lý danh mục sản phẩm',
+          apiEndpoint: '/api/admin/categories',
+        },
+        children: [{ path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal }],
       },
-      // Customers Management
       {
-        path: ROUTES.ADMIN.children.CUSTOMERS.path,
-        name: ROUTES.ADMIN.children.CUSTOMERS.name,
-        component: CustomerList,
+        path: 'orders',
+        name: 'admin-orders',
+        component: AdminOrders,
+        meta: {
+          title: 'Quản lý đơn hàng',
+          apiEndpoint: '/api/admin/orders'
+        },
+        children: [
+          { path: 'new', name: 'admin-orders-new', component: AdminOrderCreateModal},
+        ]
+      },
+      {
+        path: 'customers',
+        name: 'admin-customers',
+        component: AdminCustomerList,
         meta: {
           title: 'Quản lý khách hàng',
-          requiresAuth: true,
-          requiresRole: ROLES.ADMIN
+          apiEndpoint: '/api/admin/customers'
         }
-      }
-    ]
-  },
-
-  // Customer routes
-  {
-    path: ROUTES.CUSTOMER.path,
-    name: ROUTES.CUSTOMER.name,
-    component: CustomerLayout,
-    meta: {
-      requiresAuth: true,
-      requiresRole: ROLES.CUSTOMER,
-      title: 'Trang chủ',
-      layout: 'customer',
-    },
-    children: [
+      },
       {
-        path: '',
-        name: ROUTES.CUSTOMER.children.HOME.name,
-        component: HomePage,
-        meta: { title: 'Trang chủ' },
+        path: 'customers/new',
+        name: 'admin-customers-new',
+        component: AdminCustomerCreate,
+        meta: { title: 'Thêm khách hàng' }
+      },
+      {
+        path: 'customers/:id',
+        name: 'admin-customers-detail',
+        component: AdminCustomerDetail,
+        meta: { title: 'Chi tiết khách hàng' }
+      },
+      {
+        path: 'settings',
+        name: 'admin-settings',
+        component: AdminSettings,
+        meta: {
+          title: 'Cài đặt',
+          apiEndpoint: '/api/admin/settings',
+        },
+      },
+      // Redirect any unmatched admin routes to dashboard
+      {
+        path: ':pathMatch(.*)*',
+        redirect: { name: 'admin-dashboard' },
       },
     ],
   },
 
-  // Error pages
+  // Customer routes with layout
   {
-    path: ROUTES.NOT_FOUND.path,
-    name: ROUTES.NOT_FOUND.name,
-    component: NotFoundPage,
-    meta: { layout: 'error' },
-  },
-  {
-    path: ROUTES.FORBIDDEN.path,
-    name: ROUTES.FORBIDDEN.name,
-    component: ForbiddenPage,
-    meta: { layout: 'error' },
-  },
-  {
-    path: ROUTES.UNAUTHORIZED.path,
-    name: ROUTES.UNAUTHORIZED.name,
-    component: UnauthorizedPage,
-    meta: { layout: 'error' },
+    path: '/customer',
+    component: CustomerLayout,
+    beforeEnter: requireRole(['customer', 'user']),
+    children: [
+      {
+        path: 'dashboard',
+        name: 'customer-dashboard',
+        component: CustomerDashboard,
+        meta: { title: 'My Dashboard' },
+      },
+      {
+        path: 'orders',
+        name: 'customer-orders',
+        component: CustomerOrders,
+        meta: { title: 'My Orders' },
+      },
+      {
+        path: 'profile',
+        name: 'customer-profile',
+        component: CustomerProfile,
+        meta: { title: 'My Profile' },
+      },
+      // {
+      //   path: 'settings',
+      //   name: 'customer-settings',
+      //   meta: { title: 'Account Settings' }
+      // },
+      // Redirect any unmatched customer routes to dashboard
+      {
+        path: ':pathMatch(.*)*',
+        redirect: { name: 'customer-dashboard' },
+      },
+    ],
   },
 
-  // Catch all route - must be last
+  // 404 Not Found - Redirect to selection page
   {
     path: '/:pathMatch(.*)*',
-    redirect: { name: ROUTES.NOT_FOUND.name },
+    redirect: '/selection',
   },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition
-    } else {
-      return { top: 0 }
-    }
+  scrollBehavior() {
+    return { top: 0, behavior: 'smooth' }
   },
 })
 
-// Navigation guard
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.userRole || authStore.user?.roleScreen
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const requiresRole = to.meta.requiresRole as string | undefined
-
-  // Set page title
-  document.title = to.meta.title
-    ? `${to.meta.title} | ${import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'}`
-    : import.meta.env.VITE_APP_NAME || 'FPL UDPM Catalog'
-
-  // Skip auth check for admin routes
-  if (to.path.startsWith('/admin')) {
-    return next()
+// Navigation guard - Allow all routes
+router.beforeEach((to, from, next) => {
+  // Redirect root to admin dashboard
+  if (to.path === '/') {
+    next('/admin')
+  } else {
+    next()
   }
-
-  // Redirect to login if not authenticated and route requires auth
-  if (requiresAuth && !isAuthenticated) {
-    return next({
-      name: ROUTES.LOGIN.name,
-      query: { redirect: to.fullPath },
-    })
-  }
-
-  // Check if user has required role
-  if (requiresRole && userRole !== requiresRole) {
-    return next({ name: ROUTES.FORBIDDEN.name })
-  }
-
-  // Continue with the navigation
-  next()
-  if (isAuthenticated && !userRole && to.name !== 'select-role') {
-    return next({ name: 'select-role' })
-  }
-
-  // Redirect to appropriate dashboard if already authenticated and trying to access auth pages
-  const authPages = [ROUTES.LOGIN.name, ROUTES.REGISTER.name]
-  if (authPages.includes(String(to.name)) && isAuthenticated) {
-    if (userRole === ROLES.ADMIN) {
-      return next({ name: ROUTES.ADMIN.children.DASHBOARD.name })
-    } else {
-      return next({ name: ROUTES.CUSTOMER.children.HOME.name })
-    }
-  }
-
-  // Check role-based access
-  if (requiresRole && userRole !== requiresRole) {
-    if (userRole === ROLES.ADMIN) {
-      return next({ name: ROUTES.ADMIN.children.DASHBOARD.name })
-    } else {
-      return next({ name: ROUTES.CUSTOMER.children.HOME.name })
-    }
-  }
-
-  // Only allow admin and customer roles
-  if (isAuthenticated && userRole && !['admin', 'customer'].includes(userRole.toLowerCase())) {
-    await authStore.logout()
-    return next({
-      name: ROUTES.LOGIN.name,
-      query: { error: 'unauthorized_role' },
-    })
-  }
-
-  next()
 })
 
 export default router

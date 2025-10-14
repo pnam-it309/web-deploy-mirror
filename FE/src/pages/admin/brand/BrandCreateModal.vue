@@ -110,14 +110,14 @@ watch(
     form.value = newVal
       ? { ...newVal }
       : {
-          id: null,
-          name: "",
-          code: "",
-          slug: "",
-          description: "",
-          status: "ACTIVE",
-          logoUrl: "",
-        };
+        id: null,
+        name: "",
+        code: "",
+        slug: "",
+        description: "",
+        status: "ACTIVE",
+        logoUrl: "",
+      };
   },
   { immediate: true }
 );
