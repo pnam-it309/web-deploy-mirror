@@ -72,47 +72,68 @@
       @saved="handleSaved"
     />
 
-    <!-- Toast (simple) -->
-    <div v-if="toast.show" :class="['fixed top-6 right-6 px-4 py-2 rounded shadow-lg text-white', toast.type === 'success' ? 'bg-green-600' : 'bg-red-600']">
-      {{ toast.message }}
-    </div>
+    
 
     <!-- Confirm delete dialog (browser confirm used) -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import CategoryCreateModal from './CategoryCreateModal.vue'
+import { ref, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+// import { Pageable } from '../../../types/common';
+import { categoryApi, CategoryResponse } from '@/services/api/admin/category.api';
+import CategoryCreateModal from './CategoryCreateModal.vue';
 
-/**
- * NOTE:
- * - categories: mỗi item có cấu trúc { id, name, slug, description, parentId }
- * - parentId có thể null nếu là root (danh mục cha).
- *
- * Logic:
- * - Tạo mới: parentId lấy từ modal; id do parent gán (maxId + 1).
- * - Sửa: modal gửi object có id; cập nhật item tương ứng.
- * - Xóa: xóa cả subtree (con cháu) để phù hợp cascade.
- */
+// lightweight notify helper to avoid external dependency
+const notify = (message: string, type: 'success' | 'error' = 'success') => {
+  if (type === 'error') {
+    console.error(message);
+  } else {
+    console.log(message);
+  }
+};
+const categories = ref<CategoryResponse[]>([]);
+const editingCategory = ref<CategoryResponse | null>(null);
+const showModal = ref(false);
+const isLoading = ref(false);
+const route = useRoute();
+const router = useRouter();
 
-const categories = ref([
-  // ví dụ mock dữ liệu
-  { id: 1, name: 'Điện thoại', slug: 'dien-thoai', description: 'Điện thoại thông minh', parentId: null },
-  { id: 2, name: 'Phụ kiện', slug: 'phu-kien', description: 'Phụ kiện điện thoại', parentId: 1 },
-  { id: 3, name: 'Laptop', slug: 'laptop', description: 'Máy tính xách tay', parentId: null },
-])
+const pageable = {
+  page: 0,
+  size: 20,
+  sort: 'name,asc',
+};
 
-const showModal = ref(false)
-const editingCategory = ref(null)
+// Load categories from API
+const loadCategories = async () => {
+  try {
+    isLoading.value = true;
+    const response = await categoryApi.getAllCategories(pageable);
+    categories.value = response.content; // Assuming the API returns a Page object with content array
+  } catch (error) {
+    console.error('Failed to load categories:', error);
+    notify('Không thể tải danh sách danh mục', 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-const toast = ref({ show: false, message: '', type: 'success' as 'success' | 'error' })
-let toastTimer: any = null
-const showToast = (message: string, type: 'success' | 'error' = 'success', duration = 2200) => {
-  toast.value = { show: true, message, type }
-  clearTimeout(toastTimer)
-  toastTimer = setTimeout(() => (toast.value.show = false), duration)
-}
+// Load categories on mount
+onMounted(() => {
+  loadCategories();
+});
+// If user navigates to /admin/categories/new, open the modal. If they leave, close it.
+const syncModalWithRoute = () => {
+  const path = route.path || '';
+  if (path.endsWith('/admin/categories/new')) {
+    showModal.value = true;
+  }
+};
+onMounted(syncModalWithRoute);
+watch(() => route.fullPath, syncModalWithRoute);
+ 
 
 const openCreateModal = () => {
   editingCategory.value = null
@@ -128,6 +149,11 @@ const editCategory = (cat: any) => {
 const closeModal = () => {
   showModal.value = false
   editingCategory.value = null
+  // If current path is the create route, navigate back to the list route
+  const path = route.path || '';
+  if (path.endsWith('/admin/categories/new')) {
+    router.replace('/admin/categories');
+  }
 }
 
 const handleSaved = (payload: any) => {
@@ -146,18 +172,18 @@ const handleSaved = (payload: any) => {
         description: payload.description,
         parentId: payload.parentId ?? null,
       }
-      showToast('✏️ Cập nhật danh mục thành công', 'success')
+      notify('✏️ Cập nhật danh mục thành công', 'success')
     } else {
       // if id provided but not found, treat as new
       const newId = (categories.value.length ? Math.max(...categories.value.map(c => c.id)) : 0) + 1
       categories.value.push({ id: newId, ...payload, parentId: payload.parentId ?? null })
-      showToast('🎉 Thêm danh mục thành công', 'success')
+      notify('🎉 Thêm danh mục thành công', 'success')
     }
   } else {
     // create: assign auto-increment id
     const newId = (categories.value.length ? Math.max(...categories.value.map(c => c.id)) : 0) + 1
     categories.value.push({ id: newId, ...payload, parentId: payload.parentId ?? null })
-    showToast('🎉 Thêm danh mục thành công', 'success')
+    notify('🎉 Thêm danh mục thành công', 'success')
   }
 
   // close modal
@@ -178,7 +204,7 @@ const confirmDelete = (id: number) => {
   if (!confirm(msg)) return
 
   categories.value = categories.value.filter(c => !toDelete.includes(c.id))
-  showToast('🗑️ Xóa danh mục thành công', 'success')
+  notify('🗑️ Xóa danh mục thành công', 'success')
 }
 
 /**

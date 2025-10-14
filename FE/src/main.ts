@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './routes/router'
 import { useAuthStore } from './stores/auth'
-import websocketPlugin from '@/services/socket/websocketPlugin'
+import websocketPlugin from '@/services/socket/configsocket/websocketPlugin'
 import './theme/index.css'
 
 const initApp = async () => {

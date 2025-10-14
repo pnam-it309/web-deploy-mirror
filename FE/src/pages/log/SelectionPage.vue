@@ -1,51 +1,60 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-    <!-- Logo -->
-    <div class="mb-12 text-center">
-      <img 
-        src="@/assets/images/logo-udpm-dark.png" 
-        alt="UDPM Logo" 
-        class="h-24 mx-auto mb-4"
-      >
-      <h1 class="text-3xl font-bold text-gray-900">Chào mừng đến với UDPM</h1>
-      <p class="mt-2 text-gray-600">Vui lòng chọn chế độ đăng nhập</p>
+    <!-- Hiển thị loading khi đang xử lý OAuth callback -->
+    <div v-if="processingOAuth" class="oauth-processing">
+      <a-spin size="large" />
+      <p class="mt-4 text-lg text-gray-700">Đang xử lý đăng nhập...</p>
     </div>
-
-    <!-- Selection Buttons -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-      <!-- Admin Button -->
-      <div 
-        @click="navigateToAdmin"
-        class="group relative bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-transparent hover:border-indigo-500"
-      >
-        <div class="flex flex-col items-center text-center">
-          <div class="bg-indigo-100 p-4 rounded-full mb-4 group-hover:bg-indigo-200 transition-colors">
-            <img 
-              src="@/assets/images/Admin.png" 
-              alt="Admin" 
-              class="h-20 w-20 object-contain"
-            >
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Quản trị viên</h3>
-          <p class="text-gray-600 text-sm">Truy cập trang quản trị hệ thống</p>
-        </div>
+    
+    <!-- Nội dung selection page bình thường -->
+    <div v-else class="selection-content">
+      <!-- Logo -->
+      <div class="mb-12 text-center">
+        <img 
+          src="@/assets/images/logo-udpm-dark.png" 
+          alt="UDPM Logo" 
+          class="h-24 mx-auto mb-4"
+        >
+        <h1 class="text-3xl font-bold text-gray-900">Chào mừng đến với UDPM</h1>
+        <p class="mt-2 text-gray-600">Vui lòng chọn chế độ đăng nhập</p>
       </div>
 
-      <!-- Customer Button -->
-      <div 
-        @click="navigateToCustomer"
-        class="group relative bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-transparent hover:border-green-500"
-      >
-        <div class="flex flex-col items-center text-center">
-          <div class="bg-green-100 p-4 rounded-full mb-4 group-hover:bg-green-200 transition-colors">
-            <img 
-              src="@/assets/images/Member.png" 
-              alt="Customer" 
-              class="h-20 w-20 object-contain"
-            >
+      <!-- Selection Buttons -->
+      <div class="flex flex-col md:flex-row justify-center items-center gap-8 w-full max-w-4xl mx-auto">
+        <!-- Admin Button -->
+        <div 
+          @click="handleRedirectLoginADMIN"
+          class="group relative bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-transparent hover:border-indigo-500"
+        >
+          <div class="flex flex-col items-center text-center">
+            <div class="bg-indigo-100 p-4 rounded-full mb-4 group-hover:bg-indigo-200 transition-colors">
+              <img 
+                src="@/assets/images/Admin.png" 
+                alt="Admin" 
+                class="h-20 w-20 object-contain"
+              >
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Quản trị viên</h3>
+            <p class="text-gray-600 text-sm">Truy cập trang quản trị hệ thống</p>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Khách hàng</h3>
-          <p class="text-gray-600 text-sm">Truy cập trang dành cho khách hàng</p>
+        </div>
+
+        <!-- Customer Button -->
+        <div 
+          @click="handleRedirectLoginCUSTOMER"
+          class="group relative bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-transparent hover:border-green-500"
+        >
+          <div class="flex flex-col items-center text-center">
+            <div class="bg-green-100 p-4 rounded-full mb-4 group-hover:bg-green-200 transition-colors">
+              <img 
+                src="@/assets/images/Member.png" 
+                alt="Customer" 
+                class="h-20 w-20 object-contain"
+              >
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Khách hàng</h3>
+            <p class="text-gray-600 text-sm">Truy cập trang dành cho khách hàng</p>
+          </div>
         </div>
       </div>
     </div>
@@ -53,21 +62,312 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { URL_OAUTH2_GOOGLE_ADMIN, URL_OAUTH2_GOOGLE_CUSTOMER } from '@/constants/url'
+import { ROLES } from '@/constants/roles'
+import { toast } from 'vue3-toastify'
+import { cookieStorageAction } from '@/utils/storage'
+import { localStorageAction } from '@/utils/storage'
+import { 
+  ACCESS_TOKEN_STORAGE_KEY, 
+  REFRESH_TOKEN_STORAGE_KEY, 
+  USER_INFO_STORAGE_KEY 
+} from '@/constants/storagekey'
+import { useAuthStore } from '@/stores/auth'
+import { jwtDecode } from 'jwt-decode'
+import {
+  ACCOUNT_EXPIRED,
+  ACCOUNT_NOT_EXIST,
+  ACCOUNT_NOT_EXIST_MESSAGE,
+  ACCOUNT_NOT_HAVE_PERMISSION,
+  ACCOUNT_NOT_HAVE_PERMISSION_MESSAGE
+} from '@/constants/cookie.constants'
 
-const router = useRouter();
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 
-const navigateToAdmin = () => {
-  // Navigate to admin dashboard using Vue Router
-  router.push({ name: 'admin-dashboard' });
+// Debug logs
+console.log('[AUTH] LoginSelection component loaded')
+
+// Reactive states
+const loading = ref(false)
+const error = ref<string | null>(null)
+const processingOAuth = ref(false)
+
+// Hàm xử lý OAuth callback
+const processOAuthCallback = async () => {
+  const { state } = route.query
+  
+  if (!state) {
+    console.log('📭 Không có state parameter')
+    return false
+  }
+
+  console.log('🔄 Phát hiện OAuth callback')
+  processingOAuth.value = true
+
+  try {
+    // Decode the state parameter
+    const decodedState = JSON.parse(decodeURIComponent(atob(state as string)))
+    console.log('🔓 Decoded state:', decodedState)
+    
+    const { accessToken, refreshToken } = decodedState
+    
+    if (!accessToken) {
+      throw new Error('Không tìm thấy access token')
+    }
+
+    console.log('✅ Token nhận được:', accessToken.substring(0, 50) + '...')
+
+    // Decode JWT để lấy thông tin user
+    const decodedToken: any = jwtDecode(accessToken)
+    console.log('🔍 Decoded JWT:', decodedToken)
+
+    // Tạo user object từ JWT
+    const user = {
+      id: decodedToken.sub || decodedToken.id,
+      email: decodedToken.email || decodedToken.sub,
+      name: decodedToken.name || 'User',
+      roleScreen: decodedToken.roleScreen || ROLES.ADMIN,
+      picture: decodedToken.picture
+    }
+
+    console.log('👤 User info:', user)
+
+    if (!user.roleScreen) {
+      throw new Error('Không tìm thấy thông tin role trong token')
+    }
+
+    // Store tokens and user data
+    localStorageAction.set(ACCESS_TOKEN_STORAGE_KEY, accessToken)
+    if (refreshToken) {
+      localStorageAction.set(REFRESH_TOKEN_STORAGE_KEY, refreshToken)
+    }
+    localStorageAction.set(USER_INFO_STORAGE_KEY, user)
+    
+    // Update auth store
+    authStore.user = user
+    authStore.accessToken = accessToken
+    authStore.refreshToken = refreshToken || null
+    authStore.setUserRole(user.roleScreen)
+
+    console.log('💾 Đã lưu thông tin auth, role:', user.roleScreen)
+
+    // Clear URL parameters để tránh loop
+    router.replace({ name: 'selection' })
+
+    // Redirect based on role
+    setTimeout(() => {
+      if (user.roleScreen === ROLES.ADMIN) {
+        console.log('🎯 Redirect to ADMIN dashboard')
+        router.push({ name: 'admin-dashboard' })
+      } else if (user.roleScreen === ROLES.CUSTOMER) {
+        console.log('🎯 Redirect to CUSTOMER dashboard')  
+        router.push({ name: 'customer-dashboard' })
+      }
+    }, 1000)
+
+    return true
+
+  } catch (err) {
+    console.error('❌ Lỗi xử lý OAuth callback:', err)
+    toast.error('Đăng nhập thất bại. Vui lòng thử lại.')
+    
+    // Clear URL parameters
+    router.replace({ name: 'selection' })
+    return false
+  } finally {
+    processingOAuth.value = false
+  }
 }
 
-const navigateToCustomer = () => {
-  // Navigate to customer dashboard using Vue Router
-  router.push({ name: 'customer-dashboard' });
+// Set role cookie with expiration (1 hour) and debug logging
+const setRoleCookie = (role: string) => {
+  try {
+    const expires = new Date()
+    expires.setTime(expires.getTime() + 60 * 60 * 1000) // 1 hour
+    
+    // Changed cookie name from 'ROLE' to 'screen' to match backend
+    const cookieValue = `screen=${role};expires=${expires.toUTCString()};path=/;SameSite=Lax`
+    document.cookie = cookieValue
+    
+    console.log(`[AUTH] Set role cookie:`, {
+      name: 'screen',
+      value: role,
+      expires: expires.toISOString(),
+      path: '/',
+      sameSite: 'Lax'
+    })
+    
+    // Verify the cookie was set
+    const cookies = document.cookie.split(';')
+    const roleCookie = cookies.find(c => c.trim().startsWith('screen='))
+    console.log('[AUTH] Current cookies after setting:', cookies)
+    console.log('[AUTH] Found screen cookie:', roleCookie)
+    
+    if (!roleCookie) {
+      console.error('[AUTH] Failed to set screen cookie!')
+      throw new Error('Failed to set screen cookie')
+    }
+  } catch (err) {
+    console.error('[AUTH] Error setting screen cookie:', err)
+    throw err
+  }
 }
+
+// Set redirect_uri cookie để backend redirect về đúng URL
+const setRedirectUriCookie = (role: string) => {
+  try {
+    const frontendUrl = window.location.origin;
+    // Backend đang redirect về /selection nên chúng ta sẽ xử lý tại đây
+    const redirectUri = `${frontendUrl}/selection`;
+    
+    const expires = new Date();
+    expires.setTime(expires.getTime() + 5 * 60 * 1000); // 5 phút
+    
+    const cookieValue = `redirect_uri=${encodeURIComponent(redirectUri)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+    document.cookie = cookieValue;
+    
+    console.log(`[AUTH] Set redirect_uri cookie for ${role}:`, redirectUri);
+    
+    // Verify cookie
+    const cookies = document.cookie.split(';');
+    const redirectCookie = cookies.find(c => c.trim().startsWith('redirect_uri='));
+    console.log('[AUTH] Found redirect_uri cookie:', redirectCookie);
+    
+  } catch (err) {
+    console.error('[AUTH] Error setting redirect_uri cookie:', err);
+  }
+}
+
+// Redirect to Google login for Admin
+const handleRedirectLoginADMIN = async () => {
+  try {
+    console.log('[AUTH] Initiating ADMIN login...')
+    loading.value = true
+    error.value = null
+    
+    // Set the correct cookie name 'screen' with value 'ADMIN'
+    console.log('[AUTH] Setting ADMIN role cookie...')
+    setRoleCookie('ADMIN')
+    
+    // Set redirect_uri cookie
+    setRedirectUriCookie('ADMIN')
+    
+    // Small delay to ensure cookie is set
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Verify cookie is set before redirect
+    const cookies = document.cookie.split(';')
+    const roleCookie = cookies.find(c => c.trim().startsWith('screen='))
+    console.log('[AUTH] Pre-redirect cookies:', cookies)
+    console.log('[AUTH] Pre-redirect screen cookie:', roleCookie)
+    
+    if (!roleCookie) {
+      const errorMsg = 'Screen cookie not set before redirect'
+      console.error(`[AUTH] ${errorMsg}`)
+      throw new Error(errorMsg)
+    }
+    
+    console.log('[AUTH] Redirecting to Google OAuth2 for ADMIN...')
+    window.location.href = URL_OAUTH2_GOOGLE_ADMIN()
+  } catch (error) {
+    console.error('[AUTH] Error in admin login redirect:', error)
+    toast.error('Có lỗi xảy ra khi chuyển hướng đến Google. Vui lòng thử lại.')
+    loading.value = false
+  }
+}
+
+// Redirect to Google login for Customer
+const handleRedirectLoginCUSTOMER = async () => {
+  try {
+    console.log('[AUTH] Initiating CUSTOMER login...')
+    loading.value = true
+    error.value = null
+    
+    console.log('[AUTH] Setting CUSTOMER role cookie...')
+    setRoleCookie('CUSTOMER')
+    
+    // Set redirect_uri cookie
+    setRedirectUriCookie('CUSTOMER')
+    
+    // Small delay to ensure cookie is set
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Verify cookie is set before redirect
+    const cookies = document.cookie.split(';')
+    const roleCookie = cookies.find(c => c.trim().startsWith('screen='))
+    console.log('[AUTH] Pre-redirect cookies:', cookies)
+    console.log('[AUTH] Pre-redirect screen cookie:', roleCookie)
+    
+    if (!roleCookie) {
+      const errorMsg = 'Screen cookie not set before redirect'
+      console.error(`[AUTH] ${errorMsg}`)
+      throw new Error(errorMsg)
+    }
+    
+    console.log('[AUTH] Redirecting to Google OAuth2 for CUSTOMER...')
+    window.location.href = URL_OAUTH2_GOOGLE_CUSTOMER()
+  } catch (error) {
+    console.error('[AUTH] Error in customer login redirect:', error)
+    toast.error('Có lỗi xảy ra khi chuyển hướng đến Google. Vui lòng thử lại.')
+    loading.value = false
+  }
+}
+
+// Mounted lifecycle
+onMounted(async () => {
+  console.log('[AUTH] LoginSelection mounted - checking for cookie-based errors...')
+  console.log('[AUTH] Current cookies:', document.cookie)
+  console.log('[AUTH] Current route query:', route.query)
+
+  // Thử xử lý OAuth callback nếu có state parameter
+  const hasOAuthState = route.query.state;
+  if (hasOAuthState) {
+    console.log('[AUTH] Phát hiện OAuth state parameter, xử lý callback...');
+    await processOAuthCallback();
+  } else {
+    console.log('[AUTH] Không có OAuth state, hiển thị selection page bình thường');
+  }
+
+  // Kiểm tra lỗi từ cookie
+  const accountNotExistError = cookieStorageAction.get(ACCOUNT_NOT_EXIST)
+  const accountNotHavePermission = cookieStorageAction.get(ACCOUNT_NOT_HAVE_PERMISSION)
+  const accountExpired = cookieStorageAction.get(ACCOUNT_EXPIRED)
+
+  if (accountNotExistError) {
+    console.warn('[AUTH] ACCOUNT_NOT_EXIST detected:', accountNotExistError)
+    toast.error(ACCOUNT_NOT_EXIST_MESSAGE)
+    cookieStorageAction.remove(ACCOUNT_NOT_EXIST)
+  }
+
+  if (accountNotHavePermission) {
+    console.warn('[AUTH] ACCOUNT_NOT_HAVE_PERMISSION detected:', accountNotHavePermission)
+    toast.error(ACCOUNT_NOT_HAVE_PERMISSION_MESSAGE)
+    cookieStorageAction.remove(ACCOUNT_NOT_HAVE_PERMISSION)
+  }
+
+  if (accountExpired) {
+    console.warn('[AUTH] ACCOUNT_EXPIRED detected')
+    toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+    cookieStorageAction.remove(ACCOUNT_EXPIRED)
+  }
+})
 </script>
 
 <style scoped>
-/* Add any custom styles here */
+.oauth-processing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  gap: 1rem;
+}
+
+.selection-content {
+  width: 100%;
+}
 </style>

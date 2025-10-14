@@ -50,66 +50,52 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // Kích hoạt message broker đơn giản trong bộ nhớ
+        // Kết hợp tất cả các tiền tố cần thiết
         config.enableSimpleBroker(
+            topicPrefix,
             "/topic",  // Cho các kênh đăng ký công khai
-            "/queue"   // Cho các tin nhắn riêng tư
+            "/queue",  // Cho các tin nhắn riêng tư
+            "/user"    // Cho các tin nhắn riêng tư của người dùng
         );
         
         // Tiền tố cho các đích đến từ phía client
-        config.setApplicationDestinationPrefixes("/app");
-
-        config.enableSimpleBroker(topicPrefix);
         config.setApplicationDestinationPrefixes(applicationPrefix);
+        
         // Tiền tố cho các đích đến cụ thể của người dùng
         config.setUserDestinationPrefix("/user");
-        
-        // Cấu hình message broker relay cho môi trường production (RabbitMQ/ActiveMQ)
-        // config.enableStompBrokerRelay("/topic", "/queue")
-        //     .setRelayHost("localhost")
-        //     .setRelayPort(61613)
-        //     .setClientLogin("guest")
-        //     .setClientPasscode("guest");
     }
 
-    /**
-     * Đăng ký các endpoint WebSocket
-     * - Định nghĩa endpoint kết nối WebSocket
-     * - Cấu hình CORS và hỗ trợ SockJS
-     * 
-     * @param registry Đối tượng đăng ký endpoint
-     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry
-                .addEndpoint(registerEndpoint)
-                .addInterceptors(new WebSocketInterceptor())
+        // Register WebSocket endpoint with SockJS
+        registry.addEndpoint("/ws")  // Must match frontend URL
                 .setAllowedOrigins(ALLOWED_ORIGIN)
-                .withSockJS();
+                .withSockJS()  // Enable SockJS fallback
+                .setStreamBytesLimit(512 * 1024)  // 512KB
+                .setHttpMessageCacheSize(1000)
+                .setDisconnectDelay(30 * 1000);  // 30 seconds
     }
-    
-    /**
-     * Cấu hình interceptor cho kênh nhận tin nhắn
-     * - Thêm WebSocketChannelInterceptor để xử lý xác thực và ghi log
-     * 
-     * @param registration Đối tượng đăng ký kênh
-     */
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        // Add interceptor for WebSocket channels
         registration.interceptors(webSocketChannelInterceptor);
     }
-    
-    /**
-     * Cấu hình các thông số vận chuyển WebSocket
-     * - Giới hạn kích thước tin nhắn và bộ đệm
-     * - Thiết lập thời gian chờ gửi
-     * 
-     * @param registry Đối tượng đăng ký vận chuyển WebSocket
-     */
+
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry
-            .setMessageSizeLimit(1024 * 1024)  // Giới hạn kích thước tin nhắn 1MB
-            .setSendBufferSizeLimit(1024 * 1024 * 10)  // Giới hạn kích thước bộ đệm gửi 10MB
-            .setSendTimeLimit(20000);  // Thời gian chờ gửi tối đa 20 giây
+        // Configure WebSocket timeouts and limits
+        registry.setSendTimeLimit(15 * 1000)  // 15 seconds
+                .setSendBufferSizeLimit(512 * 1024)  // 512KB
+                .setMessageSizeLimit(128 * 1024);  // 128KB
+    }
+
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        // Configure outbound channel thread pool
+        registration.taskExecutor()
+                   .corePoolSize(4)
+                   .maxPoolSize(10)
+                   .queueCapacity(25);
     }
 }
