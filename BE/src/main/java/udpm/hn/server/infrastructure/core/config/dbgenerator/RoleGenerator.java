@@ -8,7 +8,7 @@ import udpm.hn.server.infrastructure.core.config.dbgenerator.repository.DBGRoleR
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import udpm.hn.server.infrastructure.core.constant.Roles;
 
-import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -18,20 +18,36 @@ public class RoleGenerator {
 
     @PostConstruct
     public void generate() {
-        List<Role> existingRoles = roleRepository.findAll();
-        if (existingRoles.isEmpty()) {
-            List<String> roleCodes = Roles.getAllRoles();
-            List<String> roleNames = List.of("ADMIN", "CUSTOMER");
-            
-            for (int i = 0; i < roleCodes.size(); i++) {
-                if (roleRepository.findByCode(roleCodes.get(i)).isEmpty()) {
-                    Role role = new Role();
-                    role.setCode(roleCodes.get(i));
-                    role.setName(roleNames.get(i));
-                    role.setStatus(EntityStatus.ACTIVE);
-                    roleRepository.save(role);
-                }
+        System.out.println("=== RoleGenerator generate() called ===");
+
+        // Always ensure essential roles exist
+        ensureRoleExists(Roles.ADMIN.name(), "Administrator");
+        ensureRoleExists(Roles.CUSTOMER.name(), "Customer");
+
+        System.out.println("=== RoleGenerator generate() finished ===\n");
+    }
+
+    private void ensureRoleExists(String roleCode, String roleName) {
+        System.out.println("Checking role: " + roleCode);
+
+        Optional<Role> existingRole = roleRepository.findByCode(roleCode);
+        if (existingRole.isEmpty()) {
+            System.out.println("Creating role: " + roleCode + " - " + roleName);
+            Role role = new Role();
+            role.setCode(roleCode);
+            role.setName(roleName);
+            role.setStatus(EntityStatus.ACTIVE);
+
+            try {
+                Role savedRole = roleRepository.save(role);
+                System.out.println("✅ Role created: " + savedRole.getName() + " (ID: " + savedRole.getId() + ")");
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Failed to create role " + roleCode);
+                System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("✅ Role already exists: " + roleCode + " (ID: " + existingRole.get().getId() + ")");
         }
     }
 }

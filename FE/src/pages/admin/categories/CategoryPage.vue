@@ -5,7 +5,7 @@
       <h2 class="text-2xl font-semibold">Quản lý Danh mục sản phẩm</h2>
       <div class="flex items-center space-x-3">
         <button
-          @click="openCreateModal"
+          @click="router.push('/admin/categories/new')"
           class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-md shadow"
         >
           + Thêm danh mục
@@ -27,7 +27,13 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 bg-white">
+          <tr v-if="isLoading">
+            <td colspan="6" class="text-center py-6 text-gray-500">
+              Đang tải...
+            </td>
+          </tr>
           <tr
+            v-else
             v-for="(cat, index) in categories"
             :key="cat.id"
             class="hover:bg-gray-50 transition-colors"
@@ -54,7 +60,7 @@
               </button>
             </td>
           </tr>
-          <tr v-if="!categories.length">
+          <tr v-if="!isLoading && (!categories || categories.length === 0)">
             <td colspan="6" class="text-center py-6 text-gray-500 italic">
               Chưa có danh mục nào
             </td>
@@ -111,10 +117,11 @@ const loadCategories = async () => {
   try {
     isLoading.value = true;
     const response = await categoryApi.getAllCategories(pageable);
-    categories.value = response.content; // Assuming the API returns a Page object with content array
+    categories.value = response?.content || []; // Ensure it's always an array
   } catch (error) {
     console.error('Failed to load categories:', error);
     notify('Không thể tải danh sách danh mục', 'error');
+    categories.value = []; // Reset to empty array on error
   } finally {
     isLoading.value = false;
   }
@@ -127,18 +134,16 @@ onMounted(() => {
 // If user navigates to /admin/categories/new, open the modal. If they leave, close it.
 const syncModalWithRoute = () => {
   const path = route.path || '';
-  if (path.endsWith('/admin/categories/new')) {
+  if (path.endsWith('/new') || path.includes('/categories/new')) {
     showModal.value = true;
+    editingCategory.value = null;
+  } else if (path === '/admin/categories') {
+    showModal.value = false;
+    editingCategory.value = null;
   }
 };
 onMounted(syncModalWithRoute);
 watch(() => route.fullPath, syncModalWithRoute);
- 
-
-const openCreateModal = () => {
-  editingCategory.value = null
-  showModal.value = true
-}
 
 const editCategory = (cat: any) => {
   // truyền object copy để modal không mutate trực tiếp

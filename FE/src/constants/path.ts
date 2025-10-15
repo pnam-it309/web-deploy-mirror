@@ -69,7 +69,7 @@ export const ROUTES_CONSTANTS = {
   // Error & System Pages
   FORBIDDEN: { path: '/error/403', name: 'forbidden' },
   UNAUTHORIZED: { path: '/error/401', name: 'unauthorized' },
-  NOT_FOUND: { path: '/:pathMatch(.*)*', name: 'not-found' },
+  NOT_FOUND: { path: '/:catchAll(.*)*', name: 'not-found' },
   REDIRECT: { path: '/redirect', name: 'redirect' },
   MAINTENANCE: { path: '/maintenance', name: 'maintenance' },
   COMING_SOON: { path: '/coming-soon', name: 'coming-soon' },

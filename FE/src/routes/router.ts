@@ -6,7 +6,6 @@ import {
   type RouteLocationNormalized,
 } from 'vue-router'
 // Using direct paths instead of constants to avoid potential circular dependencies
-import { h } from 'vue'
 
 // Layouts
 const AuthLayout = () => import('@/layouts/AuthLayout.vue')
@@ -14,10 +13,10 @@ const AdminLayout = () => import('@/layouts/AdminLayout.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 
 // Public pages
-const ProductDetailPage = () => import('@/pages/product-detail/ProductDetailPage.vue')
+const ProductDetailPage = () => import('@/pages/admin/product/product-detail/ProductDetailPage.vue')
 
 // Admin pages
-const AdminDashBoard = () => import('@/pages/admin/dashboard/DashboardPage.vue')
+const AdminDashBoard = () => import('@/pages/admin/dashboard/AdminDashboardPage.vue')
 const AdminProducts = () => import('@/pages/admin/product/ProductsPage.vue')
 const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
 const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetailModal.vue')
@@ -34,14 +33,12 @@ const AdminCategoryCreateModal = () => import('@/pages/admin/categories/Category
 const AdminCustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
 const AdminCustomerCreate = () => import('@/pages/admin/customers/CustomerCreate.vue')
 const AdminCustomerDetail = () => import('@/pages/admin/customers/CustomerDetail.vue')
-// const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
-// const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
+const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
+const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
 
 // Customer pages
 const CustomerDashboard = () => import('@/pages/customer/DashboardPage.vue')
 const CustomerOrders = () => import('@/pages/customer/OrdersPage.vue')
-const CustomerProfile = () => import('@/pages/customer/ProfilePage.vue')
-// const CustomerSettings = () => import('@/pages/customer/SettingsPage.vue')
 
 // Authentication guard - Completely bypassed
 const requireAuth = (
@@ -122,23 +119,16 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        name: 'admin-dashboard',
-        component: { render: () => h(AdminDashBoard) },
-        meta: {
-          title: 'Dashboard',
-          requiresAuth: true,
-          apiEndpoint: '/api/admin/dashboard',
-        },
+        redirect: '/admin/dashboard',
       },
       {
         path: 'dashboard',
-        name: 'admin-dashboard2',
+        name: 'admin-dashboard',
         component: AdminDashBoard,
         meta: {
           title: 'Dashboard',
-          apiEndpoint: '/api/admin/dashboard2',
+          apiEndpoint: '/api/admin/dashboard',
         },
-
       },
       {
         path: 'products',
@@ -167,6 +157,18 @@ const routes: RouteRecordRaw[] = [
           apiEndpoint: '/api/admin/categories',
         },
         children: [{ path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal }],
+      },
+      {
+        path: 'brand',
+        name: 'admin-brand',
+        component: AdminBrand,
+        meta: {
+          title: 'Quản lý thương hiệu',
+          apiEndpoint: '/api/admin/brands',
+        },
+        children: [
+          { path: 'new', name: 'admin-brand-new', component: AdminBrandCreateModal }
+        ],
       },
       {
         path: 'orders',
@@ -212,7 +214,7 @@ const routes: RouteRecordRaw[] = [
       },
       // Redirect any unmatched admin routes to dashboard
       {
-        path: ':pathMatch(.*)*',
+        path: ':catchAll(.*)*',
         redirect: { name: 'admin-dashboard' },
       },
     ],
@@ -236,20 +238,9 @@ const routes: RouteRecordRaw[] = [
         component: CustomerOrders,
         meta: { title: 'My Orders' },
       },
-      {
-        path: 'profile',
-        name: 'customer-profile',
-        component: CustomerProfile,
-        meta: { title: 'My Profile' },
-      },
-      // {
-      //   path: 'settings',
-      //   name: 'customer-settings',
-      //   meta: { title: 'Account Settings' }
-      // },
       // Redirect any unmatched customer routes to dashboard
       {
-        path: ':pathMatch(.*)*',
+        path: ':catchAll(.*)*',
         redirect: { name: 'customer-dashboard' },
       },
     ],
@@ -257,7 +248,7 @@ const routes: RouteRecordRaw[] = [
 
   // 404 Not Found - Redirect to selection page
   {
-    path: '/:pathMatch(.*)*',
+    path: '/:catchAll(.*)*',
     redirect: '/selection',
   },
 ]

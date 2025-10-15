@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Table(name = "customer_role")
 public class Customerole extends PrimaryEntity implements Serializable {
     @ManyToOne
-    @JoinColumn(name = "id_ustomer")
+    @JoinColumn(name = "id_customer")
     private Customer customer;
 
     @ManyToOne

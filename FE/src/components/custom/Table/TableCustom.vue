@@ -23,6 +23,11 @@ const props = defineProps({
 
 const emit = defineEmits(['change'])
 
+// Provide typing for slot props so consumers don't see 'unknown'
+defineSlots<{
+  default: (props: { item: any }) => any
+}>()
+
 const currentPage = ref(1)
 const currentPageSize = ref(props.pageSize)
 
@@ -44,14 +49,14 @@ watch(
 
 <template>
   <div
-    class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
+    class="rounded-md border border-stroke bg-white shadow-sm dark:border-strokedark dark:bg-boxdark"
   >
     <!-- Table Header -->
     <div
-      class="grid grid-cols-12 border border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-12 md:px-6 2xl:px-7.5"
+      class="grid grid-cols-12 border-b border-stroke py-3 px-4 md:px-6 2xl:px-7.5 bg-gray-50 text-gray-700 font-semibold text-sm rounded-t-md"
     >
       <div v-for="column in columns" :key="column.key" :class="column.class">
-        <p class="font-bold text-sm flex justify-center items-center">{{ column.title }}</p>
+        <p class="flex justify-center items-center">{{ column.title }}</p>
       </div>
     </div>
 
@@ -59,14 +64,14 @@ watch(
     <div
       v-for="item in data"
       :key="item.id"
-      class="grid grid-cols-12 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-12 md:px-6 2xl:px-7.5"
+      class="grid grid-cols-12 border-t border-stroke py-3 px-4 sm:grid-cols-12 md:px-6 2xl:px-7.5 items-center odd:bg-white even:bg-gray-50 hover:bg-gray-100 transition-colors"
     >
       <slot :item="item"></slot>
     </div>
   </div>
 
   <!-- Pagination and Page Size Selector -->
-  <div class="py-4.5 px-4 md:px-6 2xl:px-7.5 flex justify-end">
+  <div class="py-3 px-4 md:px-6 2xl:px-7.5 flex justify-end">
     <Pagination
       :current="currentPage"
       :total="props.total"

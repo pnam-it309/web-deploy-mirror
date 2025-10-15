@@ -2,11 +2,8 @@
   <div class="flex h-screen bg-gray-900 text-gray-200">
     <!-- sidebar layout -->
     <div
-      :class="{
-        'translate-x-0 ease-out': isSidebarOpen,
-        '-translate-x-full ease-in': !isSidebarOpen,
-      }"
-      class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-gray-800 md:translate-x-0 md:static md:inset-0"
+      v-show="isSidebarOpen"
+      class="fixed z-30 inset-y-0 left-0 w-64 transition duration-300 transform bg-gray-800 lg:relative lg:z-auto"
     >
       <div class="flex flex-col h-full">
         <div
@@ -28,7 +25,6 @@
                   ? 'bg-gray-700 text-white border-l-4 border-pink-500'
                   : 'text-gray-400 hover:text-white',
               ]"
-              @click="isSidebarOpen = false"
             >
               <component :is="item.icon" class="w-5 h-5 mr-3 flex-shrink-0" />
               {{ item.label }}
@@ -63,7 +59,6 @@
                     ? 'text-pink-400 bg-gray-700/50'
                     : 'text-gray-400 hover:text-white',
                 ]"
-                @click="isSidebarOpen = false"
               >
                 <div class="w-1 h-1 mr-3 rounded-full bg-current"></div>
                 {{ child.label }}
@@ -83,7 +78,7 @@
           <div class="flex items-center">
             <button
               @click="isSidebarOpen = !isSidebarOpen"
-              class="p-1 text-gray-500 rounded-md hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 md:hidden"
+              class="p-1 text-gray-500 rounded-md hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <Bars3Icon class="w-6 h-6" />
             </button>
@@ -168,14 +163,14 @@
       </header>
 
       <!-- Main content -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 text-gray-900">
         <div class="p-4 sm:p-6">
           <router-view />
         </div>
       </main>
 
-      <!-- Mobile sidebar -->
-      <div v-show="isSidebarOpen" class="md:hidden">
+      <!-- Mobile sidebar overlay -->
+      <div v-show="isSidebarOpen" class="lg:hidden" @click="isSidebarOpen = false">
         <div class="fixed inset-0 z-40 flex">
           <div class="fixed inset-0 bg-gray-600 bg-opacity-75" @click="isSidebarOpen = false"></div>
           <div class="relative flex flex-col flex-1 w-full max-w-xs bg-gray-800">
@@ -189,38 +184,34 @@
               </button>
             </div>
             <div class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-              <router-link
-                v-for="(item, index) in navItems"
-                :key="item?.path || index"
-                :to="item?.path || '#'"
-                v-if="item"
-                class="flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
-                :class="[$route.path.startsWith(item.path) ? 'bg-gray-900 text-white' : '']"
-                @click="isSidebarOpen = false"
-              >
-                <component
-                  :is="item.icon"
-                  class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-300"
-                />
-                {{ item.label }}
-              </router-link>
-
-              <div
-                v-for="(item, index) in navItems"
-                :key="'mobile-group-' + (item?.path || index)"
-                v-if="item && item.children && item.children.length > 0"
-              >
+              <template v-for="(item, index) in navItems" :key="item?.path || index">
                 <router-link
-                  v-for="child in item.children"
-                  :key="child.path"
-                  :to="child.path"
-                  class="flex items-center pl-12 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
-                  :class="[$route.path.startsWith(child.path) ? 'bg-gray-900 text-white' : '']"
+                  v-if="item && (!item.children || item.children.length === 0)"
+                  :to="item.path"
+                  class="flex items-center px-4 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
+                  :class="[$route.path.startsWith(item.path) ? 'bg-gray-900 text-white' : '']"
                   @click="isSidebarOpen = false"
                 >
-                  {{ child.label }}
+                  <component
+                    :is="item.icon"
+                    class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-300"
+                  />
+                  {{ item.label }}
                 </router-link>
-              </div>
+
+                <div v-if="item && item.children && item.children.length > 0">
+                  <router-link
+                    v-for="child in item.children"
+                    :key="child.path"
+                    :to="child.path"
+                    class="flex items-center pl-12 py-3 text-sm font-medium text-gray-300 rounded-md group hover:bg-gray-700 hover:text-white"
+                    :class="[$route.path.startsWith(child.path) ? 'bg-gray-900 text-white' : '']"
+                    @click="isSidebarOpen = false"
+                  >
+                    {{ child.label }}
+                  </router-link>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -287,6 +278,7 @@ import {
   CubeIcon,
   CogIcon,
   FolderIcon,
+  BellIcon,
 } from '@heroicons/vue/24/outline'
 
 const authStore = useAuthStore()
@@ -365,7 +357,7 @@ const navItems = ref([
 const route = useRoute()
 const router = useRouter()
 const isProfileOpen = ref(false)
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(true)
 
 // HÀM QUAN TRỌNG ĐỂ MỞ/ĐÓNG MENU CON
 const toggleSubmenu = (clickedItem: any) => {
@@ -378,8 +370,6 @@ const toggleSubmenu = (clickedItem: any) => {
     })
     // Mở/đóng mục hiện tại
     clickedItem.open = !clickedItem.open
-  } else {
-    isSidebarOpen.value = false
   }
 }
 
@@ -397,9 +387,12 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-// Close sidebar and profile when route changes
+// Close sidebar on mobile and profile when route changes
 router.afterEach(() => {
-  isSidebarOpen.value = false
+  // Only close sidebar on mobile (screen width < 1024px)
+  if (window.innerWidth < 1024) {
+    isSidebarOpen.value = false
+  }
   isProfileOpen.value = false
 })
 
