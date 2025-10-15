@@ -14,11 +14,11 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
+    <div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+      <table class="min-w-[1200px] divide-y divide-gray-200">
         <thead class="bg-gray-100">
           <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">#</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-700 sticky left-0 z-20 bg-gray-100">STT</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Tên sản phẩm</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">SKU</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Slug</th>
@@ -26,7 +26,7 @@
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Tồn kho</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Thương hiệu</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Danh mục</th>
-            <th class="px-6 py-3 text-center text-sm font-medium text-gray-700">Hành động</th>
+            <th class="px-6 py-3 text-center text-sm font-medium text-gray-700 sticky right-0 z-20 bg-gray-100">Hành động</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 bg-white">
@@ -35,7 +35,7 @@
             :key="p.id"
             class="hover:bg-gray-50 transition-colors"
           >
-            <td class="px-6 py-3">{{ index + 1 }}</td>
+            <td class="px-6 py-3 sticky left-0 z-10 bg-white">{{ index + 1 }}</td>
             <td class="px-6 py-3 font-medium">{{ p.name }}</td>
             <td class="px-6 py-3">{{ p.sku }}</td>
             <td class="px-6 py-3">{{ p.slug }}</td>
@@ -43,7 +43,7 @@
             <td class="px-6 py-3">{{ p.stockQuantity }}</td>
             <td class="px-6 py-3">{{ p.brand?.name || '—' }}</td>
             <td class="px-6 py-3">{{ p.category?.name || '—' }}</td>
-            <td class="px-6 py-3 text-center space-x-2">
+            <td class="px-6 py-3 text-center space-x-2 sticky right-0 z-10 bg-white">
               <button
                 @click="viewProduct(p)"
                 class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded"

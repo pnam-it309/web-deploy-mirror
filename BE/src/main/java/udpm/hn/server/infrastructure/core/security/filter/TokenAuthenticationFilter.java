@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -84,6 +86,29 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        return null;
+
+        String altHeader = request.getHeader("X-Authorization");
+        if (StringUtils.hasText(altHeader) && altHeader.startsWith("Bearer ")) {
+            return altHeader.substring(7);
+        }
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            String fromCookie = Arrays.stream(cookies)
+                    .filter(c -> "access_token".equalsIgnoreCase(c.getName()) || "token".equalsIgnoreCase(c.getName()))
+                    .map(Cookie::getValue)
+                    .filter(StringUtils::hasText)
+                    .findFirst()
+                    .orElse(null);
+            if (StringUtils.hasText(fromCookie)) {
+                return fromCookie;
+            }
+        }
+
+        String fromParam = request.getParameter("access_token");
+        if (!StringUtils.hasText(fromParam)) {
+            fromParam = request.getParameter("token");
+        }
+        return StringUtils.hasText(fromParam) ? fromParam : null;
     }
 }

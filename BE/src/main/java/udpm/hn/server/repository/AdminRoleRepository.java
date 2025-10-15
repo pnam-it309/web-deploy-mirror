@@ -13,5 +13,6 @@ public interface AdminRoleRepository extends JpaRepository<AdminRole, String> {
 
     Optional<AdminRole> findByRoleIdAndAdminId(String idRole , String idAdmin);
 
+    boolean existsByAdminAndRole(Admin admin, Role role);
 
 }

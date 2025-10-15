@@ -7,40 +7,83 @@
       <p>Customers count: {{ customers.length }}</p>
       <p>Filtered count: {{ filteredCustomers.length }}</p>
     </div>
-    
+
     <!-- Main content will go here -->
     <div v-if="loading">Đang tải dữ liệu...</div>
     <div v-else>
-      <h1>Danh sách khách hàng</h1>
-      <div v-if="customers.length === 0">Không có khách hàng nào</div>
-      <div v-else>
-        <!-- Simple table to display customers -->
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th style="border: 1px solid #ddd; padding: 8px;">ID</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Tên</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Email</th>
-              <th style="border: 1px solid #ddd; padding: 8px;">Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="customer in paginatedCustomers" :key="customer.id">
-              <td style="border: 1px solid #ddd; padding: 8px;">{{ customer.id }}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">{{ customer.name }}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">{{ customer.email }}</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">{{ getStatusText(customer.status) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        
-        <!-- Simple pagination -->
-        <div style="margin-top: 20px;">
-          <button @click="previousPage" :disabled="pagination.current <= 1">Trang trước</button>
-          <span style="margin: 0 10px;">Trang {{ pagination.current }} / {{ pagination.totalPages }}</span>
-          <button @click="nextPage" :disabled="pagination.current >= pagination.totalPages">Trang sau</button>
+      <BreadcrumbDefault label="Quản lý khách hàng">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-wrap gap-3 items-center">
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Tìm theo tên, email, số điện thoại"
+              class="border border-stroke rounded-md px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              @input="applyFilters"
+            />
+            <select
+              v-model="filters.status"
+              class="border border-stroke rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              @change="applyFilters"
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="active">Đang hoạt động</option>
+              <option value="inactive">Ngừng hoạt động</option>
+              <option value="banned">Đã khóa</option>
+            </select>
+            <ButtonDefault
+              label="Làm mới"
+              customClasses="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+              @click="resetFilters"
+            />
+          </div>
+          <ButtonDefault
+            label="Thêm khách hàng"
+            customClasses="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
+            @click="goToCreate"
+          />
         </div>
-      </div>
+        <DivCustom label="Danh sách khách hàng">
+
+          <div v-if="customers.length === 0">Không có khách hàng nào</div>
+          <div v-else>
+            <TableCustom
+              :data="paginatedCustomers"
+              :columns="columns"
+              :pageSize="pagination.pageSize"
+              :total="pagination.total"
+              @change="handleTableChange"
+            >
+              <template #default="{ item }: { item: Customer }">
+                <div :class="columns[0].class">{{ item.id }}</div>
+                <div :class="columns[1].class">{{ item.name }}</div>
+                <div :class="columns[2].class">
+                  <span class="truncate block max-w-[280px]" :title="item.email">{{ item.email }}</span>
+                </div>
+                <div :class="columns[3].class">
+                  <span :class="`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}`">{{ getStatusText(item.status) }}</span>
+                </div>
+                <div :class="columns[4].class" class="gap-2 flex justify-center">
+                  <button
+                    class="w-9 h-9 inline-flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-500"
+                    title="Xem chi tiết"
+                    @click="editCustomer(item)"
+                  >
+                    <EyeIcon class="w-5 h-5" />
+                  </button>
+                  <button
+                    class="w-9 h-9 inline-flex items-center justify-center rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    :title="item.status === 'active' ? 'Chuyển sang ngừng hoạt động' : 'Chuyển sang hoạt động'"
+                    @click="toggleStatus(item)"
+                  >
+                    <ArrowsRightLeftIcon class="w-5 h-5" />
+                  </button>
+                </div>
+              </template>
+            </TableCustom>
+          </div>
+        </DivCustom>
+      </BreadcrumbDefault>
     </div>
   </div>
 </template>
@@ -49,9 +92,15 @@
 import { defineComponent, ref, reactive, computed, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
+import BreadcrumbDefault from '@/components/custom/Div/BreadcrumbDefault.vue'
+import DivCustom from '@/components/custom/Div/DivCustom.vue'
+import TableCustom from '@/components/custom/Table/TableCustom.vue'
+import ButtonDefault from '@/components/custom/Button/ButtonDefault.vue'
+import { EyeIcon, ArrowsRightLeftIcon } from '@heroicons/vue/24/outline'
+import request from '@/services/request'
 
 interface Customer {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone?: string;
@@ -98,9 +147,10 @@ interface PaginationState {
 
 export default defineComponent({
   name: 'CustomerList',
+  components: { BreadcrumbDefault, DivCustom, TableCustom, ButtonDefault },
   setup() {
     const router = useRouter();
-    
+
     // State
     const loading = ref(false);
     const showDeleteModal = ref(false);
@@ -108,7 +158,7 @@ export default defineComponent({
     const deleting = ref(false);
     const deleteOption = ref('soft');
     const showAdvancedFilters = ref(false);
-    const selectedCustomers = ref<number[]>([]);
+    const selectedCustomers = ref<string[]>([]);
     const bulkAction = ref('');
 
     // Filters state
@@ -136,7 +186,7 @@ export default defineComponent({
       total: 0,
       showSizeChanger: true,
       showQuickJumper: true,
-      showTotal: (total: number, [start, end]: [number, number]) => 
+      showTotal: (total: number, [start, end]: [number, number]) =>
         `Hiển thị ${start}-${end} trong tổng số ${total} khách hàng`,
       get currentPage() { return this.current; },
       set currentPage(page: number) { this.current = page; },
@@ -148,7 +198,16 @@ export default defineComponent({
       }
     });
 
-    // Sample data - replace with API call
+    // Table columns configuration for TableCustom
+    const columns = ref([
+      { key: 'id', title: 'ID', class: 'col-span-1 flex items-center justify-center' },
+      { key: 'name', title: 'Tên', class: 'col-span-3 flex items-center justify-start pl-2' },
+      { key: 'email', title: 'Email', class: 'col-span-4 flex items-center justify-start pl-2' },
+      { key: 'status', title: 'Trạng thái', class: 'col-span-2 flex items-center justify-center' },
+      { key: 'actions', title: 'Hành động', class: 'col-span-2 flex items-center justify-center' },
+    ])
+
+    // Data
     const customers = ref<Customer[]>([]);
     const customerGroups = ref([
       { id: 1, name: 'Khách hàng thân thiết' },
@@ -158,7 +217,7 @@ export default defineComponent({
 
     // Computed
     const allSelected = computed(() => {
-      return selectedCustomers.value.length === filteredCustomers.value.length && 
+      return selectedCustomers.value.length === filteredCustomers.value.length &&
              filteredCustomers.value.length > 0;
     });
 
@@ -171,17 +230,16 @@ export default defineComponent({
           (customer.phone && customer.phone.includes(searchTerm));
 
         const matchesStatus = !filters.status || customer.status === filters.status;
-        
+
         // Add more filter conditions as needed
-        
+
         return matchesSearch && matchesStatus;
       });
     });
 
     const paginatedCustomers = computed(() => {
-      const start = (pagination.current - 1) * pagination.pageSize;
-      const end = start + pagination.pageSize;
-      return filteredCustomers.value.slice(start, end);
+      // Server returns the current page already
+      return customers.value
     });
 
     // Methods
@@ -235,7 +293,7 @@ export default defineComponent({
 
     const applyBulkAction = () => {
       if (!bulkAction.value) return;
-      
+
       switch (bulkAction.value) {
         case 'delete':
           showDeleteModal.value = true;
@@ -250,7 +308,7 @@ export default defineComponent({
 
     const applyFilters = () => {
       pagination.current = 1; // Reset to first page
-      // Additional filter logic here
+      fetchCustomers()
     };
 
     const resetFilters = () => {
@@ -286,9 +344,30 @@ export default defineComponent({
       }
     };
 
+    const handleTableChange = (page: number, pageSize?: number) => {
+      pagination.current = page
+      if (pageSize) pagination.pageSize = pageSize
+      fetchCustomers()
+    }
+
     const editCustomer = (customer: Customer) => {
-      router.push({ name: 'admin-customer-edit', params: { id: customer.id } });
+      router.push({ name: 'admin-customers-detail', params: { id: customer.id } });
     };
+
+    const goToCreate = () => {
+      router.push({ name: 'admin-customers-new' })
+    }
+
+    const toggleStatus = async (customer: Customer) => {
+      try {
+        const res = await request.patch(`/admin/customers/${customer.id}/toggle-status`)
+        const updated = res.data
+        customer.status = (updated.status || '').toString().toLowerCase()
+        message.success('Cập nhật trạng thái thành công')
+      } catch (e) {
+        message.error('Cập nhật trạng thái thất bại')
+      }
+    }
 
     const confirmDeleteCustomer = (customer: Customer) => {
       customerToDelete.value = customer;
@@ -297,18 +376,18 @@ export default defineComponent({
 
     const deleteCustomer = async () => {
       if (!customerToDelete.value) return;
-      
+
       deleting.value = true;
       try {
         // Replace with actual API call
         console.log(`Deleting customer ${customerToDelete.value.id} with option: ${deleteOption.value}`);
-        
+
         // Remove from local state
         const index = customers.value.findIndex(c => c.id === customerToDelete.value?.id);
         if (index !== -1) {
           customers.value.splice(index, 1);
         }
-        
+
         message.success('Xóa khách hàng thành công');
         showDeleteModal.value = false;
       } catch (error) {
@@ -320,59 +399,38 @@ export default defineComponent({
     };
 
     const fetchCustomers = async () => {
-      console.log('fetchCustomers - Starting to fetch customers...');
-      loading.value = true;
+      loading.value = true
       try {
-        // Replace with actual API call
-        // const response = await customerApi.getList(filters);
-        // customers.value = response.data;
-        // pagination.total = response.total;
-        
-        // Sample data
-        customers.value = [
-          {
-            id: 1,
-            name: 'Nguyễn Văn A',
-            email: 'nguyenvana@example.com',
-            phone: '0987654321',
-            status: 'active',
-            groups: [{ id: 1, name: 'Khách hàng thân thiết' }],
-            orders_count: 12,
-            orders_success_count: 10,
-            total_spent: 15000000,
-            avg_order_value: 1250000,
-            created_at: '2023-01-15T00:00:00Z',
-            is_vip: true
-          }
-          // Add more sample data as needed
-        ];
-        
-        pagination.total = customers.value.length;
-        console.log('fetchCustomers - Data loaded successfully', {
-          customersCount: customers.value.length,
-          firstCustomer: customers.value[0] || 'No customers'
-        });
+        const params: any = {
+          search: filters.search || undefined,
+          status: filters.status || undefined,
+          page: pagination.current - 1, // Spring page index starts at 0
+          size: pagination.pageSize,
+        }
+        const res = await request.get(`/admin/customers`, { params })
+        const page = res.data
+        customers.value = page.content || []
+        pagination.total = page.totalElements || 0
       } catch (error) {
-        console.error('fetchCustomers - Error:', error);
-        message.error('Có lỗi xảy ra khi tải danh sách khách hàng');
+        console.error('fetchCustomers - Error:', error)
+        message.error('Có lỗi xảy ra khi tải danh sách khách hàng')
       } finally {
-        loading.value = false;
-        console.log('fetchCustomers - Loading completed');
+        loading.value = false
       }
-    };
+    }
 
     // Lifecycle hooks
     onMounted(() => {
-      console.log('Component mounted, fetching customers...');
-      fetchCustomers();
-    });
+      fetchCustomers()
+    })
 
     // Watch for filter changes
     watchEffect(() => {
-      console.log('Filtered customers count changed:', filteredCustomers.value.length);
-      pagination.total = filteredCustomers.value.length;
-    });
-    
+      // Whenever filters change, reload from server
+      // Keep client-side filtered values but rely on server paging
+      // Debounce could be added if needed
+    })
+
     // Initial debug log
     console.log('Component setup completed', {
       loading: loading.value,
@@ -394,12 +452,15 @@ export default defineComponent({
       pagination,
       customers,
       customerGroups,
-      
+
+      // Table
+      columns,
+
       // Computed
       allSelected,
       filteredCustomers,
       paginatedCustomers,
-      
+
       // Methods
       applyFilters,
       resetFilters,
@@ -411,14 +472,17 @@ export default defineComponent({
       getGroupColor,
       toggleSelectAll,
       applyBulkAction,
-      confirmDeleteCustomer,
-      deleteCustomer,
       goToPage,
       previousPage,
       nextPage,
+      handleTableChange,
       editCustomer,
-      fetchCustomers
+      goToCreate,
+      toggleStatus,
+      confirmDeleteCustomer,
+      deleteCustomer,
+      fetchCustomers,
     };
-  }
+  },
 });
 </script>

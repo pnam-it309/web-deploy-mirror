@@ -10,43 +10,29 @@
       </div>
 
       <!-- Body -->
-      <div class="px-6 py-6 space-y-5">
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Username</label>
-          <input v-model.trim="form.username" type="text" class="input" placeholder="Nhập username..." />
-        </div>
-
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Email</label>
-          <input v-model.trim="form.email" type="email" class="input" placeholder="Nhập email..." />
-        </div>
-
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Họ tên</label>
-          <input v-model.trim="form.full_name" type="text" class="input" placeholder="Nhập họ tên..." />
-        </div>
-
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Số điện thoại</label>
-          <input v-model.trim="form.phone" type="text" class="input" placeholder="Nhập số điện thoại..." />
-        </div>
-
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Địa chỉ</label>
-          <textarea v-model.trim="form.address" class="input h-24 resize-none" placeholder="Nhập địa chỉ..."></textarea>
-        </div>
-
-        <div class="flex flex-col">
-          <label class="block text-sm font-medium text-black mb-1">Trạng thái</label>
-          <select v-model="form.is_active" class="input">
-            <option :value="true">Hoạt động</option>
-            <option :value="false">Khoá</option>
-          </select>
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col">
+            <label class="block text-sm font-medium text-black mb-1">Mã khách hàng</label>
+            <input v-model.trim="form.code" type="text" class="input" placeholder="Nhập mã..." />
+          </div>
+          <div class="flex flex-col">
+            <label class="block text-sm font-medium text-black mb-1">Họ tên</label>
+            <input v-model.trim="form.name" type="text" class="input" placeholder="Nhập họ tên..." />
+          </div>
+          <div class="flex flex-col">
+            <label class="block text-sm font-medium text-black mb-1">Email</label>
+            <input v-model.trim="form.email" type="email" class="input" placeholder="Nhập email..." />
+          </div>
+          <div class="flex flex-col">
+            <label class="block text-sm font-medium text-black mb-1">Ảnh đại diện (URL)</label>
+            <input v-model.trim="form.picture" type="text" class="input" placeholder="https://..." />
+          </div>
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="flex justify-end space-x-3 px-6 py-4 border-t">
+      <div class="flex justify-end gap-3 px-6 py-4 border-t">
         <button @click="closeModal"
                 class="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded text-black font-medium">
           Hủy
@@ -62,39 +48,38 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
+import { adminCustomerApi } from '@/services/api/admin/customer.api'
 
 const emit = defineEmits(['close', 'created'])
 
-const form = reactive({
-  id: 0,
-  username: '',
+type CustomerCreateRequest = {
+  code: string
+  name: string
+  email: string
+  picture: string
+}
+
+const form = reactive<CustomerCreateRequest>({
+  code: '',
+  name: '',
   email: '',
-  full_name: '',
-  phone: '',
-  address: '',
-  is_active: true,
-  is_customer: true,
-  created_at: '',
-  updated_at: ''
+  picture: ''
 })
 
-const submitForm = () => {
-  if (!form.username || !form.email) {
-    alert('⚠️ Vui lòng nhập đầy đủ Username và Email!')
+const submitForm = async () => {
+  if (!form.name || !form.email) {
+    alert('⚠️ Vui lòng nhập đầy đủ Họ tên và Email!')
     return
   }
 
-  const now = new Date().toISOString()
-  const newCustomer = {
-    ...form,
-    id: Date.now(),
-    created_at: now,
-    updated_at: now
+  try {
+    const res = await adminCustomerApi.create(form)
+    emit('created', res)
+    alert('🎉 Thêm khách hàng thành công!')
+    emit('close')
+  } catch (e) {
+    alert('❌ Lỗi khi tạo khách hàng')
   }
-
-  emit('created', newCustomer)
-  alert('🎉 Thêm khách hàng thành công!')
-  emit('close')
 }
 
 const closeModal = () => {

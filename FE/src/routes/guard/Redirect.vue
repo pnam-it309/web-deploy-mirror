@@ -1,7 +1,7 @@
 <template>
   <div class="redirect-container">
     <p class="redirect-message">
-      <a-spin size="large" />
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       <span v-if="loading">Đang xử lý đăng nhập...</span>
       <span v-else-if="error" class="error-message">{{ error }}</span>
     </p>

@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Recent Orders -->
+    <!-- Recent Orders - Using Animated Table -->
     <div class="mt-8">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-medium text-gray-900">Recent Orders</h2>
@@ -71,53 +71,42 @@
         </router-link>
       </div>
 
-      <div class="mt-4 bg-white shadow overflow-hidden sm:rounded-md">
-        <ul class="divide-y divide-gray-200">
-          <li v-for="order in recentOrders" :key="order.id">
-            <router-link :to="`/customer/orders/${order.id}`" class="block hover:bg-gray-50">
-              <div class="px-4 py-4 sm:px-6">
-                <div class="flex items-center justify-between">
-                  <p class="text-sm font-medium text-indigo-600 truncate">
-                    Order #{{ order.number }}
-                  </p>
-                  <div class="ml-2 flex-shrink-0 flex">
-                    <p :class="[
-                      getStatusClass(order.status),
-                      'px-2 inline-flex text-xs leading-5 font-semibold rounded-full'
-                    ]">
-                      {{ order.status }}
-                    </p>
-                  </div>
-                </div>
-                <div class="mt-2 sm:flex sm:justify-between">
-                  <div class="sm:flex">
-                    <p class="flex items-center text-sm text-gray-500">
-                      {{ order.items }} items
-                    </p>
-                    <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                      <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd"
-                          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                          clip-rule="evenodd" />
-                      </svg>
-                      {{ formatDate(order.date) }}
-                    </p>
-                  </div>
-                  <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                        clip-rule="evenodd" />
-                    </svg>
-                    {{ order.total }}
-                  </div>
-                </div>
+      <div class="mt-4">
+        <!-- Simple table first to test display -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders (Testing)</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Dữ liệu đơn hàng gần đây</p>
+          </div>
+          <div class="border-t border-gray-200">
+            <dl>
+              <div v-for="order in tableData" :key="order.id" class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-100 transition-colors cursor-pointer" @click="handleOrderClick(order)">
+                <dt class="text-sm font-medium text-gray-500">Order #{{ order.orderNumber }}</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ order.items }} items - {{ order.total }} - {{ order.status }}</dd>
               </div>
-            </router-link>
-          </li>
-        </ul>
+            </dl>
+          </div>
+        </div>
+
+        <!-- AnimatedTable with debug -->
+        <div class="mt-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Animated Table (Debug)</h3>
+          <AnimatedTable
+            :data="tableData"
+            :columns="tableColumns"
+            :loading="false"
+            :items-per-page="5"
+            :show-pagination="false"
+            :animation-config="{
+              hoverScale: 1.02,
+              hoverTransition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              rowHoverColor: 'rgba(99, 102, 241, 0.1)',
+              selectedRowColor: 'rgba(99, 102, 241, 0.2)',
+              staggerDelay: 50,
+            }"
+            @row-click="handleOrderClick"
+          />
+        </div>
       </div>
     </div>
 
@@ -152,6 +141,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import AnimatedTable from '@/components/AnimatedTable.vue';
 
 const authStore = useAuthStore();
 
@@ -160,19 +150,19 @@ const userName = computed(() => {
   return authStore.user?.fullName || 'Customer';
 });
 
-// Stats
-const stats = ref([
-  { name: 'Total Orders', value: '12', change: '+2.5%', changeType: 'increase', period: 'vs last month' },
-  { name: 'Total Spent', value: '$1,234', change: '+5.4%', changeType: 'increase', period: 'vs last month' },
-  { name: 'Wishlist', value: '8', change: '+1', changeType: 'increase', period: 'items' },
-  { name: 'Reward Points', value: '1,250', change: '+150', changeType: 'increase', period: 'points' },
-]);
+// Table configuration for orders
+const tableColumns = [
+  { key: 'orderNumber', label: 'Order #', sortable: true },
+  { key: 'date', label: 'Date', sortable: true },
+  { key: 'items', label: 'Items', sortable: false },
+  { key: 'total', label: 'Total', sortable: true },
+  { key: 'status', label: 'Status', sortable: false },
+];
 
-// Recent orders
-const recentOrders = ref([
+const tableData = ref([
   {
     id: 1,
-    number: 'WU88191139',
+    orderNumber: 'WU88191139',
     date: '2023-10-15',
     items: 3,
     total: '$299.00',
@@ -180,7 +170,7 @@ const recentOrders = ref([
   },
   {
     id: 2,
-    number: 'WU88191138',
+    orderNumber: 'WU88191138',
     date: '2023-10-10',
     items: 1,
     total: '$99.00',
@@ -188,12 +178,47 @@ const recentOrders = ref([
   },
   {
     id: 3,
-    number: 'WU88191137',
+    orderNumber: 'WU88191137',
     date: '2023-10-05',
     items: 2,
     total: '$199.00',
     status: 'Processing'
+  },
+  {
+    id: 4,
+    orderNumber: 'WU88191136',
+    date: '2023-09-28',
+    items: 1,
+    total: '$49.00',
+    status: 'Delivered'
+  },
+  {
+    id: 5,
+    orderNumber: 'WU88191135',
+    date: '2023-09-20',
+    items: 4,
+    total: '$399.00',
+    status: 'Delivered'
   }
+]);
+
+// Handle order click
+const handleOrderClick = (order: any) => {
+  console.log('Clicked order:', order);
+  // Navigate to order detail page
+  // router.push(`/customer/orders/${order.id}`);
+};
+
+// Debug: Check if component loads
+console.log('Dashboard loaded with AnimatedTable component');
+console.log('Table data:', tableData.value);
+console.log('Table columns:', tableColumns);
+
+const stats = ref([
+  { name: 'Total Orders', value: '12', change: '+2.5%', changeType: 'increase', period: 'vs last month' },
+  { name: 'Total Spent', value: '$1,234', change: '+5.4%', changeType: 'increase', period: 'vs last month' },
+  { name: 'Wishlist', value: '8', change: '+1', changeType: 'increase', period: 'items' },
+  { name: 'Reward Points', value: '1,250', change: '+150', changeType: 'increase', period: 'points' },
 ]);
 
 // Recommended products
@@ -227,25 +252,4 @@ const recommendedProducts = ref([
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/home-page-02-product-04.jpg',
   },
 ]);
-
-// Helper functions
-const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
-};
-
-const getStatusClass = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'delivered':
-      return 'bg-green-100 text-green-800';
-    case 'shipped':
-      return 'bg-blue-100 text-blue-800';
-    case 'processing':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'cancelled':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
 </script>

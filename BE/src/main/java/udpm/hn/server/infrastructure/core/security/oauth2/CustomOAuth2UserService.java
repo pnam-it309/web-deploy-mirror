@@ -19,6 +19,8 @@ import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
 import udpm.hn.server.infrastructure.core.exception.OAuth2AuthenticationProcessingException;
 import udpm.hn.server.infrastructure.core.security.oauth2.user.OAuth2UserInfo;
 import udpm.hn.server.infrastructure.core.security.oauth2.user.OAuth2UserInfoFactory;
+import udpm.hn.server.infrastructure.core.security.repository.CustomerAuthRepository;
+import udpm.hn.server.infrastructure.core.security.repository.CustomerRoleAuthRepository;
 import udpm.hn.server.infrastructure.core.security.repository.RoleAuthRepository;
 import udpm.hn.server.infrastructure.core.security.repository.StaffAuthRepository;
 import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
@@ -36,6 +38,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final HttpServletResponse httpServletResponse;
     private final RoleAuthRepository roleAuthRepository;
     private final StaffAuthRepository staffAuthRepository;
+    private final CustomerAuthRepository customerAuthRepository;
+    private final CustomerRoleAuthRepository customerRoleAuthRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -138,20 +142,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processCustomer(OAuth2UserInfo oAuth2UserInfo, String role) {
         log.info("Processing customer user: {}", oAuth2UserInfo.getEmail());
 
-        Optional<Admin> staffOptional = staffAuthRepository.findByEmailAndStatus(
+        Optional<Customer> customerOptional = customerAuthRepository.findByEmailAndStatus(
                 oAuth2UserInfo.getEmail(),
                 EntityStatus.ACTIVE
         );
 
-        if (staffOptional.isPresent()) {
-            List<String> roleUser = roleAuthRepository.findRoleByStaffId(staffOptional.get().getId());
+        if (customerOptional.isPresent()) {
+            List<String> roleUser = customerRoleAuthRepository.getRoleCodesByCustomerId(customerOptional.get().getId());
 
             if (roleUser.contains(role)) {
-                Admin admin = staffOptional.get();
-                // Update staff information
-                admin.setPicture(oAuth2UserInfo.getImageUrl());
-                staffAuthRepository.save(admin);
-                return UserPrincipal.create(admin, oAuth2UserInfo.getAttributes(), roleUser);
+                Customer customer = customerOptional.get();
+                // Update customer information
+                customer.setPicture(oAuth2UserInfo.getImageUrl());
+                customerAuthRepository.save(customer);
+                return UserPrincipal.create(customer, oAuth2UserInfo.getAttributes(), roleUser);
             } else {
                 log.warn("User {} does not have required role: {}", oAuth2UserInfo.getEmail(), role);
                 CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
