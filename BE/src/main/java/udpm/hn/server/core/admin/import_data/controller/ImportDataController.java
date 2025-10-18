@@ -1,14 +1,18 @@
 package udpm.hn.server.core.admin.import_data.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import udpm.hn.server.core.admin.import_data.dto.request.ProductImportRequest;
 import udpm.hn.server.core.admin.import_data.dto.response.ProductImportResponse;
 import udpm.hn.server.core.admin.import_data.service.ImportService;
+import udpm.hn.server.core.common.base.ResponseObject;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 import udpm.hn.server.utils.Helper;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +34,15 @@ public class ImportDataController {
         request.setHeaderRow(headerRow);
         request.setDataStartRow(dataStartRow);
 
-        return Helper.createResponseEntity(importService.importFromExcel(request));
+        try {
+            return Helper.createResponseEntity(
+                    ResponseObject.successForward(importService.importFromExcel(request), "Import successful")
+            );
+        } catch (IOException e) {
+            return Helper.createResponseEntity(
+                    ResponseObject.errorForward("Failed to import from Excel: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+            );
+        }
     }
 
     @PostMapping("/products/google-sheet")
@@ -48,6 +60,14 @@ public class ImportDataController {
         request.setHeaderRow(headerRow);
         request.setDataStartRow(dataStartRow);
 
-        return Helper.createResponseEntity(importService.importFromGoogleSheet(request));
+        try {
+            return Helper.createResponseEntity(
+                    ResponseObject.successForward(importService.importFromGoogleSheet(request), "Import successful")
+            );
+        } catch (IOException e) {
+            return Helper.createResponseEntity(
+                    ResponseObject.errorForward("Failed to import from Google Sheet: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+            );
+        }
     }
 }

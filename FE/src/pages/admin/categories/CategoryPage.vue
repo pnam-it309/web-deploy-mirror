@@ -13,6 +13,13 @@
       </div>
     </div>
 
+    <!-- Filter Section -->
+    <Categoryfilter
+      :categories="categories"
+      @filter="handleFilter"
+      ref="categoryFilterRef"
+    />
+
     <!-- Table -->
     <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
       <table class="min-w-full divide-y divide-gray-200">
@@ -34,7 +41,7 @@
           </tr>
           <tr
             v-else
-            v-for="(cat, index) in categories"
+            v-for="(cat, index) in filteredCategories"
             :key="cat.id"
             class="hover:bg-gray-50 transition-colors"
           >
@@ -85,13 +92,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 // import { Pageable } from '../../../types/common';
 import { categoryApi, CategoryResponse } from '@/services/api/admin/category.api';
-import CategoryCreateModal from './CategoryCreateModal.vue';
-
-// lightweight notify helper to avoid external dependency
+import Categoryfilter from './Categoryfilter.vue';
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
   if (type === 'error') {
     console.error(message);
@@ -106,13 +111,23 @@ const isLoading = ref(false);
 const route = useRoute();
 const router = useRouter();
 
+const categoryFilterRef = ref()
+const currentFilters = ref({
+  keyword: '',
+  parentCategory: undefined,
+  categoryType: ''
+})
+
+// Handle filter events from CategoryFilter component
+const handleFilter = (filters: any) => {
+  currentFilters.value = filters
+}
+
 const pageable = {
   page: 0,
   size: 20,
   sort: 'name,asc',
 };
-
-// Load categories from API
 const loadCategories = async () => {
   try {
     isLoading.value = true;
