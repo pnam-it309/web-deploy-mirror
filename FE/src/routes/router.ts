@@ -37,8 +37,8 @@ const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
 const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
 
 // Customer pages
-const CustomerDashboard = () => import('@/pages/customer/DashboardPage.vue')
-const CustomerOrders = () => import('@/pages/customer/OrdersPage.vue')
+const CustomerDashboard = () => import('@/pages/customer/dashboard_cus/DashboardPage.vue')
+const CustomerOrders = () => import('@/pages/customer/orders/OrdersPage.vue')
 
 // Authentication guard - Completely bypassed
 const requireAuth = (

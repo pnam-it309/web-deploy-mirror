@@ -7,7 +7,7 @@ import udpm.hn.server.core.admin.import_data.dto.response.ProductImportResponse;
 import udpm.hn.server.core.admin.import_data.service.ImportService;
 
 @Service
-public class ProductImportServiceImpl extends udpm.hn.server.core.admin.import_data.service.impl.BaseImportServiceImpl<ProductImportRequest, ProductImportResponse> {
+public class ProductImportServiceImpl extends BaseImportServiceImpl<ProductImportRequest, ProductImportResponse> {
 
     @Override
     protected ProductImportResponse processSheet(Sheet sheet, ProductImportRequest request) {
