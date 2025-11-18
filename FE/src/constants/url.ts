@@ -14,14 +14,14 @@ export const SCREEN_ROLE_CUSTOMER = ROLES.CUSTOMER
 
 // ✅ URL login Google cho ADMIN
 export const URL_OAUTH2_GOOGLE_ADMIN = (): string => {
-  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/redirect`)
-  return `${DOMAIN_BACKEND}/oauth2/authorize/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
+  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/selection`)
+  return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
 }
 
 // ✅ URL login Google cho CUSTOMER
 export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
-  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/redirect`)
-  return `${DOMAIN_BACKEND}/oauth2/authorize/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
+  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/selection`)
+  return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
 }
 
 export const API_URL = `${VITE_BASE_URL_SERVER}/api/v1` as string

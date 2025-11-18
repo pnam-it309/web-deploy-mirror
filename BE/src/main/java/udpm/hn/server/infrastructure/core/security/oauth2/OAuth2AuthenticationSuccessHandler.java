@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
 import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
 import udpm.hn.server.infrastructure.core.exception.RedirectException;
-
 import udpm.hn.server.infrastructure.core.security.response.TokenUriResponse;
 import udpm.hn.server.infrastructure.core.security.service.RefreshTokenService;
 import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
+import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 import udpm.hn.server.utils.CookieUtils;
 
 import java.io.IOException;
@@ -68,16 +68,27 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         try {
             Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
                     .map(Cookie::getValue);
-            if (redirectUri.isEmpty()) throw new RedirectException("Redirect uri not found! Please try again later!");
-            String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+
+            String targetUrl;
+            if (redirectUri.isPresent() && !redirectUri.get().isEmpty()) {
+                targetUrl = redirectUri.get();
+                log.info("Found redirect URI from cookie: " + targetUrl);
+            } else {
+                // Fallback to default target URL if redirect URI cookie is not found
+                targetUrl = getDefaultTargetUrl();
+                log.warn("Redirect URI cookie not found, using default target URL: " + targetUrl);
+            }
+
+            // Generate tokens for the authenticated user
             String token = tokenProvider.createToken(authentication);
             String refreshToken = refreshTokenService.createRefreshToken(authentication).getRefreshToken();
-            return buildSuccessUrl(targetUrl, TokenUriResponse.getState(token, refreshToken));
-        } catch (RedirectException e) {
-            e.printStackTrace(System.out);
-            return buildErrorUri(request, response, e.getMessage());
-        } catch (BadRequestException | JsonProcessingException | MalformedURLException | URISyntaxException e) {
-            throw new RuntimeException(e);
+
+            // Create state parameter with tokens
+            String stateToken = TokenUriResponse.getState(token, refreshToken);
+            return targetUrl + "?state=" + stateToken;
+        } catch (Exception e) {
+            log.error("Error determining target URL: " + e.getMessage(), e);
+            return buildErrorUri(request, response, "Error determining redirect URL");
         }
     }
 
@@ -95,10 +106,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION);
         }
         return redirectUri.orElse(DEFAULT_TARGET_URL_TUTOR_CLIENT);
-    }
-
-    private String buildSuccessUrl(String targetUrl, String token) throws MalformedURLException, URISyntaxException {
-        return targetUrl + "?state=" + token;
     }
 
 }

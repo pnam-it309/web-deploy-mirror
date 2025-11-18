@@ -1,4 +1,4 @@
-import { API_ADMIN_BRAND} from '@/constants/url'
+import { API_ADMIN_BRAND } from '@/constants/url'
 import request from '@/services/request'
 import {
   DefaultResponse,

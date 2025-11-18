@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen bg-gray-900 text-gray-200">
+  <div v-if="isAuthenticated" class="flex h-screen bg-gray-900 text-gray-200">
     <!-- sidebar layout -->
     <div
       v-show="isSidebarOpen"
@@ -218,6 +218,12 @@
       </div>
     </div>
   </div>
+  <div v-else class="flex items-center justify-center h-screen">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+      <p class="mt-4 text-lg text-gray-700">Loading...</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -270,13 +276,6 @@ import {
   ChevronDownIcon,
   Bars3Icon,
   XMarkIcon,
-  ArrowPathIcon,
-  UserGroupIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-  ArrowUpTrayIcon,
-  CubeIcon,
-  CogIcon,
   FolderIcon,
   BellIcon,
 } from '@heroicons/vue/24/outline'
@@ -285,12 +284,18 @@ const authStore = useAuthStore()
 
 // Tính toán chữ cái đầu (ví dụ: "Nguyễn Văn A" -> "NA")
 const userInitials = computed(() => {
-  const name = authStore.user?.fullName || 'Admin'
+  if (!authStore.user?.fullName) return 'AD'
+  const name = authStore.user.fullName
   const parts = name.split(' ').filter((p) => p.length > 0)
   if (parts.length > 1) {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
   }
   return name.substring(0, 2).toUpperCase()
+})
+
+// Check if user is authenticated
+const isAuthenticated = computed(() => {
+  return authStore.isAuthenticated && authStore.user !== null
 })
 
 // KHAI BÁO navItems (Đã sửa thành ref)

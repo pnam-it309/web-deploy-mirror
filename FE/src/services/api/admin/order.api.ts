@@ -1,3 +1,4 @@
+import { API_ADMIN_ORDER } from '@/constants/url'
 import request from '@/services/request'
 
 // ==================== Request Interfaces ====================
@@ -85,7 +86,7 @@ export interface PageResponse<T> {
 }
 
 // ==================== API Methods ====================
-const base = '/admin/orders'
+const base = API_ADMIN_ORDER
 
 export const adminOrderApi = {
   /**
