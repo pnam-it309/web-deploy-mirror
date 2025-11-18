@@ -155,10 +155,7 @@ const processOAuthCallback = async () => {
 
     console.log('💾 Đã lưu thông tin auth, role:', user.roleScreen)
 
-    // Clear URL parameters để tránh loop
-    router.replace({ name: 'selection' })
-
-    // Redirect based on role
+    // Redirect based on role immediately
     setTimeout(() => {
       if (user.roleScreen === ROLES.ADMIN) {
         console.log('🎯 Redirect to ADMIN dashboard')
@@ -167,7 +164,7 @@ const processOAuthCallback = async () => {
         console.log('🎯 Redirect to CUSTOMER dashboard')  
         router.push({ name: 'customer-dashboard' })
       }
-    }, 1000)
+    }, 500)
 
     return true
 

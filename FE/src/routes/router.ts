@@ -40,23 +40,47 @@ const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal
 const CustomerDashboard = () => import('@/pages/customer/dashboard_cus/DashboardPage.vue')
 const CustomerOrders = () => import('@/pages/customer/orders/OrdersPage.vue')
 
-// Authentication guard - Completely bypassed
+// Authentication guard - Check for valid JWT token
 const requireAuth = (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  next()
+  const token = localStorage.getItem('accessToken')
+  if (token) {
+    next()
+  } else {
+    next('/selection')
+  }
 }
 
-// Role-based guard - Completely bypassed
+// Role-based guard - Check user role permissions
 const requireRole = (roles: string[]) => {
   return (
     to: RouteLocationNormalized,
     from: RouteLocationNormalized,
     next: NavigationGuardNext
   ) => {
-    next()
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      next('/selection')
+      return
+    }
+
+    try {
+      // Decode JWT token to get user info
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const userRole = payload.roleScreen || payload.role || payload.authorities || 'guest'
+
+      if (roles.includes(userRole) || roles.includes('*')) {
+        next()
+      } else {
+        next('/403')  // Redirect to 403 Forbidden page instead of /unauthorized
+      }
+    } catch (error) {
+      console.error('Error decoding token:', error)
+      next('/selection')
+    }
   }
 }
 
@@ -78,9 +102,33 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
-    path: '/product/:id',
-    name: 'product-detail',
-    component: ProductDetailPage,
+    path: '/unauthorized',
+    name: 'unauthorized',
+    component: {
+      template: `
+        <div style="display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; background: #f5f5f5;">
+          <div>
+            <h1 style="color: #ff4d4f; margin-bottom: 16px;">🚫 Unauthorized</h1>
+            <p style="color: #666; margin-bottom: 24px;">You don't have permission to access this page.</p>
+            <a-button type="primary" @click="$router.push('/selection')" size="large">
+              Go to Login
+            </a-button>
+          </div>
+        </div>
+      `
+    },
+    meta: { public: true },
+  },
+  {
+    path: '/oauth2/callback',
+    name: 'oauth-callback',
+    component: () => import('@/pages/auth/OAuthCallback.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/oauth2/callback/google',
+    name: 'oauth-callback-google',
+    component: () => import('@/pages/auth/OAuthCallback.vue'),
     meta: { public: true },
   },
 
@@ -116,6 +164,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: AdminLayout,
+    beforeEnter: requireRole(['admin']),
     children: [
       {
         path: '',
@@ -246,10 +295,24 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-  // 404 Not Found - Redirect to selection page
+  // Error pages
+  {
+    path: '/403',
+    name: 'forbidden',
+    component: () => import('@/pages/403/Forbidden.vue'),
+    meta: { public: true },
+  },
+  {
+    path: '/404',
+    name: 'not-found',
+    component: () => import('@/pages/404/NotFound.vue'),
+    meta: { public: true },
+  },
+
+  // 404 Not Found - Redirect to 404 page instead of selection
   {
     path: '/:catchAll(.*)*',
-    redirect: '/selection',
+    redirect: '/404',
   },
 ]
 
@@ -261,14 +324,54 @@ const router = createRouter({
   },
 })
 
-// Navigation guard - Allow all routes
+// Navigation guard - Handle authentication and public routes
 router.beforeEach((to, from, next) => {
-  // Redirect root to admin dashboard
+  // Redirect root to admin dashboard if authenticated, otherwise to selection
   if (to.path === '/') {
-    next('/admin')
-  } else {
-    next()
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      next('/admin')
+    } else {
+      next('/selection')
+    }
+    return
   }
+
+  // Check if route is public
+  if (to.meta?.public) {
+    next()
+    return
+  }
+
+  // For protected routes, check authentication
+  const token = localStorage.getItem('accessToken')
+  if (!token) {
+    next('/selection')
+    return
+  }
+
+  // If authenticated and trying to access selection/login pages, redirect to appropriate dashboard
+  if (to.path === '/selection' || to.path === '/login') {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const userRole = payload.roleScreen || payload.role || payload.authorities || 'guest'
+
+      if (userRole === 'ADMIN') {
+        next('/admin')
+      } else if (userRole === 'CUSTOMER' || userRole === 'customer' || userRole === 'user') {
+        next('/customer')
+      } else {
+        next('/selection')
+      }
+      return
+    } catch (error) {
+      console.error('Error decoding token:', error)
+      next('/selection')
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

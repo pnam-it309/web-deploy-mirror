@@ -66,7 +66,28 @@ public class TokenProvider {
             Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
 
             if (adminUser != null) {
+                // Populate all user information in the token
+                tokenInfoResponse.setUserId(adminUser.getId());
+                tokenInfoResponse.setUserCode(adminUser.getCode());
+                tokenInfoResponse.setUserName(adminUser.getName());
+                tokenInfoResponse.setFullName(adminUser.getName());
+                tokenInfoResponse.setEmail(adminUser.getEmail());
+                tokenInfoResponse.setPictureUrl(adminUser.getPicture());
                 tokenInfoResponse.setRoleScreen(screenForRole.get());
+
+                // Set roles information
+                List<String> rolesCode = new ArrayList<>();
+                List<String> rolesName = new ArrayList<>();
+                // Add default roles based on screen role
+                if ("ADMIN".equals(screenForRole.get())) {
+                    rolesCode.add("ADMIN");
+                    rolesName.add("ADMIN");
+                } else if ("CUSTOMER".equals(screenForRole.get())) {
+                    rolesCode.add("CUSTOMER");
+                    rolesName.add("CUSTOMER");
+                }
+                tokenInfoResponse.setRolesCode(rolesCode);
+                tokenInfoResponse.setRolesName(rolesName);
             }
         }
 
@@ -102,11 +123,10 @@ public class TokenProvider {
     private static Map<String, Object> getBodyClaims(TokenInfoResponse tokenInfoResponse) {
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", tokenInfoResponse.getUserId());
-        claims.put("userName", tokenInfoResponse.getUserName());
-        claims.put("userCode", tokenInfoResponse.getUserCode());
-        claims.put("fullName", tokenInfoResponse.getFullName());
-        claims.put("pictureUrl", tokenInfoResponse.getPictureUrl());
+        claims.put("id", tokenInfoResponse.getUserId());
+        claims.put("sub", tokenInfoResponse.getUserId());
+        claims.put("name", tokenInfoResponse.getFullName());
+        claims.put("picture", tokenInfoResponse.getPictureUrl());
         List<String> rolesCode = tokenInfoResponse.getRolesCode();
         List<String> rolesName = tokenInfoResponse.getRolesName();
         claims.put("rolesCode", rolesCode);
@@ -114,7 +134,7 @@ public class TokenProvider {
         claims.put("host", tokenInfoResponse.getHost());
         claims.put("roleScreen", tokenInfoResponse.getRoleScreen());
         claims.put("roleSwitch", tokenInfoResponse.getRoleSwitch());
-        claims.put("email", tokenInfoResponse.getEmailFPT() != null ? tokenInfoResponse.getEmailFPT() : tokenInfoResponse.getEmailSV());
+        claims.put("email", tokenInfoResponse.getEmail());
 
         return claims;
     }

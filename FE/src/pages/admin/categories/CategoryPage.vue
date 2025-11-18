@@ -97,6 +97,7 @@ import { useRoute, useRouter } from 'vue-router';
 // import { Pageable } from '../../../types/common';
 import { categoryApi, CategoryResponse } from '@/services/api/admin/category.api';
 import Categoryfilter from './Categoryfilter.vue';
+import CategoryCreateModal from './CategoryCreateModal.vue';
 const notify = (message: string, type: 'success' | 'error' = 'success') => {
   if (type === 'error') {
     console.error(message);
@@ -111,12 +112,45 @@ const isLoading = ref(false);
 const route = useRoute();
 const router = useRouter();
 
-const categoryFilterRef = ref()
 const currentFilters = ref({
   keyword: '',
   parentCategory: undefined,
   categoryType: ''
 })
+
+const categoryFilterRef = ref()
+
+// Computed property for filtered categories
+const filteredCategories = computed(() => {
+  if (!categories.value) return [];
+
+  let filtered = [...categories.value];
+
+  // Filter by keyword
+  if (currentFilters.value.keyword) {
+    const keyword = currentFilters.value.keyword.toLowerCase();
+    filtered = filtered.filter(cat =>
+      cat.name.toLowerCase().includes(keyword) ||
+      cat.slug.toLowerCase().includes(keyword) ||
+      (cat.description && cat.description.toLowerCase().includes(keyword))
+    );
+  }
+
+  // Filter by parent category
+  if (currentFilters.value.parentCategory) {
+    filtered = filtered.filter(cat =>
+      cat.parentId === currentFilters.value.parentCategory
+    );
+  }
+
+  // Filter by category type (if implemented)
+  if (currentFilters.value.categoryType) {
+    // Add category type filtering logic if needed
+    // For now, this is a placeholder for future implementation
+  }
+
+  return filtered;
+});
 
 // Handle filter events from CategoryFilter component
 const handleFilter = (filters: any) => {
@@ -132,7 +166,12 @@ const loadCategories = async () => {
   try {
     isLoading.value = true;
     const response = await categoryApi.getAllCategories(pageable);
-    categories.value = response?.content || []; // Ensure it's always an array
+    // Convert string IDs to numbers for local state management
+    categories.value = (response?.content || []).map((cat: any) => ({
+      ...cat,
+      id: parseInt(cat.id),
+      parentId: cat.parentId ? parseInt(cat.parentId) : null
+    }));
   } catch (error) {
     console.error('Failed to load categories:', error);
     notify('Không thể tải danh sách danh mục', 'error');
@@ -176,46 +215,58 @@ const closeModal = () => {
   }
 }
 
-const handleSaved = (payload: any) => {
+const handleSaved = async (payload: any) => {
   // payload: { id?, name, slug, description, parentId }
   if (!payload) return
 
-  // update case: id exists and matches
-  if (payload.id) {
-    const idx = categories.value.findIndex((c) => c.id === payload.id)
-    if (idx !== -1) {
-      // update fields
-      categories.value[idx] = {
-        ...categories.value[idx],
-        name: payload.name,
-        slug: payload.slug,
-        description: payload.description,
-        parentId: payload.parentId ?? null,
-      }
-      notify('✏️ Cập nhật danh mục thành công', 'success')
-    } else {
-      // if id provided but not found, treat as new
-      const newId = (categories.value.length ? Math.max(...categories.value.map(c => c.id)) : 0) + 1
-      categories.value.push({ id: newId, ...payload, parentId: payload.parentId ?? null })
-      notify('🎉 Thêm danh mục thành công', 'success')
-    }
-  } else {
-    // create: assign auto-increment id
-    const newId = (categories.value.length ? Math.max(...categories.value.map(c => c.id)) : 0) + 1
-    categories.value.push({ id: newId, ...payload, parentId: payload.parentId ?? null })
-    notify('🎉 Thêm danh mục thành công', 'success')
-  }
+  try {
+    let savedCategory;
 
-  // close modal
-  showModal.value = false
-  editingCategory.value = null
-}
+    // Create or update based on whether ID exists
+    if (payload.id) {
+      // Update existing category - convert number ID to string for API
+      const apiPayload = { ...payload, id: payload.id.toString() };
+      savedCategory = await categoryApi.updateCategory(apiPayload);
+      notify('✏️ Cập nhật danh mục thành công', 'success');
+
+      // Update local array
+      const idx = categories.value.findIndex((c) => c.id === payload.id);
+      if (idx !== -1) {
+        categories.value[idx] = {
+          ...categories.value[idx],
+          ...savedCategory,
+          id: parseInt(savedCategory.id), // Convert string ID to number
+          parentId: savedCategory.parentId ? parseInt(savedCategory.parentId) : null
+        };
+      }
+    } else {
+      // Create new category
+      savedCategory = await categoryApi.createCategory(payload);
+      notify('🎉 Thêm danh mục thành công', 'success');
+
+      // Add to local array with proper type conversion
+      categories.value.push({
+        ...savedCategory,
+        id: parseInt(savedCategory.id), // Convert string ID to number
+        parentId: savedCategory.parentId ? parseInt(savedCategory.parentId) : null
+      });
+    }
+
+    // Close modal and reset form after successful save
+    showModal.value = false;
+    editingCategory.value = null;
+
+  } catch (error) {
+    console.error('Failed to save category:', error);
+    notify('Không thể lưu danh mục. Vui lòng thử lại.', 'error');
+  }
+};
 
 /**
  * Xóa 1 category và tất cả descendants (con cháu),
  * tương ứng với cascade = ALL + orphanRemoval = true trên entity.
  */
-const confirmDelete = (id: number) => {
+const confirmDelete = async (id: number) => {
   // tìm descendants
   const toDelete = getSubtreeIds(id)
   const msg = toDelete.length > 1
@@ -223,8 +274,17 @@ const confirmDelete = (id: number) => {
     : 'Bạn có chắc muốn xóa danh mục này?'
   if (!confirm(msg)) return
 
-  categories.value = categories.value.filter(c => !toDelete.includes(c.id))
-  notify('🗑️ Xóa danh mục thành công', 'success')
+  try {
+    // Call API to delete category and all descendants
+    await categoryApi.deleteCategory(id.toString())
+
+    // Update local state after successful deletion
+    categories.value = categories.value.filter(c => !toDelete.includes(c.id))
+    notify('🗑️ Xóa danh mục thành công', 'success')
+  } catch (error) {
+    console.error('Failed to delete category:', error)
+    notify('Không thể xóa danh mục. Vui lòng thử lại.', 'error')
+  }
 }
 
 /**

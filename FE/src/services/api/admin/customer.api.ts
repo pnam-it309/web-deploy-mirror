@@ -1,3 +1,4 @@
+import { API_ADMIN_CUSTOMER } from '@/constants/url'
 import request from '@/services/request'
 
 export interface CustomerRequest {
@@ -24,7 +25,7 @@ export interface PageResponse<T> {
   size: number
 }
 
-const base = '/admin/customers'
+const base = API_ADMIN_CUSTOMER
 
 export const adminCustomerApi = {
   async list(params: { search?: string; status?: string; page?: number; size?: number }) {
