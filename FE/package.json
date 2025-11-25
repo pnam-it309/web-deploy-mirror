@@ -37,6 +37,7 @@
     "@types/moment": "^2.11.29",
     "@types/sockjs-client": "^1.5.4",
     "@vue/compiler-core": "^3.5.13",
+    "@vueup/vue-quill": "^1.0.0-beta.11",
     "@vueuse/core": "^10.7.1",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.7.5",
