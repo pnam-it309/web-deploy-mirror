@@ -33,11 +33,16 @@ export const useBrandStore = defineStore('brand', {
 
   // 3. TẠO ACTIONS (Nơi gọi API)
   actions: {
-    async fetchBrands(page = 0, size = 20) {
+    async fetchBrands(filterParams: any = {}) { // <-- Nhận tham số
       this.isLoading = true;
       this.error = null;
       try {
-        const response = await BrandService.getAll(page, size);
+        const params = {
+          page: 0,
+          size: 20,
+          ...filterParams // Merge filter
+        };
+        const response = await BrandService.getAll(params);
         this.pageData = response.data as SpringPage<Brand>;
         this.brands = this.pageData.content; // Dữ liệu nằm trong 'content'
       } catch (err: any) {

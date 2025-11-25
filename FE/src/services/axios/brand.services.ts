@@ -37,12 +37,11 @@ export const BrandService = {
    * API: GET /admin/brands/get-all-brands
    * (Đã có Interceptor đính token)
    */
-  getAll: (page = 0, size = 20) => {
+  getAll: (params: any) => { // <-- Thay đổi tham số
     return apiClient.get<SpringPage<Brand>>('/admin/brands/get-all-brands', {
-      params: { page, size },
+      params: params, // <-- Truyền xuống axios
     });
   },
-
   /**
    * API: POST /admin/brands
    * (Đã có Interceptor đính token)
