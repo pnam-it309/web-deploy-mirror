@@ -1,255 +1,245 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-semibold text-gray-900">My Dashboard</h1>
+  <div class="min-h-screen bg-gray-100 p-6 sm:p-8 lg:pl-0">
+    <div class="max-w-full mx-auto">
 
-    <!-- Welcome Section -->
-    <div class="mt-6 bg-indigo-700 rounded-lg shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
-      <div class="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
-        <div class="lg:self-center">
-          <h2 class="text-3xl font-extrabold text-white sm:text-4xl">
-            <span class="block">Welcome back, {{ userName }}!</span>
-          </h2>
-          <p class="mt-4 text-lg leading-6 text-indigo-200">
-            Check out what's new in your account or start shopping for your next favorite product.
-          </p>
-          <div class="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-            <router-link to="/catalog"
-              class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">
-              Start Shopping
-            </router-link>
-            <router-link to="/customer/orders"
-              class="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 bg-opacity-60 hover:bg-opacity-70">
-              View Orders
-            </router-link>
-          </div>
+      <div class="bg-white p-6 rounded-t-lg shadow-sm border-b border-gray-200" style="text-align: center">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-800">Chào mừng bạn đến với catalogweb
+          </h1>
         </div>
       </div>
-      <div class="-mt-6 aspect-w-5 aspect-h-3 md:aspect-w-2 md:aspect-h-1">
-        <img
-          class="transform translate-x-6 translate-y-6 rounded-md object-cover object-left-top sm:translate-x-16 lg:translate-y-20"
-          src="https://tailwindui.com/img/component-images/full-width-with-sidebar.jpg" alt="App screenshot">
-      </div>
-    </div>
 
-    <!-- Quick Stats -->
-    <div class="mt-8">
-      <h2 class="text-lg font-medium text-gray-900">Quick Stats</h2>
-      <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div v-for="stat in stats" :key="stat.name" class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="px-4 py-5 sm:p-6">
-            <dt class="text-sm font-medium text-gray-500 truncate">
-              {{ stat.name }}
-            </dt>
-            <dd class="mt-1 text-3xl font-semibold text-gray-900">
-              {{ stat.value }}
-            </dd>
-            <div class="mt-2">
-              <span :class="[
-                stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600',
-                'text-sm font-medium'
-              ]">
-                {{ stat.change }}
-                <span class="sr-only">
-                  {{ stat.changeType === 'increase' ? 'Increased' : 'Decreased' }} by
-                </span>
-              </span>
-              <span class="text-sm text-gray-500 ml-2">
-                {{ stat.period }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div class="mt-4 p-6 bg-white shadow-md border border-gray-200">
+        <h2 class="text-lg font-medium text-gray-800">Portfolio Performance</h2>
+        <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-3">
 
-    <!-- Recent Orders - Using Animated Table -->
-    <div class="mt-8">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-medium text-gray-900">Recent Orders</h2>
-        <router-link to="/customer/orders" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-          View all
-        </router-link>
-      </div>
-
-      <div class="mt-4">
-        <!-- Simple table first to test display -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-          <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Orders (Testing)</h3>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Dữ liệu đơn hàng gần đây</p>
-          </div>
-          <div class="border-t border-gray-200">
-            <dl>
-              <div v-for="order in tableData" :key="order.id" class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 hover:bg-gray-100 transition-colors cursor-pointer" @click="handleOrderClick(order)">
-                <dt class="text-sm font-medium text-gray-500">Order #{{ order.orderNumber }}</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ order.items }} items - {{ order.total }} - {{ order.status }}</dd>
+          <div class="bg-white overflow-hidden rounded-lg border border-gray-200">
+            <div class="flex items-center p-6 space-x-4">
+              <div class="p-3 rounded-full bg-red-500 bg-opacity-10 text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
               </div>
-            </dl>
-          </div>
-        </div>
-
-        <!-- AnimatedTable with debug -->
-        <div class="mt-8">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Animated Table (Debug)</h3>
-          <AnimatedTable
-            :data="tableData"
-            :columns="tableColumns"
-            :loading="false"
-            :items-per-page="5"
-            :show-pagination="false"
-            :animation-config="{
-              hoverScale: 1.02,
-              hoverTransition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              rowHoverColor: 'rgba(99, 102, 241, 0.1)',
-              selectedRowColor: 'rgba(99, 102, 241, 0.2)',
-              staggerDelay: 50,
-            }"
-            @row-click="handleOrderClick"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Recommended Products -->
-    <div class="mt-8">
-      <h2 class="text-lg font-medium text-gray-900">Recommended For You</h2>
-      <div class="mt-4 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-        <div v-for="product in recommendedProducts" :key="product.id" class="group relative">
-          <div
-            class="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
-            <img :src="product.imageSrc" :alt="product.name"
-              class="w-full h-full object-center object-cover lg:w-full lg:h-full">
-          </div>
-          <div class="mt-4 flex justify-between">
-            <div>
-              <h3 class="text-sm text-gray-700">
-                <router-link :to="`/product/${product.id}`">
-                  <span aria-hidden="true" class="absolute inset-0" />
-                  {{ product.name }}
-                </router-link>
-              </h3>
-              <p class="mt-1 text-sm text-gray-500">{{ product.color }}</p>
+              <div>
+                <dt class="text-sm font-medium text-gray-500 truncate">Cash Deposits</dt>
+                <dd class="mt-1 text-2xl font-bold text-gray-900">1,7M</dd>
+                <p class="text-xs text-red-500">-54.7% less earnings</p>
+              </div>
             </div>
-            <p class="text-sm font-medium text-gray-900">{{ product.price }}</p>
+          </div>
+
+          <div class="bg-white overflow-hidden rounded-lg border border-gray-200">
+            <div class="flex items-center p-6 space-x-4">
+              <div class="p-3 rounded-full bg-red-700 bg-opacity-10 text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500 truncate">Invested Dividends</dt>
+                <dd class="mt-1 text-2xl font-bold text-gray-900">9M</dd>
+                <p class="text-xs text-blue-500">Show Rate - 14.1%</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white overflow-hidden rounded-lg border border-gray-200">
+            <div class="flex items-center p-6 space-x-4">
+              <div class="p-3 rounded-full bg-green-500 bg-opacity-10 text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2m0-4c1.657 0 3 .895 3 2s-1.343 2-3 2m0 0c-1.657 0-3 .895-3 2s1.343 2 3 2m0-4c-1.657 0-3 .895-3 2s1.343 2 3 2" />
+                </svg>
+              </div>
+              <div>
+                <dt class="text-sm font-medium text-gray-500 truncate">Capital Gains</dt>
+                <dd class="mt-1 text-2xl font-bold text-gray-900">$563</dd>
+                <p class="text-xs text-green-500">Increased by +7.35%</p>
+              </div>
+            </div>
           </div>
         </div>
+        <div class="mt-4 flex justify-center">
+          <button
+            class="px-5 py-2 border border-gray-300 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50">
+            View Complete Report
+          </button>
+        </div>
       </div>
+
+      <div class="mt-4 p-6 bg-white shadow-md border border-gray-200">
+        <h2 class="text-lg font-medium text-gray-800">Company Agents Status</h2>
+
+        <div class="mt-4">
+          <div class="flex flex-col">
+            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Avatar
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Company
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Due Date
+                        </th>
+                        <th scope="col"
+                          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Target Achievement
+                        </th>
+                        <th scope="col" class="relative px-6 py-3">
+                          <span class="sr-only">Actions</span>
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                      <tr v-for="(agent, index) in agentsData" :key="agent.name">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ index + 54 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <img :src="agent.avatar" alt="Avatar" class="h-8 w-8 rounded-full">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                          {{ agent.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ agent.company }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                          <span :class="getStatusClasses(agent.status)">
+                            {{ agent.status }}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12 Dec</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                          <div class="flex items-center space-x-2">
+                            <span :class="getProgressTextClasses(agent.progress)">
+                              {{ agent.progress }}%
+                            </span>
+                            <div class="w-24 h-2 bg-gray-200 rounded-full">
+                              <div :class="getProgressBgClasses(agent.progress)"
+                                :style="{ width: agent.progress + '%' }" class="h-full rounded-full"></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                          <button
+                            class="text-white px-3 py-1 text-xs rounded bg-blue-500 hover:bg-blue-600">Hire</button>
+                          <button class="text-white px-3 py-1 text-xs rounded bg-red-500 hover:bg-red-600">Fire</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-center">
+          <button
+            class="px-5 py-2 border border-gray-300 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50">
+            View Complete Report
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import AnimatedTable from '@/components/AnimatedTable.vue';
+import { ref } from 'vue';
 
-const authStore = useAuthStore();
-
-// User name from auth store
-const userName = computed(() => {
-  return authStore.user?.fullName || 'Customer';
-});
-
-// Table configuration for orders
-const tableColumns = [
-  { key: 'orderNumber', label: 'Order #', sortable: true },
-  { key: 'date', label: 'Date', sortable: true },
-  { key: 'items', label: 'Items', sortable: false },
-  { key: 'total', label: 'Total', sortable: true },
-  { key: 'status', label: 'Status', sortable: false },
-];
-
-const tableData = ref([
+// Dữ liệu cho Bảng Company Agents Status
+const agentsData = ref([
   {
-    id: 1,
-    orderNumber: 'WU88191139',
-    date: '2023-10-15',
-    items: 3,
-    total: '$299.00',
-    status: 'Delivered'
+    name: 'Juan C. Cargill',
+    company: 'Micro Electronics',
+    status: 'Canceled',
+    progress: 71,
+    avatar: 'https://i.pravatar.cc/150?img=1'
   },
   {
-    id: 2,
-    orderNumber: 'WU88191138',
-    date: '2023-10-10',
-    items: 1,
-    total: '$99.00',
-    status: 'Shipped'
+    name: 'Johnathan Phelan',
+    company: 'Hatchworks',
+    status: 'On Hold',
+    progress: 54,
+    avatar: 'https://i.pravatar.cc/150?img=2'
   },
   {
-    id: 3,
-    orderNumber: 'WU88191137',
-    date: '2023-10-05',
-    items: 2,
-    total: '$199.00',
-    status: 'Processing'
+    name: 'Darrell Love',
+    company: 'Riddle Electronics',
+    status: 'Active',
+    progress: 97,
+    avatar: 'https://i.pravatar.cc/150?img=3'
   },
   {
-    id: 4,
-    orderNumber: 'WU88191136',
-    date: '2023-09-28',
-    items: 1,
-    total: '$49.00',
-    status: 'Delivered'
+    name: 'George T. Cottrell',
+    company: 'Prudicud',
+    status: 'Completed',
+    progress: 89,
+    avatar: 'https://i.pravatar.cc/150?img=4'
   },
-  {
-    id: 5,
-    orderNumber: 'WU88191135',
-    date: '2023-09-20',
-    items: 4,
-    total: '$399.00',
-    status: 'Delivered'
-  }
 ]);
 
-// Handle order click
-const handleOrderClick = (order: any) => {
-  console.log('Clicked order:', order);
-  // Navigate to order detail page
-  // router.push(`/customer/orders/${order.id}`);
+// Hàm trả về classes cho Status badge
+const getStatusClasses = (status: string) => {
+  switch (status) {
+    case 'Canceled':
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+    case 'On Hold':
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800';
+    case 'Active':
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+    case 'Completed':
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+    default:
+      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+  }
 };
 
-// Debug: Check if component loads
-console.log('Dashboard loaded with AnimatedTable component');
-console.log('Table data:', tableData.value);
-console.log('Table columns:', tableColumns);
+// Hàm trả về classes cho thanh Progress bar (Background)
+const getProgressBgClasses = (progress: number) => {
+  if (progress < 60) {
+    return 'bg-red-500';
+  } else if (progress < 90) {
+    return 'bg-yellow-500';
+  } else {
+    return 'bg-green-500';
+  }
+};
 
-const stats = ref([
-  { name: 'Total Orders', value: '12', change: '+2.5%', changeType: 'increase', period: 'vs last month' },
-  { name: 'Total Spent', value: '$1,234', change: '+5.4%', changeType: 'increase', period: 'vs last month' },
-  { name: 'Wishlist', value: '8', change: '+1', changeType: 'increase', period: 'items' },
-  { name: 'Reward Points', value: '1,250', change: '+150', changeType: 'increase', period: 'points' },
-]);
-
-// Recommended products
-const recommendedProducts = ref([
-  {
-    id: 1,
-    name: 'Wireless Earbuds',
-    color: 'Black',
-    price: '$99.00',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/home-page-02-product-01.jpg',
-  },
-  {
-    id: 2,
-    name: 'Leather Journal',
-    color: 'Brown',
-    price: '$45.00',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/home-page-02-product-02.jpg',
-  },
-  {
-    id: 3,
-    name: 'Desk Organizer',
-    color: 'Walnut',
-    price: '$79.00',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/home-page-02-product-03.jpg',
-  },
-  {
-    id: 4,
-    name: 'Bluetooth Speaker',
-    color: 'Gray',
-    price: '$129.00',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/home-page-02-product-04.jpg',
-  },
-]);
+// Hàm trả về classes cho phần trăm Progress (Text)
+const getProgressTextClasses = (progress: number) => {
+  if (progress < 60) {
+    return 'text-red-600 font-bold';
+  } else if (progress < 90) {
+    return 'text-yellow-600 font-bold';
+  } else {
+    return 'text-green-600 font-bold';
+  }
+};
 </script>

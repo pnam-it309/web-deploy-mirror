@@ -1,6 +1,6 @@
 <template>
   <div class="flex bg-gray-50 min-h-screen">
-    <!-- Sidebar - Sticky sidebar -->
+    <!-- Sidebar -->
     <div class="w-64 bg-indigo-700 flex flex-col sticky top-0 h-screen flex-shrink-0">
       <!-- Logo -->
       <div class="flex items-center h-16 px-4 bg-indigo-800 flex-shrink-0">
@@ -9,13 +9,9 @@
 
       <!-- Navigation -->
       <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        <router-link
-          v-for="item in navItems"
-          :key="item.path"
-          :to="item.path"
+        <router-link v-for="item in navItems" :key="item.path" :to="item.path"
           class="flex items-center px-4 py-3 text-sm font-medium text-indigo-100 rounded-md group hover:bg-indigo-600 hover:text-white"
-          :class="[$route.path.startsWith(item.path) ? 'bg-indigo-800 text-white' : '']"
-        >
+          :class="[$route.path.startsWith(item.path) ? 'bg-indigo-800 text-white' : '']">
           <component :is="item.icon" class="w-5 h-5 mr-3 text-indigo-300 group-hover:text-indigo-100 flex-shrink-0" />
           {{ item.label }}
         </router-link>
@@ -24,15 +20,13 @@
       <!-- User Profile -->
       <div class="p-4 border-t border-indigo-800 flex-shrink-0">
         <div class="flex items-center">
-          <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium flex-shrink-0">
+          <div
+            class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium flex-shrink-0">
             {{ userInitials }}
           </div>
           <div class="ml-3 min-w-0">
             <p class="text-sm font-medium text-white truncate">{{ userName }}</p>
-            <button
-              @click="handleLogout"
-              class="text-xs text-indigo-200 hover:text-white"
-            >
+            <button @click="handleLogout" class="text-xs text-indigo-200 hover:text-white">
               Sign out
             </button>
           </div>
@@ -40,7 +34,7 @@
       </div>
     </div>
 
-    <!-- Main Content - Flexible -->
+    <!-- Main Content -->
     <div class="flex flex-col flex-1 min-h-screen">
       <!-- Top Navigation -->
       <header class="bg-white shadow-sm flex-shrink-0">
@@ -48,9 +42,9 @@
           <div class="flex items-center">
             <h1 class="ml-2 text-lg font-semibold text-gray-900">{{ $route.meta.title || 'Dashboard' }}</h1>
           </div>
-
           <div class="flex items-center space-x-4">
-            <button class="p-1 text-gray-500 rounded-full hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button @click="toast.info('No new notifications')"
+              class="p-1 text-gray-500 rounded-full hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <span class="sr-only">View notifications</span>
               <BellIcon class="w-6 h-6" />
             </button>
@@ -69,34 +63,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { BellIcon } from '@heroicons/vue/24/outline';
-
-// Icons for navigation items
-import {
-  HomeIcon,
-  ShoppingCartIcon,
-  DocumentTextIcon,
-  UserCircleIcon,
-  Cog6ToothIcon
-} from '@heroicons/vue/24/outline';
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
+import { BellIcon, HomeIcon, ShoppingCartIcon, DocumentTextIcon, UserCircleIcon, Cog6ToothIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Navigation items for customer
+// Navigation items
 const navItems = [
   { path: '/customer/dashboard', label: 'Dashboard', icon: HomeIcon },
   { path: '/customer/orders', label: 'My Orders', icon: ShoppingCartIcon },
-  { path: '/customer/documents', label: 'Documents', icon: DocumentTextIcon },
-  { path: '/customer/account', label: 'My Account', icon: UserCircleIcon },
+  { path: '/customer/products', label: 'Chi tiết sản phẩm', icon: DocumentTextIcon },
+  { path: '/customer/account', label: 'Sản phẩm yêu thích', icon: UserCircleIcon },
   { path: '/customer/settings', label: 'Settings', icon: Cog6ToothIcon },
 ];
 
-// Get user initials for avatar
+// User initials
 const userInitials = computed(() => {
   const user = authStore.user;
   if (!user) return 'U';
@@ -105,20 +92,32 @@ const userInitials = computed(() => {
     : (user.email ? user.email[0].toUpperCase() : 'U');
 });
 
-// Get user name for display
+// User name
 const userName = computed(() => {
   return authStore.user?.fullName || authStore.user?.email?.split('@')[0] || 'User';
 });
 
-// Handle logout
+// Logout
 const handleLogout = async () => {
   try {
     await authStore.logout();
+    toast.success("Đăng xuất thành công!");
     router.push('/login');
   } catch (error) {
+    toast.error("Đăng xuất thất bại!");
     console.error('Logout failed:', error);
   }
 };
+
+// Khi vừa load trang
+onMounted(() => {
+  toast.success("Chào mừng bạn đến với catalgo web");
+});
+
+// Khi thay đổi route
+// watch(() => route.fullPath, (newPath) => {
+//   toast.info(`Đã chuyển đến ${route.meta.title || 'trang mới'}`);
+// });
 </script>
 
 <style scoped>
