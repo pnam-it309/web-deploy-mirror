@@ -24,7 +24,8 @@ export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
   return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
 }
 
-export const API_URL = `${VITE_BASE_URL_SERVER}/api/v1` as string
+// Use proxy in development, direct URL in production
+export const API_URL = import.meta.env.DEV ? '/api/v1' : `${VITE_BASE_URL_SERVER}/api/v1` as string
 
 // AUTH API
 export const PREFIX_API_AUTH = `${API_URL}/auth` as string

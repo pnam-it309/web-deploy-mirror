@@ -29,6 +29,23 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   // Actions
+  const setTokens = (access: string | null, refresh: string | null) => {
+    accessToken.value = access
+    refreshToken.value = refresh
+    
+    if (access) {
+      localStorageAction.set(ACCESS_TOKEN_STORAGE_KEY, access)
+    } else {
+      localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY)
+    }
+    
+    if (refresh) {
+      localStorageAction.set(REFRESH_TOKEN_STORAGE_KEY, refresh)
+    } else {
+      localStorageAction.remove(REFRESH_TOKEN_STORAGE_KEY)
+    }
+  }
+
   const loginWithGoogle = async (): Promise<{ success: boolean; redirectUrl?: string }> => {
     try {
       // Get Google Client ID from environment
@@ -163,16 +180,11 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      // Clear local state
+      // Clear all auth data
       user.value = null
-      accessToken.value = null
-      refreshToken.value = null
-      userRole.value = null
-
+      setTokens(null, null)
+      clearUserRole()
       localStorageAction.remove(USER_INFO_STORAGE_KEY)
-      localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY)
-      localStorageAction.remove(REFRESH_TOKEN_STORAGE_KEY)
-      localStorage.removeItem('userRole')
     }
   }
 
