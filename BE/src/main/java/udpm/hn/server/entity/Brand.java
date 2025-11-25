@@ -1,35 +1,51 @@
 package udpm.hn.server.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import udpm.hn.server.entity.base.PrimaryEntity;
 import udpm.hn.server.infrastructure.core.constant.EntityProperties;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "brands")
-public class Brand extends PrimaryEntity implements Serializable {
-    @Column(length = EntityProperties.LENGTH_NAME, nullable = false)
-    private String name;
-
-    @Column(nullable = false, unique = true)
+@EntityListeners(AuditingEntityListener.class)
+public class Brand {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    @Column(name = "code", unique = true, nullable = false, length = 50)
     private String code;
-
-    @Column(length = EntityProperties.LENGTH_NAME + 30, nullable = false, unique = true)
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+    @Column(name = "slug", nullable = false, unique = true)
     private String slug;
-
-    @Column(length = EntityProperties.LENGTH_DESCRIPTION)
+    @Column(name = "description", length = 500)
     private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EntityStatus status = EntityStatus.ACTIVE;
-
-    @Column(name = "logo_url", length = 500)
+    @Column(name = "logo_url")
     private String logoUrl;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private EntityStatus status;
+    @CreatedDate
+    @Column(name = "created_date", updatable = false)
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    @Column(name = "last_modified_date")
+    private LocalDateTime updatedAt;
+    // @CreatedBy
+    // @Column(name = "created_by")
+    // private String createdBy;
+    //
+    // @LastModifiedBy
+    // @Column(name = "updated_by")
+    // private String updatedBy;
 }
