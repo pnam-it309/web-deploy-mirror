@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import udpm.hn.server.core.admin.brand.dto.request.BrandCreateRequest;
+import udpm.hn.server.core.admin.brand.dto.request.BrandFilterRequest;
 import udpm.hn.server.core.admin.brand.dto.request.BrandUpdateRequest;
 import udpm.hn.server.core.admin.brand.dto.response.BrandResponse;
+import udpm.hn.server.core.admin.brand.repository.BrandManageRepository;
+import udpm.hn.server.core.admin.brand.repository.BrandSpecification;
 import udpm.hn.server.core.admin.brand.service.BrandService;
 import udpm.hn.server.entity.Brand;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
@@ -22,7 +26,7 @@ import java.util.UUID;
 public class BrandServiceImpl implements BrandService {
 
     // (Hãy dùng BrandRepository của bạn)
-    private final BrandRepository brandRepository;
+    private final BrandManageRepository brandRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -68,12 +72,19 @@ public class BrandServiceImpl implements BrandService {
         return mapToResponse(brand);
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public Page<BrandResponse> getAllBrands(Pageable pageable) {
-        return brandRepository.findAll(pageable)
+    // Sửa tham số: Thêm request
+    public Page<BrandResponse> getAllBrands(BrandFilterRequest request, Pageable pageable) {
+        // 1. Tạo Specification
+        Specification<Brand> spec = BrandSpecification.getFilter(request);
+
+        // 2. Gọi findAll với spec
+        return brandRepository.findAll(spec, pageable)
                 .map(this::mapToResponse);
     }
+
 
     @Override
     @Transactional

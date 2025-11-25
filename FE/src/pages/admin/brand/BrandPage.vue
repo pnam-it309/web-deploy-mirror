@@ -7,7 +7,9 @@
         + Thêm thương hiệu
       </ButtonCustom>
     </div>
-
+  <div class="mb-4">
+       <BrandFilter @filter="handleFilterChange" />
+    </div>
     <!-- KHUNG BÁO LỖI -->
     <div
       v-if="error"
@@ -148,6 +150,7 @@ import BrandCreateModal from './BrandCreateModal.vue';
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
 import CardCustom from '@/components/custom/Card/CardCustom.vue';
 import ModalCustom from '@/components/custom/Modal/ModalCustom.vue'; // Import Modal
+import BrandFilter from './BrandFilter.vue';
 
 // 1. KHỞI TẠO STORE
 const brandStore = useBrandStore();
@@ -215,4 +218,8 @@ const confirmDelete = async () => {
     cancelDelete(); // Đóng modal xác nhận
   }
 };
+const handleFilterChange = (filterParams) => {
+  brandStore.fetchBrands(filterParams);
+};
+
 </script>

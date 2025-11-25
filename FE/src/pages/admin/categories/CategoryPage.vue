@@ -109,7 +109,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia';
 import { useCategoryStore } from '@/stores/category.store'; // <-- DÙNG STORE
-import Categoryfilter from './CategoryFilter.vue'
+import Categoryfilter from './Categoryfilter.vue'
 import CategoryCreateModal from './CategoryCreateModal.vue'
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue'
 import CardCustom from '@/components/custom/Card/CardCustom.vue'
