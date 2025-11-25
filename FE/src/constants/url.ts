@@ -1,9 +1,10 @@
 import { ROLES } from './roles'
 
+// Các biến .env vẫn giữ nguyên, không sao
 export const { VITE_BASE_URL_SERVER } = import.meta.env || {}
 export const { VITE_BASE_URL_CLIENT } = import.meta.env || {}
 
-// DOMAIN
+// DOMAIN (Giữ nguyên)
 export const DOMAIN_BACKEND = `${VITE_BASE_URL_SERVER}` as string
 export const DOMAIN_FRONTEND = `${VITE_BASE_URL_CLIENT}` as string
 export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
@@ -12,24 +13,32 @@ export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
 export const SCREEN_ROLE_ADMIN = ROLES.ADMIN
 export const SCREEN_ROLE_CUSTOMER = ROLES.CUSTOMER
 
-// ✅ URL login Google cho ADMIN
+// --- SỬA LỖI Ở ĐÂY ---
+// Các URL này BẮT BUỘC phải là TƯƠNG ĐỐI để đi qua Proxy
+
+// ✅ URL login Google cho ADMIN (Bỏ DOMAIN_BACKEND)
 export const URL_OAUTH2_GOOGLE_ADMIN = (): string => {
   const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/redirect`)
-  return `${DOMAIN_BACKEND}/oauth2/authorize/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
+  // Bắt đầu bằng /oauth2...
+  return `/oauth2/authorize/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
 }
 
-// ✅ URL login Google cho CUSTOMER
+// ✅ URL login Google cho CUSTOMER (Bỏ DOMAIN_BACKEND)
 export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
   const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/redirect`)
-  return `${DOMAIN_BACKEND}/oauth2/authorize/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
+  // Bắt đầu bằng /oauth2...
+  return `/oauth2/authorize/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
 }
 
-export const API_URL = `${VITE_BASE_URL_SERVER}/api/v1` as string
+// --- CÁC API KHÁC CŨNG PHẢI SỬA TƯƠNG TỰ ---
 
-// AUTH API
+// API_URL phải là tương đối
+export const API_URL = `/api/v1` as string
+
+// AUTH API (Tương đối)
 export const PREFIX_API_AUTH = `${API_URL}/auth` as string
 
-// ADMIN API
+// ADMIN API (Tương đối)
 export const PREFIX_API_ADMIN = `${API_URL}/admin` as string
 
 // Product Management
@@ -37,7 +46,8 @@ export const API_ADMIN_PRODUCT = `${PREFIX_API_ADMIN}/products` as string
 export const API_ADMIN_PRODUCT_UPLOAD = `${API_ADMIN_PRODUCT}/import_data` as string
 export const API_ADMIN_PRODUCT_STATS = `${API_ADMIN_PRODUCT}/status` as string
 export const API_ADMIN_CATEGORY = `${PREFIX_API_ADMIN}/categories` as string
-export const API_ADMIN_BRAND = `${PREFIX_API_ADMIN}/brand` as string
+// SỬA LỖI: File cũ của bạn là /brand, nhưng MappingConstants là /brands
+export const API_ADMIN_BRAND = `${PREFIX_API_ADMIN}/brands` as string 
 // Order Management
 export const API_ADMIN_ORDER = `${PREFIX_API_ADMIN}/orders` as string
 export const API_ADMIN_ORDER_STATS = `${API_ADMIN_ORDER}/stats` as string

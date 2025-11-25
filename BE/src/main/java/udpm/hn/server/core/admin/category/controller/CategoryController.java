@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.core.admin.category.dto.request.CategoryCreateRequest;
+import udpm.hn.server.core.admin.category.dto.request.CategoryFilterRequest;
 import udpm.hn.server.core.admin.category.dto.request.CategoryUpdateRequest;
 import udpm.hn.server.core.admin.category.dto.response.CategoryResponse;
 import udpm.hn.server.core.admin.category.service.CategoryService;
@@ -21,10 +22,11 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping("get-all-categories")
+    @GetMapping("/get-all-categories")
     public ResponseEntity<Page<CategoryResponse>> getAllCategories(
+            @ModelAttribute CategoryFilterRequest request, // <-- Thêm @ModelAttribute để hứng params
             @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
+        return ResponseEntity.ok(categoryService.getAllCategories(request, pageable));
     }
 
     @PostMapping
@@ -53,4 +55,5 @@ public class CategoryController {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
+
 }
