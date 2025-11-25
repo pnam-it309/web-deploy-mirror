@@ -327,9 +327,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Button } from '@/components/ui/button'
 import { 
-  ArrowDownTrayIcon,
-  PlusIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   ClockIcon,
@@ -344,6 +343,22 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
+
+// Import modal state
+const showImportModal = ref(false)
+const importFile = ref<File | null>(null)
+const importOptions = ref({
+  hasHeader: true
+})
+
+// Import results state
+const showImportResults = ref(false)
+const importResults = ref<{
+  successCount: number
+  errorCount: number
+  totalCount: number
+  errors: any[] | null
+} | null>(null)
 
 // Quick actions
 const quickActions = [

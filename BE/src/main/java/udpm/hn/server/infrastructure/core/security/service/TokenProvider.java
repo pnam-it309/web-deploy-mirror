@@ -15,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.entity.Admin;
+import udpm.hn.server.entity.Role;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
 import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
 import udpm.hn.server.infrastructure.core.exception.RedirectException;
@@ -27,27 +29,43 @@ import udpm.hn.server.infrastructure.core.security.user.UserPrincipal;
 import udpm.hn.server.utils.CookieUtils;
 import io.jsonwebtoken.Jwts;
 
+// --- [THÊM IMPORT MỚI] ---
+import io.jsonwebtoken.io.Decoders;
+import java.security.Key;
+// -------------------------
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class TokenProvider {
 
     private final String tokenSecret;
-    private final long TOKEN_EXP = System.currentTimeMillis() + 2 * 60 * 60 * 100000;
+    // Sửa thành 8 giờ
+    private final long TOKEN_EXP = 8 * 60 * 60 * 1000L; // 8 giờ
+    private final long TOKEN_EXP_DATE = System.currentTimeMillis() + TOKEN_EXP;
     private final StaffAuthRepository staffAuthRepository;
     private final HttpServletRequest httpServletRequest;
     private final StaffRoleAuthRepository staffRoleAuthRepository;
 
-    public TokenProvider(String tokenSecret, 
-                        StaffAuthRepository staffAuthRepository, 
-                        HttpServletRequest httpServletRequest, 
-                        StaffRoleAuthRepository staffRoleAuthRepository) {
+    public TokenProvider(@Value("${jwt.secret}") String tokenSecret, // Lấy secret từ config
+                         StaffAuthRepository staffAuthRepository,
+                         HttpServletRequest httpServletRequest,
+                         StaffRoleAuthRepository staffRoleAuthRepository) {
         this.tokenSecret = tokenSecret;
         this.staffAuthRepository = staffAuthRepository;
         this.httpServletRequest = httpServletRequest;
         this.staffRoleAuthRepository = staffRoleAuthRepository;
     }
+
+    // --- [THÊM HÀM MỚI: Đồng bộ "Chìa khoá"] ---
+    // (Copy logic từ JwtService.java)
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(tokenSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+    // ----------------------------------------
 
     public String createToken(Authentication authentication) throws BadRequestException, JsonProcessingException {
 
@@ -65,9 +83,29 @@ public class TokenProvider {
         } else {
             Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
 
-            if (adminUser != null) {
-                tokenInfoResponse.setRoleScreen(screenForRole.get());
+            // --- [ĐIỀN THÔNG TIN (Giữ nguyên)] ---
+            tokenInfoResponse.setRoleScreen(screenForRole.get());
+            tokenInfoResponse.setUserId(userPrincipal.getId());
+            tokenInfoResponse.setFullName(userPrincipal.getName());
+
+            Object pictureObj = userPrincipal.getAttribute("picture");
+            if (pictureObj != null) {
+                tokenInfoResponse.setPictureUrl(pictureObj.toString());
             }
+
+            tokenInfoResponse.setEmailFPT(userPrincipal.getEmail());
+            tokenInfoResponse.setEmailSV(userPrincipal.getEmail());
+
+            if (adminUser != null) {
+                tokenInfoResponse.setUserCode(adminUser.getCode());
+            }
+
+            List<String> roles = userPrincipal.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            tokenInfoResponse.setRolesCode(roles);
+            tokenInfoResponse.setRolesName(roles);
+            // --- [KẾT THÚC] ---
         }
 
         String subject = new ObjectMapper().writeValueAsString(tokenInfoResponse);
@@ -77,9 +115,10 @@ public class TokenProvider {
                 .setSubject(subject)
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(TOKEN_EXP))
+                .setExpiration(new Date(TOKEN_EXP_DATE))
                 .setIssuer("udpm.hn")
-                .signWith(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
+                // ĐÃ SỬA: Dùng "Chìa khoá" đã Base64-Decode
+                .signWith(getSignInKey())
                 .compact();
         System.out.println("Generated Token: " + token);
         return token;
@@ -91,16 +130,17 @@ public class TokenProvider {
                 .setSubject(subject)
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(TOKEN_EXP))
+                .setExpiration(new Date(TOKEN_EXP_DATE))
                 .setIssuer("udpm.hn")
-                .signWith(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
+                // ĐÃ SỬA: Dùng "Chìa khoá" đã Base64-Decode
+                .signWith(getSignInKey())
                 .compact();
     }
 
 
 
     private static Map<String, Object> getBodyClaims(TokenInfoResponse tokenInfoResponse) {
-
+        // ... (Hàm này giữ nguyên) ...
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", tokenInfoResponse.getUserId());
         claims.put("userName", tokenInfoResponse.getUserName());
@@ -114,32 +154,16 @@ public class TokenProvider {
         claims.put("host", tokenInfoResponse.getHost());
         claims.put("roleScreen", tokenInfoResponse.getRoleScreen());
         claims.put("roleSwitch", tokenInfoResponse.getRoleSwitch());
-        claims.put("email", tokenInfoResponse.getEmailFPT() != null ? tokenInfoResponse.getEmailFPT() : tokenInfoResponse.getEmailSV());
+
+        String email = tokenInfoResponse.getEmailFPT() != null
+                ? tokenInfoResponse.getEmailFPT()
+                : tokenInfoResponse.getEmailSV();
+        claims.put("email", email);
 
         return claims;
     }
 
-    public String getIdFacilityFromToken(String token) {
-        Claims claims = getClaimsToken(token);
-        String idFacility = claims.get("idFacility", String.class);
-        return (idFacility != null && !idFacility.isEmpty()) ? idFacility : null;
-    }
-
-    public String getUserIdFromToken(String token) {
-        Claims claims = getClaimsToken(token);
-        return String.valueOf(claims.get("userId"));
-    }
-
-    public String getRolesFromToken(String token) {
-        Claims claims = getClaimsToken(token);
-        return String.valueOf(claims.get("roleScreen"));
-    }
-
-    public List<udpm.hn.server.entity.Role> getRolesCodesFromToken(String token) {
-        Claims claims = getClaimsToken(token);
-        System.out.println("Claims từ token: " + claims);
-        return (List<udpm.hn.server.entity.Role>) claims.get("rolesCode");
-    }
+    // ... (Các hàm get...FromToken giữ nguyên) ...
 
     public String getEmailFromToken(String token) {
         Claims claims = getClaimsToken(token);
@@ -153,7 +177,8 @@ public class TokenProvider {
     // giải mã
     private Claims getClaimsToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
+                // ĐÃ SỬA: Dùng "Chìa khoá" đã Base64-Decode
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -162,7 +187,8 @@ public class TokenProvider {
     public boolean validateToken(String authToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor(tokenSecret.getBytes()))
+                    // ĐÃ SỬA: Dùng "Chìa khoá" đã Base64-Decode
+                    .setSigningKey(getSignInKey())
                     .build()
                     .parseClaimsJws(authToken);
             return true;
@@ -185,7 +211,27 @@ public class TokenProvider {
         return staffFPT.orElse(null);
     }
 
+    // ... (Các hàm còn lại giữ nguyên) ...
+    public String getIdFacilityFromToken(String token) {
+        Claims claims = getClaimsToken(token);
+        String idFacility = claims.get("idFacility", String.class);
+        return (idFacility != null && !idFacility.isEmpty()) ? idFacility : null;
+    }
 
-    // Constructor injection is handled by @RequiredArgsConstructor
+    public String getUserIdFromToken(String token) {
+        Claims claims = getClaimsToken(token);
+        return String.valueOf(claims.get("userId"));
+    }
+
+    public String getRolesFromToken(String token) {
+        Claims claims = getClaimsToken(token);
+        return String.valueOf(claims.get("roleScreen"));
+    }
+
+    public List<Role> getRolesCodesFromToken(String token) {
+        Claims claims = getClaimsToken(token);
+        System.out.println("Claims từ token: " + claims);
+        return (List<Role>) claims.get("rolesCode");
+    }
 
 }

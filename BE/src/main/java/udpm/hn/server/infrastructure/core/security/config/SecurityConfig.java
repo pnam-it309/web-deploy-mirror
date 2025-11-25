@@ -114,24 +114,27 @@ public class SecurityConfig {
 
         // Customer API endpoints
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_VIEW_PRODUCT)).hasAuthority("CUSTOMER")
+                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_VIEW_PRODUCT)).hasAuthority("CUSTOMER") // Khớp /customer/view_products/**
+                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX)).hasAuthority("CUSTOMER") // Luật chung cho /customer/**
         );
 
         // Admin API endpoints
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX + "/*")).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_IMPORT)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PRODUCT)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_ORDER)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_WAREHOUSE)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CUSTOMER)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY)).hasAuthority("ADMIN")
-            .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_BRAND)).hasAuthority("ADMIN")
+                // KHÔNG CÒN HARD-CODE
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_BRAND)).hasAuthority("ADMIN") // Khớp /admin/brands/**
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY)).hasAuthority("ADMIN") // Khớp /admin/categories/**
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PRODUCT)).hasAuthority("ADMIN") // Khớp /admin/products/**
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_ORDER)).hasAuthority("ADMIN") // ...
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_WAREHOUSE)).hasAuthority("ADMIN") // ...
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CUSTOMER)).hasAuthority("ADMIN") // ...
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_IMPORT)).hasAuthority("ADMIN") // ...
+                // Luật chung cho /admin/**
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX)).hasAuthority("ADMIN")
         );
 
         // OAuth2 configuration
         http.oauth2Login(oauth2 -> oauth2
-            .authorizationEndpoint(a -> a.baseUri("/oauth2/authorize"))
+            .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
             .redirectionEndpoint(r -> r.baseUri("/oauth2/callback/**"))
             .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
             .authorizationEndpoint(a -> a.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))

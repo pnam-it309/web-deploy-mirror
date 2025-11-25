@@ -1,4 +1,4 @@
-import axios from 'axios';
+import request from '@/services/request';
 import { Pageable } from '@/types/common';
 import { Category, CategoryCreateRequest, CategoryUpdateRequest } from '@/types/category';
 
@@ -45,7 +45,7 @@ const API_BASE_URL = '/api/admin/categories';
 
 export const categoryApi = {
   async getAllCategories(pageable: Pageable) {
-    const response = await axios.get(API_BASE_URL + '/get-all-categories', {
+    const response = await request.get(API_BASE_URL + '/get-all-categories', {
       params: {
         page: pageable.page,
         size: pageable.size,
@@ -56,22 +56,22 @@ export const categoryApi = {
   },
 
   async getCategoryById(id: string): Promise<CategoryResponse> {
-    const response = await axios.get(`${API_BASE_URL}/${id}`);
+    const response = await request.get(`${API_BASE_URL}/${id}`);
     return response.data;
   },
 
-  async createCategory(request: CategoryCreateRequest): Promise<CategoryResponse> {
-    const response = await axios.post(API_BASE_URL, request);
+  async createCategory(requestData: CategoryCreateRequest): Promise<CategoryResponse> {
+    const response = await request.post(API_BASE_URL, requestData);
     return response.data;
   },
 
-  async updateCategory(request: CategoryUpdateRequest): Promise<CategoryResponse> {
-    const { id, ...updateData } = request;
-    const response = await axios.put(`${API_BASE_URL}/${id}`, updateData);
+  async updateCategory(requestData: CategoryUpdateRequest): Promise<CategoryResponse> {
+    const { id, ...updateData } = requestData;
+    const response = await request.put(`${API_BASE_URL}/${id}`, updateData);
     return response.data;
   },
 
   async deleteCategory(id: string): Promise<void> {
-    await axios.delete(`${API_BASE_URL}/${id}`);
+    await request.delete(`${API_BASE_URL}/${id}`);
   },
 };
