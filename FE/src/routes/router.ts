@@ -5,6 +5,7 @@ import {
   type NavigationGuardNext,
   type RouteLocationNormalized,
 } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 // Using direct paths instead of constants to avoid potential circular dependencies
 
 // Layouts
@@ -40,45 +41,62 @@ const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal
 const CustomerDashboard = () => import('@/pages/customer/dashboard_cus/DashboardPage.vue')
 const CustomerOrders = () => import('@/pages/customer/orders/OrdersPage.vue')
 
-// Authentication guard - Check for valid JWT token
-const requireAuth = (
+// Authentication guard - Check for valid JWT token using auth store
+const requireAuth = async (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
+  const authStore = useAuthStore()
+  
+  if (authStore.isAuthenticated) {
     next()
   } else {
+    console.log('[AUTH] User not authenticated, redirecting to selection')
     next('/selection')
   }
 }
 
 // Role-based guard - Check user role permissions
 const requireRole = (roles: string[]) => {
-  return (
+  return async (
     to: RouteLocationNormalized,
     from: RouteLocationNormalized,
     next: NavigationGuardNext
   ) => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) {
+    const authStore = useAuthStore()
+    
+    // Check if we have a valid token
+    if (!authStore.isAuthenticated) {
+      console.log('[AUTH] No valid token found, redirecting to selection')
       next('/selection')
       return
     }
 
     try {
-      // Decode JWT token to get user info
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const userRole = payload.roleScreen || payload.role || payload.authorities || 'guest'
+      // Get user role from the store
+      const userRole = authStore.userRole
+      
+      if (!userRole) {
+        console.warn('[AUTH] No user role found in auth store')
+        next('/selection')
+        return
+      }
 
-      if (roles.includes(userRole) || roles.includes('*')) {
+      const normalizedRoles = roles.map(role => role.toUpperCase())
+      const normalizedUserRole = userRole.toUpperCase()
+
+      console.log(`[AUTH] Checking access - User role: ${normalizedUserRole}, Required roles: ${normalizedRoles.join(', ')}`)
+
+      if (normalizedRoles.includes(normalizedUserRole) || normalizedRoles.includes('*')) {
+        console.log(`[AUTH] Access granted to ${to.path}`)
         next()
       } else {
-        next('/403')  // Redirect to 403 Forbidden page instead of /unauthorized
+        console.warn(`[AUTH] Access denied. User role: ${normalizedUserRole}, Required roles: ${normalizedRoles.join(', ')}`)
+        next('/403')
       }
     } catch (error) {
-      console.error('Error decoding token:', error)
+      console.error('[AUTH] Error checking access:', error)
       next('/selection')
     }
   }
@@ -164,7 +182,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/admin',
     component: AdminLayout,
-    beforeEnter: requireRole(['admin']),
+    beforeEnter: requireRole(['ADMIN']),
     children: [
       {
         path: '',
@@ -177,6 +195,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: 'Dashboard',
           apiEndpoint: '/api/admin/dashboard',
+          requiresAuth: true
         },
       },
       {
@@ -273,7 +292,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/customer',
     component: CustomerLayout,
-    beforeEnter: requireRole(['customer', 'user']),
+    beforeEnter: requireRole(['CUSTOMER', 'USER']),
     children: [
       {
         path: 'dashboard',
@@ -325,50 +344,54 @@ const router = createRouter({
 })
 
 // Navigation guard - Handle authentication and public routes
-router.beforeEach((to, from, next) => {
-  // Redirect root to admin dashboard if authenticated, otherwise to selection
+router.beforeEach(async (to, from, next) => {
+  console.log(`[ROUTER] Navigating from ${from.path} to ${to.path}`)
+  
+  const authStore = useAuthStore()
+  
+  // Handle root path redirection
   if (to.path === '/') {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      next('/admin')
+    if (authStore.isAuthenticated) {
+      const userRole = authStore.userRole?.toUpperCase()
+      
+      if (userRole === 'ADMIN') {
+        next('/admin/dashboard')
+      } else if (userRole === 'CUSTOMER' || userRole === 'USER') {
+        next('/customer/dashboard')
+      } else {
+        next('/selection')
+      }
     } else {
       next('/selection')
     }
     return
   }
 
-  // Check if route is public
+  // Allow access to public routes
   if (to.meta?.public) {
     next()
     return
   }
 
   // For protected routes, check authentication
-  const token = localStorage.getItem('accessToken')
-  if (!token) {
+  if (!authStore.isAuthenticated) {
+    console.log('[ROUTER] User not authenticated, redirecting to selection')
     next('/selection')
     return
   }
 
-  // If authenticated and trying to access selection/login pages, redirect to appropriate dashboard
+  // Handle authenticated users trying to access auth pages
   if (to.path === '/selection' || to.path === '/login') {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const userRole = payload.roleScreen || payload.role || payload.authorities || 'guest'
-
-      if (userRole === 'ADMIN') {
-        next('/admin')
-      } else if (userRole === 'CUSTOMER' || userRole === 'customer' || userRole === 'user') {
-        next('/customer')
-      } else {
-        next('/selection')
-      }
-      return
-    } catch (error) {
-      console.error('Error decoding token:', error)
+    const userRole = authStore.userRole?.toUpperCase()
+    
+    if (userRole === 'ADMIN') {
+      next('/admin/dashboard')
+    } else if (userRole === 'CUSTOMER' || userRole === 'USER') {
+      next('/customer/dashboard')
+    } else {
       next('/selection')
-      return
     }
+    return
   }
 
   next()
