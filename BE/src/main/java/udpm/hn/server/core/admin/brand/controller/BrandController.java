@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.core.admin.brand.dto.request.BrandCreateRequest;
+import udpm.hn.server.core.admin.brand.dto.request.BrandFilterRequest;
 import udpm.hn.server.core.admin.brand.dto.request.BrandUpdateRequest;
 import udpm.hn.server.core.admin.brand.dto.response.BrandResponse;
 import udpm.hn.server.core.admin.brand.service.BrandService;
@@ -23,6 +24,12 @@ public class BrandController {
 
     private final BrandService brandService;
 
+    @GetMapping("/get-all-brands")
+    public ResponseEntity<Page<BrandResponse>> getAllBrands(
+            @ModelAttribute BrandFilterRequest request, // <-- Thêm @ModelAttribute
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(brandService.getAllBrands(request, pageable));
+    }
     @PostMapping
     public ResponseEntity<BrandResponse> createBrand(@Valid @RequestBody BrandCreateRequest request) {
         BrandResponse response = brandService.createBrand(request);
@@ -43,12 +50,8 @@ public class BrandController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/get-all-brands")
-    public ResponseEntity<Page<BrandResponse>> getAllBrands(
-            @PageableDefault(size = 20) Pageable pageable) {
-        Page<BrandResponse> response = brandService.getAllBrands(pageable);
-        return ResponseEntity.ok(response);
-    }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBrand(@PathVariable UUID id) {

@@ -1,128 +1,145 @@
 <template>
-  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div class="bg-white w-[600px] rounded-lg shadow-lg p-6 relative">
-      <h2 class="text-xl font-semibold mb-4">
-        {{ editItem ? "Chỉnh sửa thương hiệu" : "Thêm thương hiệu mới" }}
-      </h2>
+  <ModalCustom :show="true" @close="$emit('close')">
+    <template #title>
+      {{ editItem ? 'Chỉnh sửa thương hiệu' : 'Thêm thương hiệu mới' }}
+    </template>
 
-      <form @submit.prevent="save">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Tên thương hiệu</label>
-            <input
-              v-model="form.name"
-              type="text"
-              class="border rounded-lg w-full p-2"
-              required
-            />
-          </div>
+    <template #default>
+      <div
+        v-if="validationError"
+        class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm"
+      >
+        {{ validationError }}
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+        <InputCustom
+          v-model="form.name"
+          label="Tên thương hiệu"
+          required
+          :disabled="loading"
+        />
 
-          <div>
-            <label class="block text-sm font-medium mb-1">Mã code</label>
-            <input
-              v-model="form.code"
-              type="text"
-              class="border rounded-lg w-full p-2"
-              required
-            />
-          </div>
-
-          <div class="col-span-2">
-            <label class="block text-sm font-medium mb-1">Slug</label>
-            <input
-              v-model="form.slug"
-              type="text"
-              class="border rounded-lg w-full p-2"
-              required
-            />
-          </div>
-
-          <div class="col-span-2">
-            <label class="block text-sm font-medium mb-1">Mô tả</label>
-            <textarea
-              v-model="form.description"
-              rows="3"
-              class="border rounded-lg w-full p-2"
-              placeholder="Giới thiệu ngắn về thương hiệu"
-            ></textarea>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-1">Trạng thái</label>
-            <select v-model="form.status" class="border rounded-lg w-full p-2">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-1">Logo URL</label>
-            <input
-              v-model="form.logoUrl"
-              type="url"
-              class="border rounded-lg w-full p-2"
-              placeholder="https://..."
-            />
-          </div>
+        <InputCustom
+          v-model="form.code"
+          label="Mã code"
+          required
+          :disabled="loading || !!editItem"
+        />
+        <div class="col-span-2">
+          <InputCustom
+            v-model="form.slug"
+            label="Slug"
+            required
+            :disabled="true" 
+            class="bg-gray-100" 
+          />
+        </div>
+        
+        <div class="col-span-2">
+          <TextareaCustom
+            v-model="form.description"
+            label="Mô tả"
+            placeholder="Giới thiệu ngắn về thương hiệu"
+            :disabled="loading"
+          />
         </div>
 
-        <div class="flex justify-end space-x-2 mt-6">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg"
-          >
-            Huỷ
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-          >
-            Lưu
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        <SelectCustom v-model="form.status" label="Trạng thái" :disabled="loading">
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="INACTIVE">INACTIVE</option>
+        </SelectCustom>
+
+        <InputCustom
+          v-model="form.logoUrl"
+          label="Logo URL"
+          type="url"
+          placeholder="https://..."
+          :disabled="loading"
+        />
+      </div>
+    </template>
+
+    <template #footer>
+      <ButtonCustom color="secondary" @click="$emit('close')" :disabled="loading">
+        Huỷ
+      </ButtonCustom>
+      <ButtonCustom
+        color="primary"
+        @click="save"
+        :loading="loading"
+        :disabled="loading"
+      >
+        Lưu
+      </ButtonCustom>
+    </template>
+  </ModalCustom>
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from "vue";
+// 3. THÊM IMPORT "toSlug" VÀ "watch"
+import { ref, watch, defineProps, defineEmits } from 'vue';
+import { toSlug } from '@/utils/slug'; // <-- THÊM DÒNG NÀY
+
+import ModalCustom from '@/components/custom/Modal/ModalCustom.vue';
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
+import InputCustom from '@/components/custom/Input/InputCustom.vue';
+import SelectCustom from '@/components/custom/Select/SelectCustom.vue';
+import TextareaCustom from '@/components/custom/TextArea/TextAreaCustom.vue';
 
 const props = defineProps({
   editItem: Object,
+  loading: Boolean,
 });
-const emit = defineEmits(["close", "save"]);
+
+const emit = defineEmits(['close', 'save']);
 
 const form = ref({
   id: null,
-  name: "",
-  code: "",
-  slug: "",
-  description: "",
-  status: "ACTIVE",
-  logoUrl: "",
+  name: '',
+  code: '',
+  slug: '',
+  description: '',
+  status: 'ACTIVE',
+  logoUrl: '',
 });
+
+const validationError = ref(null);
 
 watch(
   () => props.editItem,
   (newVal) => {
+    validationError.value = null;
     form.value = newVal
       ? { ...newVal }
       : {
-        id: null,
-        name: "",
-        code: "",
-        slug: "",
-        description: "",
-        status: "ACTIVE",
-        logoUrl: "",
-      };
+          id: null,
+          name: '',
+          code: '',
+          slug: '',
+          description: '',
+          status: 'ACTIVE',
+          logoUrl: '',
+        };
   },
   { immediate: true }
 );
+watch(
+  () => form.value.name,
+  (newName) => {
+    if (!props.editItem) {
+      form.value.slug = toSlug(newName);
+    }
+  }
+);
+
 
 const save = () => {
-  emit("save", { ...form.value });
+  validationError.value = null; 
+  if (!form.value.name || !form.value.code) {
+    validationError.value = 'Vui lòng điền đầy đủ Tên và Code.';
+    return;
+  }
+  emit('save', { ...form.value });
 };
 </script>
