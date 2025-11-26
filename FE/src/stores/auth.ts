@@ -32,13 +32,13 @@ export const useAuthStore = defineStore('auth', () => {
   const setTokens = (access: string | null, refresh: string | null) => {
     accessToken.value = access
     refreshToken.value = refresh
-    
+
     if (access) {
       localStorageAction.set(ACCESS_TOKEN_STORAGE_KEY, access)
     } else {
       localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY)
     }
-    
+
     if (refresh) {
       localStorageAction.set(REFRESH_TOKEN_STORAGE_KEY, refresh)
     } else {
