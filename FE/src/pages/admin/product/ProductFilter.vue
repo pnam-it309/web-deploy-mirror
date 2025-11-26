@@ -1,95 +1,90 @@
 <template>
   <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      
       <!-- 1. Tìm kiếm (Tên/SKU) -->
       <div class="col-span-1 md:col-span-4 lg:col-span-1">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
-        <div class="relative">
-          <input
-            v-model="filter.keyword"
-            type="text"
-            placeholder="Tên sản phẩm, SKU..."
-            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-            @input="onInput"
-          />
-          <span class="absolute left-3 top-2.5 text-gray-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </span>
-        </div>
+        <InputCustom
+          v-model="filter.keyword"
+          label="Tìm kiếm"
+          placeholder="Tên sản phẩm, SKU..."
+          @input="onInput"
+        >
+          <!-- Icon tìm kiếm (Optional: Nếu InputCustom hỗ trợ slot prefix/suffix) -->
+        </InputCustom>
       </div>
 
-      <!-- 2. Thương hiệu & Danh mục -->
+      <!-- 2. Thương hiệu -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Thương hiệu</label>
-        <select 
+        <SelectCustom 
           v-model="filter.brandId" 
-          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2"
+          label="Thương hiệu"
           @change="onChange"
         >
           <option value="">Tất cả thương hiệu</option>
           <option v-for="b in brands" :key="b.id" :value="b.id">{{ b.name }}</option>
-        </select>
+        </SelectCustom>
       </div>
 
+      <!-- 3. Danh mục -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
-        <select 
+        <SelectCustom 
           v-model="filter.categoryId" 
-          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2"
+          label="Danh mục"
           @change="onChange"
         >
           <option value="">Tất cả danh mục</option>
           <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-        </select>
+        </SelectCustom>
       </div>
 
-      <!-- 3. Trạng thái -->
+      <!-- 4. Trạng thái -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-        <select 
+        <SelectCustom 
           v-model="filter.status" 
-          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2"
+          label="Trạng thái"
           @change="onChange"
         >
           <option value="">Tất cả trạng thái</option>
           <option value="ACTIVE">Đang bán</option>
           <option value="INACTIVE">Ngừng bán</option>
-        </select>
+        </SelectCustom>
       </div>
       
-      <!-- 4. Khoảng giá (Nâng cao) -->
-      <div class="col-span-1 md:col-span-4 lg:col-span-2 flex items-center space-x-2">
+      <!-- 5. Khoảng giá (Nâng cao) -->
+      <div class="col-span-1 md:col-span-3 lg:col-span-2 flex items-center space-x-2">
          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Giá từ</label>
-            <input 
+            <InputCustom 
               v-model.number="filter.minPrice" 
+              label="Giá từ" 
               type="number" 
               placeholder="0" 
-              class="w-full border-gray-300 rounded-md text-sm py-2"
               @input="onInput"
             />
          </div>
-         <span class="pt-6 text-gray-400">-</span>
+         <span class="pt-6 text-gray-400 font-bold">-</span>
          <div class="flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Đến</label>
-            <input 
+            <InputCustom 
               v-model.number="filter.maxPrice" 
+              label="Đến"
               type="number" 
               placeholder="Tối đa" 
-              class="w-full border-gray-300 rounded-md text-sm py-2"
               @input="onInput"
             />
          </div>
       </div>
 
       <!-- Nút Reset -->
-      <div class="col-span-1 flex items-end">
-         <button 
+      <!-- Canh lề dưới cùng để thẳng hàng với các input -->
+      <div class="col-span-1 flex justify-end md:justify-start">
+         <ButtonCustom 
+           color="soft-gray"
            @click="resetFilter"
-           class="px-4 py-2 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 text-sm font-medium w-full transition-colors"
+           class="w-full md:w-auto h-[38px] flex items-center justify-center gap-2"
          >
-           Làm mới bộ lọc
-         </button>
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+           Làm mới
+         </ButtonCustom>
       </div>
     </div>
   </div>
@@ -97,6 +92,10 @@
 
 <script setup lang="ts">
 import { reactive, defineProps, defineEmits } from 'vue';
+// Import các component tùy chỉnh
+import InputCustom from '@/components/custom/Input/InputCustom.vue';
+import SelectCustom from '@/components/custom/Select/SelectCustom.vue';
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
 
 const props = defineProps({
   brands: { type: Array as () => any[], default: () => [] },
@@ -130,13 +129,14 @@ const onChange = () => {
 };
 
 const emitFilter = () => {
+  // Clone và loại bỏ các giá trị rỗng để URL sạch đẹp
   const payload = { ...filter };
   if (!payload.keyword) delete (payload as any).keyword;
   if (!payload.brandId) delete (payload as any).brandId;
   if (!payload.categoryId) delete (payload as any).categoryId;
   if (!payload.status) delete (payload as any).status;
-  if (payload.minPrice === null || payload.minPrice === 0) delete (payload as any).minPrice;
-  if (payload.maxPrice === null || payload.maxPrice === 0) delete (payload as any).maxPrice;
+  if (payload.minPrice === null || payload.minPrice === 0 || payload.minPrice === '') delete (payload as any).minPrice;
+  if (payload.maxPrice === null || payload.maxPrice === 0 || payload.maxPrice === '') delete (payload as any).maxPrice;
   
   emit('filter', payload);
 };
@@ -151,3 +151,7 @@ const resetFilter = () => {
   emitFilter();
 };
 </script>
+
+<style scoped>
+/* Nếu cần chỉnh sửa thêm style riêng */
+</style>

@@ -5,7 +5,8 @@ import {
   type ProductCreatePayload,
   type ProductUpdatePayload,
   type ProductDetail, // <-- Import mới
-  type ProductDetailPayload
+  type ProductDetailPayload,
+  type ProductImportResponse
 } from '@/services/axios/product.services'; 
 import type { AxiosError } from 'axios';
 import type { SpringPage } from './brand.store';
@@ -145,4 +146,21 @@ export const useProductStore = defineStore('product', {
       }
     }
   },
+  async importProducts(file: File): Promise<ProductImportResponse> {
+      this.isLoading = true;
+      this.error = null;
+      try {
+        const response = await ProductService.importExcel(file);
+        // Sau khi import xong, load lại danh sách
+        await this.fetchProducts();
+        return response.data;
+      } catch (err) {
+        const axiosError = err as AxiosError<any>;
+        const msg = axiosError.response?.data?.message || 'Lỗi khi import file Excel.';
+        this.error = msg;
+        throw new Error(msg);
+      } finally {
+        this.isLoading = false;
+      }
+    }
 });

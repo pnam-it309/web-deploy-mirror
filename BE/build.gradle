@@ -114,6 +114,11 @@ dependencies {
     implementation 'com.cloudinary:cloudinary-http44:1.34.0'
     implementation 'org.apache.commons:commons-csv:1.9.0'
 
+    // Xử lý Excel (.xlsx) - Apache POI
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    // (Tuỳ chọn) Nếu gặp lỗi về log4j khi chạy POI, thêm cái này
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+
 }
 
 tasks.named('test') {

@@ -57,7 +57,12 @@ export interface ProductDetailPayload {
   weight: number;
   dimensions: string;
 }
-
+export interface ProductImportResponse {
+  totalRows: number;
+  successCount: number;
+  errorCount: number;
+  errorRows: any[]; // Chi tiết lỗi
+}
 // 2. Định nghĩa Service (gọi API Controller)
 export const ProductService = {
   /*
@@ -96,5 +101,15 @@ export const ProductService = {
 
   updateDetail: (productId: string, payload: ProductDetailPayload) => {
     return apiClient.put<ProductDetail>(`/admin/products/${productId}/details`, payload);
+  },
+  importExcel: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return apiClient.post<ProductImportResponse>('/admin/products/import-excel', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Bắt buộc khi gửi file
+      },
+    });
   },
 };
