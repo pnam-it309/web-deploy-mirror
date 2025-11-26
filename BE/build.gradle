@@ -28,10 +28,12 @@ repositories {
     maven { url "https://repo.spring.io/milestone" }
     google()
     maven { url "https://jitpack.io" }
+
 }
 
 dependencies {
     // Spring Boot Starters
+    runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
