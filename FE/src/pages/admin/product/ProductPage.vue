@@ -1,10 +1,15 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 relative">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-semibold">Quản lý Sản phẩm</h1>
-      <ButtonCustom color="primary" @click="openCreateModal">
-        + Thêm sản phẩm
-      </ButtonCustom>
+      <div class="flex items-center gap-1">
+        <ButtonCustom color="soft-blue" @click="openCreateModal">
+          + Thêm sản phẩm
+        </ButtonCustom>
+        <ButtonCustom color="soft-gray" @click="showImportPanel = !showImportPanel">
+          📥 Import Sản phẩm
+        </ButtonCustom>
+      </div>
     </div>
       <ProductFilter 
       :brands="brandStore.brands"
@@ -98,7 +103,10 @@
         <ButtonCustom color="danger" :loading="isLoading" @click="confirmDelete">Xoá</ButtonCustom>
       </template>
     </ModalCustom>
-
+  <ProductImportPanel 
+      :show="showImportPanel" 
+      @close="showImportPanel = false"
+    />
     <!-- SỬA: Thêm Toast Notification -->
     <ToastCustom :show="toast.show" :message="toast.message" :type="toast.type" />
   </div>
@@ -117,6 +125,7 @@ import CardCustom from '@/components/custom/Card/CardCustom.vue';
 import ModalCustom from '@/components/custom/Modal/ModalCustom.vue';
 import ToastCustom from '@/components/custom/Toast/ToastCustom.vue';
 import ProductFilter from './ProductFilter.vue';
+import ProductImportPanel from './ProductImportPanel.vue';
 
 const productStore = useProductStore();
 const brandStore = useBrandStore(); 
@@ -139,6 +148,7 @@ onMounted(async () => {
 
 const showCreateModal = ref(false);
 const showDetailModal = ref(false);
+const showImportPanel = ref(false); 
 const selectedProductId = ref<string | null>(null);
 const selectedProduct = ref<any>(null);
 
