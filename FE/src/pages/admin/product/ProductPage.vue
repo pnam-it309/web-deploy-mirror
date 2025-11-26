@@ -57,7 +57,6 @@
               </span>
             </td>
             <td class="p-3 text-center space-x-2">
-              <!-- SỬA: Nút Chi tiết giờ sẽ mở modal Detail -->
               <ButtonCustom color="info" size="small" @click.stop="openDetailModal(product)">
                 Chi tiết
               </ButtonCustom>
@@ -107,7 +106,6 @@
       :show="showImportPanel" 
       @close="showImportPanel = false"
     />
-    <!-- SỬA: Thêm Toast Notification -->
     <ToastCustom :show="toast.show" :message="toast.message" :type="toast.type" />
   </div>
 </template>
