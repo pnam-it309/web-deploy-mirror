@@ -8,11 +8,9 @@ import {
 
 // Layouts
 const AuthLayout = () => import('@/layouts/AuthLayout.vue')
-const AdminLayout = () => import('@/layouts/AdminLayout.vue')
+const AdminLayout = () => import('@/layouts/AdminSidebar.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 
-// Public pages
-const ProductDetailPage = () => import('@/pages/admin/product/product-detail/ProductDetailPage.vue')
 
 // Admin pages
 const AdminDashBoard = () => import('@/pages/admin/dashboard/AdminDashboardPage.vue')
@@ -56,12 +54,6 @@ const routes: RouteRecordRaw[] = [
     path: '/selection',
     name: 'selection',
     component: () => import('@/pages/log/SelectionPage.vue'),
-    meta: { public: true },
-  },
-  {
-    path: '/product/:id',
-    name: 'product-detail',
-    component: ProductDetailPage,
     meta: { public: true },
   },
   {

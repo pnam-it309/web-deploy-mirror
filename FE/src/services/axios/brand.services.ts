@@ -1,9 +1,6 @@
 // SỬA LẠI ĐƯỜNG DẪN IMPORT:
-import apiClient from '../api/api'; // <-- Đi lên (../) rồi đi xuống (api/api)
-
+import apiClient from '../api/api';
 import type { SpringPage } from '@/stores/brand.store'; // Import từ store
-
-// 1. ĐỊNH NGHĨA CÁC TYPES/INTERFACES (Giống DTOs)
 export interface Brand {
   id: string; 
   name: string;
@@ -30,21 +27,18 @@ export interface BrandUpdatePayload {
   logoUrl?: string;
   status?: 'ACTIVE' | 'INACTIVE';
 }
-
-// 2. TẠO CÁC HÀM GỌI API (Dùng apiClient MỚI)
+// Dùng apiClient MỚI
 export const BrandService = {
   /**
    * API: GET /admin/brands/get-all-brands
-   * (Đã có Interceptor đính token)
    */
-  getAll: (params: any) => { // <-- Thay đổi tham số
+  getAll: (params: any) => { 
     return apiClient.get<SpringPage<Brand>>('/admin/brands/get-all-brands', {
-      params: params, // <-- Truyền xuống axios
+      params: params,
     });
   },
   /**
    * API: POST /admin/brands
-   * (Đã có Interceptor đính token)
    */
   create: (payload: BrandCreatePayload) => {
     return apiClient.post<Brand>('/admin/brands', payload);
@@ -52,7 +46,6 @@ export const BrandService = {
 
   /**
    * API: PUT /admin/brands/{id}
-   * (Đã có Interceptor đính token)
    */
   update: (id: string, payload: BrandUpdatePayload) => {
     return apiClient.put<Brand>(`/admin/brands/${id}`, payload);
@@ -60,7 +53,6 @@ export const BrandService = {
 
   /**
    * API: DELETE /admin/brands/{id}
-   * (Đã có Interceptor đính token)
    */
   deleteById: (id: string) => {
     return apiClient.delete(`/admin/brands/${id}`);
