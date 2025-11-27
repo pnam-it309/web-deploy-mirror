@@ -1,7 +1,6 @@
 import apiClient from '../api/api'; // (Đường dẫn đến api.ts)
 import type { SpringPage } from '@/stores/brand.store'; // (Dùng chung)
 
-// 1. Định nghĩa Types (Khớp với DTOs Backend)
 export interface Category {
   id: string;
   name: string;
@@ -9,7 +8,6 @@ export interface Category {
   description?: string;
   parentId?: string;
   children?: Category[];
-  // (Backend CategoryResponse không có 'status', nên chúng ta bỏ qua)
 }
 
 export interface CategoryCreatePayload {
