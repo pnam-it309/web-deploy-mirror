@@ -1,6 +1,11 @@
 <template>
   <div class="space-y-6">
-
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div class="mt-4 flex space-x-3 md:mt-0">
+        <AdminDashFil @filter="handleFilter" @export="handleExport" />
+      </div>
+    </div>
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -288,6 +293,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AdminDashFil from './AdminDashFil.vue';
 import AdminRevenueChart from './AdminRevenueChart.vue';
 import ButtonDefault from '@/components/custom/Button/ButtonDefault.vue'
 import {

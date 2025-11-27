@@ -1,6 +1,9 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 sm:p-8 lg:pl-0 font-sans">
     <div class="max-w-7xl mx-auto space-y-8">
+      <!-- Filter Component -->
+      <DashCusFil @filter="handleFilter" />
+
       <!-- Hero Banner -->
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 shadow-xl text-white">
         <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -78,7 +81,7 @@
           <p class="text-gray-500 text-sm">Khám phá theo danh mục yêu thích</p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div v-for="cat in categories" :key="cat.name"
+          <div v-for="cat in categories" :key="cat.name" 
                class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
                @click="filterByCategory(cat.id)">
             <div :class="`w-14 h-14 rounded-2xl ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`">
@@ -109,7 +112,7 @@
             Xem tất cả <ArrowRightIcon class="w-4 h-4" />
           </button>
         </div>
-
+        
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Flash Sale Item 1 -->
           <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100">
@@ -163,11 +166,11 @@
             Xem tất cả <ArrowRightIcon class="w-4 h-4" />
           </button>
         </div>
-
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <ProductCard
-            v-for="product in featuredProducts"
-            :key="product.id"
+          <ProductCard 
+            v-for="product in featuredProducts" 
+            :key="product.id" 
             :product="product"
             :is-in-wishlist="isInWishlist(product.id)"
             @add-to-cart="addToCart"
@@ -205,12 +208,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import DashCusFil from './DashCusFil.vue';
 import { useRouter } from 'vue-router';
-import {
-  SparklesIcon,
-  ArrowRightIcon,
-  CubeIcon,
-  HeartIcon,
+import { 
+  SparklesIcon, 
+  ArrowRightIcon, 
+  CubeIcon, 
+  HeartIcon, 
   GiftIcon,
   ComputerDesktopIcon,
   DevicePhoneMobileIcon,
@@ -244,54 +248,81 @@ const categories = [
 const allProducts = ref<Product[]>([]);
 const featuredProducts = ref<Product[]>([]);
 
+// Handle filter changes from DashCusFil component
+const handleFilter = (filters: any) => {
+  let filtered = [...allProducts.value];
+
+  // Filter by categories
+  if (filters.categories && filters.categories.length > 0) {
+    filtered = filtered.filter(product => 
+      filters.categories.includes(product.category.toLowerCase())
+    );
+  }
+
+  // Filter by price range
+  if (filters.minPrice) {
+    filtered = filtered.filter(product => product.price >= filters.minPrice);
+  }
+  if (filters.maxPrice) {
+    filtered = filtered.filter(product => product.price <= filters.maxPrice);
+  }
+
+  // Filter by stock status
+  if (filters.inStockOnly) {
+    filtered = filtered.filter(product => product.inStock);
+  }
+
+  featuredProducts.value = filtered;
+};
+
 // Initialize products
 const initializeProducts = () => {
   const products = [
-  {
-    id: 'p1',
-    name: 'iPhone 15 Pro Max',
-    price: 29990000,
-    category: 'Điện thoại',
-    image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80',
-    rating: 5,
-    reviewCount: 128,
-    description: 'Titan tự nhiên, chip A17 Pro mạnh mẽ nhất.',
-    inStock: true,
-    badge: 'New'
+  { 
+    id: 'p1', 
+    name: 'iPhone 15 Pro Max', 
+    price: 29990000, 
+    category: 'Điện thoại', 
+    image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80', 
+    rating: 5, 
+    reviewCount: 128, 
+    description: 'Titan tự nhiên, chip A17 Pro mạnh mẽ nhất.', 
+    inStock: true, 
+    badge: 'New' 
   },
-  {
-    id: 'p2',
-    name: 'MacBook Pro 14"',
-    price: 52990000,
-    category: 'Laptop',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=500&q=80',
-    rating: 5,
-    reviewCount: 85,
-    description: 'Chip M3 Pro, màn hình Liquid Retina XDR.',
-    inStock: true,
-    badge: 'Best Seller'
+  { 
+    id: 'p2', 
+    name: 'MacBook Pro 14"', 
+    price: 52990000, 
+    category: 'Laptop', 
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=500&q=80', 
+    rating: 5, 
+    reviewCount: 85, 
+    description: 'Chip M3 Pro, màn hình Liquid Retina XDR.', 
+    inStock: true, 
+    badge: 'Best Seller' 
   },
-  {
-    id: 'p3',
-    name: 'AirPods Pro (Gen 2)',
-    price: 5990000,
-    category: 'Phụ kiện',
-    image: 'https://images.unsplash.com/photo-1603351154351-5cf99bc32f2d?w=500&q=80',
-    rating: 4.8,
-    reviewCount: 342,
-    description: 'Chống ồn chủ động gấp 2 lần, USB-C.',
-    inStock: true
+  { 
+    id: 'p3', 
+    name: 'AirPods Pro (Gen 2)', 
+    price: 5990000, 
+    category: 'Phụ kiện', 
+    image: 'https://images.unsplash.com/photo-1603351154351-5cf99bc32f2d?w=500&q=80', 
+    rating: 4.8, 
+    reviewCount: 342, 
+    description: 'Chống ồn chủ động gấp 2 lần, USB-C.', 
+    inStock: true 
   },
-  {
-    id: 'p4',
-    name: 'Samsung Galaxy Tab S9',
-    price: 18990000,
-    category: 'Tablet',
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80',
-    rating: 4.7,
-    reviewCount: 56,
-    description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.',
-    inStock: true
+  { 
+    id: 'p4', 
+    name: 'Samsung Galaxy Tab S9', 
+    price: 18990000, 
+    category: 'Tablet', 
+    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80', 
+    rating: 4.7, 
+    reviewCount: 56, 
+    description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.', 
+    inStock: true 
   },
 ];
   allProducts.value = [...products];
@@ -320,7 +351,7 @@ const addToCart = (product: Product) => {
 const toggleWishlist = (product: Product) => {
   const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
   const index = wishlist.findIndex((item: any) => item.id === product.id);
-
+  
   if (index === -1) {
     wishlist.push({
       id: product.id,
@@ -333,7 +364,7 @@ const toggleWishlist = (product: Product) => {
     wishlist.splice(index, 1);
     wishlistIds.value = wishlistIds.value.filter(id => id !== product.id);
   }
-
+  
   localStorage.setItem('wishlist', JSON.stringify(wishlist));
   window.dispatchEvent(new Event('wishlist-updated'));
   updateWishlistCount();
@@ -349,21 +380,21 @@ const startTimer = () => {
   // Set a deadline 12 hours from now for demo
   const deadline = new Date();
   deadline.setHours(deadline.getHours() + 12);
-
+  
   timerInterval = setInterval(() => {
     const now = new Date();
     const diff = deadline.getTime() - now.getTime();
-
+    
     if (diff <= 0) {
       clearInterval(timerInterval);
       timeLeft.value = "00:00:00";
       return;
     }
-
+    
     const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diff / (1000 * 60)) % 60);
     const seconds = Math.floor((diff / 1000) % 60);
-
+    
     timeLeft.value = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }, 1000);
 };
