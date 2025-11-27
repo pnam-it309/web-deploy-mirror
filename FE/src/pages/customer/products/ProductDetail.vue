@@ -8,7 +8,7 @@
     <div v-else-if="!product" class="not-found">
       <h2>Product Not Found</h2>
       <p>Sorry, we couldn't find the product you're looking for.</p>
-      <router-link to="/products" class="back-to-shop">
+      <router-link to="/customer/dashboard" class="back-to-shop">
         &larr; Back to Shop
       </router-link>
     </div>
@@ -18,7 +18,7 @@
       <nav class="breadcrumb">
         <router-link to="/">Home</router-link>
         <span class="divider">/</span>
-        <router-link to="/products">Products</router-link>
+        <router-link to="/customer/dashboard">Products</router-link>
         <span class="divider">/</span>
         <span class="current">{{ product.name }}</span>
       </nav>
@@ -60,7 +60,7 @@
           
           <div class="product-meta">
             <div class="rating">
-              <div class="stars" :style="{ '--rating': product.rating * 20 }%" aria-label="Rating">
+              <div class="stars" :style="{ '--rating': (product.rating * 20) + '%' }" aria-label="Rating">
                 ★★★★★
               </div>
               <span class="review-count">({{ product.reviewCount }} reviews)</span>
@@ -148,7 +148,7 @@
               @click="addToCart"
             >
               <span class="icon">🛒</span>
-              Add to Cart
+              Thêm vào Yêu cầu đặt hàng
             </button>
             <button 
               class="buy-now"
@@ -222,7 +222,7 @@
             <div class="reviews-summary">
               <div class="overall-rating">
                 <div class="average">{{ product.rating.toFixed(1) }}</div>
-                <div class="stars" :style="{ '--rating': product.rating * 20 }%" aria-label="Rating">
+                <div class="stars" :style="{ '--rating': (product.rating * 20) + '%' }" aria-label="Rating">
                   ★★★★★
                 </div>
                 <div class="total-reviews">{{ product.reviewCount }} reviews</div>
@@ -234,7 +234,7 @@
                   <div class="bar-container">
                     <div 
                       class="bar" 
-                      :style="{ width: getRatingPercentage(6 - i) }%"
+                      :style="{ width: getRatingPercentage(6 - i) + '%' }"
                     ></div>
                   </div>
                   <span class="percentage">{{ getRatingPercentage(6 - i) }}%</span>
@@ -252,7 +252,7 @@
                   <div class="reviewer">{{ review.author }}</div>
                   <div class="review-date">{{ formatDate(review.date) }}</div>
                   <div class="review-rating">
-                    <span class="stars" :style="{ '--rating': review.rating * 20 }%" aria-label="Rating">
+                    <span class="stars" :style="{ '--rating': (review.rating * 20) + '%' }" aria-label="Rating">
                       ★★★★★
                     </span>
                   </div>
@@ -550,6 +550,8 @@ export default defineComponent({
           ];
           
           isLoading.value = false;
+          // Check wishlist status after product is loaded
+          checkWishlist();
         }, 800);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -634,8 +636,33 @@ export default defineComponent({
     
     // Wishlist
     const toggleWishlist = () => {
-      isInWishlist.value = !isInWishlist.value;
-      // In a real app, you would call an API to update the wishlist
+      if (!product.value) return;
+      
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const index = wishlist.findIndex((item: any) => item.id === product.value?.id);
+      
+      if (index === -1) {
+        // Add to wishlist
+        wishlist.push({
+          id: product.value.id,
+          name: product.value.name,
+          price: product.value.price,
+          image: product.value.images[0]
+        });
+        isInWishlist.value = true;
+      } else {
+        // Remove from wishlist
+        wishlist.splice(index, 1);
+        isInWishlist.value = false;
+      }
+      
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    };
+
+    const checkWishlist = () => {
+      if (!product.value) return;
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      isInWishlist.value = wishlist.some((item: any) => item.id === product.value?.id);
     };
     
     // Cart actions

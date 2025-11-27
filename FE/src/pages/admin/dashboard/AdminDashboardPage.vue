@@ -328,6 +328,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
+import ButtonDefault from '@/components/custom/Button/ButtonDefault.vue'
 import { 
   ArrowUpIcon,
   ArrowDownIcon,

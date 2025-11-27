@@ -14,8 +14,15 @@
         class="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         @click.stop="$emit('add-to-cart', product)">
         <ShoppingCartIcon class="h-4 w-4 mr-2" />
-        Add to Cart
+        Thêm vào Yêu cầu
       </Button>
+      
+      <button 
+        class="absolute top-3 right-3 p-2 rounded-full bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-50"
+        @click.stop="$emit('toggle-wishlist', product)"
+      >
+        <HeartIcon class="h-5 w-5" :class="isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-400'" />
+      </button>
     </div>
 
     <div class="p-4">
@@ -52,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { StarIcon, ShoppingCartIcon } from '@heroicons/vue/24/solid';
+import { StarIcon, ShoppingCartIcon, HeartIcon } from '@heroicons/vue/24/solid';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { PropType } from 'vue';
@@ -62,10 +69,14 @@ defineProps({
   product: {
     type: Object as PropType<Product>,
     required: true
+  },
+  isInWishlist: {
+    type: Boolean,
+    default: false
   }
 });
 
-defineEmits(['add-to-cart']);
+defineEmits(['add-to-cart', 'toggle-wishlist']);
 
 const getBadgeVariant = (badge: string) => {
   switch (badge) {
