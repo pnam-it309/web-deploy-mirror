@@ -4,75 +4,71 @@
       <FilterOutlined />
     </template>
 
-    <div class="flex flex-col gap-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
-        <!-- 1. Từ khóa (keyword) -->
-        <div class="flex flex-col">
-          <a-input
-            v-model:value="filter.keyword"
-            placeholder="Tìm theo tên, mô tả"
-            allow-clear
-            @change="onInput"
-          />
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <!-- 1. Từ khóa (keyword) -->
+      <div class="col-span-1 md:col-span-4 lg:col-span-1">
+        <InputCustom
+          v-model="filter.keyword"
+          label="Tìm kiếm"
+          placeholder="Tên, mô tả..."
+          @input="onInput"
+        />
+      </div>
 
-        <!-- 2. Danh mục cha (parentId) -->
-        <div class="flex flex-col">
-          <a-select
-            v-model:value="filter.parentId"
-            placeholder="Chọn danh mục cha"
-            allow-clear
-            @change="onChange"
+      <!-- 2. Danh mục cha (parentId) -->
+      <div>
+        <SelectCustom
+          v-model="filter.parentId"
+          label="Danh mục cha"
+          @change="onChange"
+        >
+          <option :value="undefined">Tất cả danh mục cha</option>
+          <option
+            v-for="category in availableParentCategories"
+            :key="category.id"
+            :value="category.id"
           >
-            <a-select-option
-              v-for="category in availableParentCategories"
-              :key="category.id"
-              :value="category.id"
-            >
-              {{ category.name }}
-            </a-select-option>
-          </a-select>
-        </div>
+            {{ category.name }}
+          </option>
+        </SelectCustom>
+      </div>
 
-        <!-- 3. Loại danh mục (type) -->
-        <div class="flex flex-col">
-          <a-select
-            v-model:value="filter.type"
-            placeholder="Loại danh mục"
-            allow-clear
-            @change="onChange"
-          >
-            <a-select-option value="root">Danh mục gốc (Không cha)</a-select-option>
-            <a-select-option value="child">Danh mục con (Có cha)</a-select-option>
-            <a-select-option value="has-children">Danh mục cha (Có con)</a-select-option>
-          </a-select>
-        </div>
+      <!-- 3. Loại danh mục (type) -->
+      <div>
+        <SelectCustom
+          v-model="filter.type"
+          label="Loại danh mục"
+          @change="onChange"
+        >
+          <option :value="undefined">Tất cả loại</option>
+          <option value="root">Danh mục gốc (Không cha)</option>
+          <option value="child">Danh mục con (Có cha)</option>
+          <option value="has-children">Danh mục cha (Có con)</option>
+        </SelectCustom>
+      </div>
 
-        <!-- 4. Trạng thái (status) -->
-        <div class="flex flex-col">
-          <a-select
-            v-model:value="filter.status"
-            placeholder="Trạng thái"
-            allow-clear
-            @change="onChange"
-          >
-            <a-select-option value="ACTIVE">Đang hoạt động</a-select-option>
-            <a-select-option value="INACTIVE">Ngừng hoạt động</a-select-option>
-          </a-select>
-        </div>
+      <!-- 4. Trạng thái (status) -->
+      <div>
+        <SelectCustom
+          v-model="filter.status"
+          label="Trạng thái"
+          @change="onChange"
+        >
+          <option :value="undefined">Tất cả trạng thái</option>
+          <option value="ACTIVE">Đang hoạt động</option>
+          <option value="INACTIVE">Ngừng hoạt động</option>
+        </SelectCustom>
       </div>
 
       <!-- Nút Reset -->
-      <div class="flex justify-end">
-        <a-tooltip title="Làm mới bộ lọc">
-          <a-button
-            type="default"
-            @click="resetFilters"
-            class="flex items-center gap-2"
-          >
-            <ReloadOutlined /> Làm mới
-          </a-button>
-        </a-tooltip>
+      <div class="col-span-1 flex justify-end md:justify-start md:col-span-4 lg:col-span-4 mt-2">
+        <ButtonCustom
+          color="sage"
+          @click="resetFilters"
+          class="h-[42px] flex items-center justify-center gap-2 px-6"
+        >
+          <ReloadOutlined /> Làm mới
+        </ButtonCustom>
       </div>
     </div>
   </DivCustom>
@@ -80,11 +76,13 @@
 
 <script setup lang="ts">
 import { reactive, computed, defineProps, defineEmits } from 'vue'
-import DivCustom from '@/components/custom/Div/DivCustom.vue'
 import { FilterOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { Input as AInput, Select as ASelect, Button as AButton, Tooltip as ATooltip } from 'ant-design-vue'
 
-const ASelectOption = ASelect.Option
+// Import các component Custom (Thay thế Ant Design)
+import DivCustom from '@/components/custom/Div/DivCustom.vue'
+import InputCustom from '@/components/custom/Input/InputCustom.vue'
+import SelectCustom from '@/components/custom/Select/SelectCustom.vue'
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue'
 
 interface Category {
   id: string;
@@ -150,3 +148,7 @@ const resetFilters = () => {
   emitFilter();
 }
 </script>
+
+<style scoped>
+/* Không cần style riêng vì đã dùng Tailwind và Component Custom */
+</style>

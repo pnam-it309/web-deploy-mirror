@@ -1,7 +1,6 @@
-import apiClient from '../api/api'; // (Đường dẫn đến api.ts)
-import type { SpringPage } from '@/stores/brand.store'; // (Dùng chung)
+import apiClient from '../api/api';
+import type { SpringPage } from '@/stores/brand.store';
 
-// 1. Định nghĩa Types (Khớp với DTOs Backend)
 export interface Product {
   id: string;
   name: string;
@@ -10,7 +9,7 @@ export interface Product {
   shortDescription: string;
   price: number;
   stockQuantity: number;
-  unit: string; // (Backend gửi Enum, FE nhận String)
+  unit: string; 
   status: 'ACTIVE' | 'INACTIVE';
   brandId: string;
   brandName: string;
