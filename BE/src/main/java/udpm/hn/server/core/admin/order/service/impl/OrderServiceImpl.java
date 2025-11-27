@@ -90,7 +90,6 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderResponse convertToResponse(Order order) {
         OrderResponse response = modelMapper.map(order, OrderResponse.class);
-
         // Map danh sách items thủ công để lấy tên SP
         List<OrderResponse.OrderItemResponse> itemResponses = order.getItems().stream().map(item -> {
             OrderResponse.OrderItemResponse itemResp = new OrderResponse.OrderItemResponse();
@@ -102,7 +101,6 @@ public class OrderServiceImpl implements OrderService {
             itemResp.setTotalPrice(item.getTotalPrice());
             return itemResp;
         }).collect(Collectors.toList());
-
         response.setItems(itemResponses);
         return response;
     }
