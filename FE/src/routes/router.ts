@@ -12,7 +12,9 @@ const AdminLayout = () => import('@/layouts/AdminLayout.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 
 // Public pages
-const ProductDetailPage = () => import('@/pages/admin/product/product-detail/ProductDetailPage.vue')
+const ProductDetailPage = () => import('@/pages/customer/products/ProductDetail.vue')
+const ProductList = () => import('@/pages/customer/products/ProductList.vue')
+const WishlistPage = () => import('@/pages/customer/wishlist/WishlistPage.vue')
 
 // Admin pages
 const AdminDashBoard = () => import('@/pages/admin/dashboard/AdminDashboardPage.vue')
@@ -58,12 +60,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/log/SelectionPage.vue'),
     meta: { public: true },
   },
-  {
-    path: '/product/:id',
-    name: 'product-detail',
-    component: ProductDetailPage,
-    meta: { public: true },
-  },
+
   {
     path: '/auth',
     component: AuthLayout,
@@ -140,7 +137,7 @@ const routes: RouteRecordRaw[] = [
         component: AdminSettings,
         meta: { title: 'Cài đặt', apiEndpoint: '/api/v1/admin/settings' },
       },
-      { path: ':catchAll(.*)*', redirect: { name: 'admin-dashboard' } },
+      { path: ':catchAll(.*)*', redirect: '/admin/dashboard' },
     ],
   },
 
@@ -152,7 +149,10 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'dashboard', name: 'customer-dashboard', component: CustomerDashboard, meta: { title: 'My Dashboard' } },
       { path: 'orders', name: 'customer-orders', component: CustomerOrders, meta: { title: 'My Orders' } },
-      { path: ':catchAll(.*)*', redirect: { name: 'customer-dashboard' } },
+      { path: 'products', name: 'customer-products', component: ProductList, meta: { title: 'Sản phẩm' } },
+      { path: 'products/:id', name: 'customer-product-detail', component: ProductDetailPage, meta: { title: 'Chi tiết sản phẩm' } },
+      { path: 'wishlist', name: 'customer-wishlist', component: WishlistPage, meta: { title: 'Sản phẩm yêu thích' } },
+      { path: ':catchAll(.*)*', redirect: '/customer/dashboard' },
     ],
   },
 

@@ -99,8 +99,14 @@
           </div>
 
           <div v-else class="product-grid">
-            <ProductCard v-for="product in paginatedProducts" :key="product.id" :product="product"
-              @add-to-cart="addToCart" />
+            <ProductCard 
+              v-for="product in paginatedProducts" 
+              :key="product.id" 
+              :product="product"
+              :is-in-wishlist="isInWishlist(product.id)"
+              @add-to-cart="addToCart" 
+              @toggle-wishlist="toggleWishlist"
+            />
           </div>
 
           <div v-if="totalPages > 1" class="pagination bg-white p-4 rounded-lg shadow-md mt-6">
@@ -129,7 +135,6 @@
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
-import { useProductStore } from '@/stores/products.ts'; // Giả định có store quản lý sản phẩm
 
 export default defineComponent({
   name: 'ProductList',
@@ -139,35 +144,34 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const router = useRouter();
-    // const productStore = useProductStore(); // Giả định sử dụng Pinia/Vuex store
 
     // --- State ---
     const products = ref([
       // Mock Data (Thêm nhiều sản phẩm hơn để kiểm tra phân trang)
-      { id: 'p1', name: 'Wireless Headphones Pro', price: 299.99, category: 1, image: 'https://picsum.photos/seed/p1/300/300', rating: 4.5, reviewCount: 50, description: 'Premium sound quality with active noise cancellation.', inStock: true, badge: 'New' },
-      { id: 'p2', name: 'Leather Messenger Bag', price: 149.50, category: 2, image: 'https://picsum.photos/seed/p2/300/300', rating: 4.0, reviewCount: 30, description: 'Handcrafted leather bag for modern professionals.', inStock: true, badge: 'Sale' },
-      { id: 'p3', name: 'Smart Home Hub', price: 99.00, category: 1, image: 'https://picsum.photos/seed/p3/300/300', rating: 4.8, reviewCount: 80, description: 'Control all your smart devices easily.', inStock: true },
-      { id: 'p4', name: 'Gaming Mouse RGB', price: 59.99, category: 1, image: 'https://picsum.photos/seed/p4/300/300', rating: 3.9, reviewCount: 15, description: 'Ergonomic design with customizable RGB lighting.', inStock: false },
-      { id: 'p5', name: 'Organic Coffee Beans', price: 19.99, category: 3, image: 'https://picsum.photos/seed/p5/300/300', rating: 5.0, reviewCount: 100, description: '100% Arabica, ethically sourced.', inStock: true },
-      { id: 'p6', name: 'Wool Scarf', price: 35.00, category: 2, image: 'https://picsum.photos/seed/p6/300/300', rating: 4.2, reviewCount: 20, description: 'Soft and warm pure wool scarf.', inStock: true },
-      { id: 'p7', name: 'Water Bottle Stainless', price: 25.00, category: 3, image: 'https://picsum.photos/seed/p7/300/300', rating: 4.6, reviewCount: 40, description: 'Keeps drinks cold for 24 hours.', inStock: true },
-      { id: 'p8', name: 'Fantasy Novel Set', price: 75.00, category: 4, image: 'https://picsum.photos/seed/p8/300/300', rating: 4.9, reviewCount: 60, description: 'An epic four-book fantasy series.', inStock: true },
-      { id: 'p9', name: 'Running Shoes X', price: 110.00, category: 5, image: 'https://picsum.photos/seed/p9/300/300', rating: 4.1, reviewCount: 35, description: 'Lightweight and durable for long distance running.', inStock: true },
-      { id: 'p10', name: 'Yoga Mat Eco', price: 45.00, category: 5, image: 'https://picsum.photos/seed/p10/300/300', rating: 4.4, reviewCount: 25, description: 'Non-slip and environmentally friendly.', inStock: true },
-      { id: 'p11', name: 'Designer Dress', price: 250.00, category: 2, image: 'https://picsum.photos/seed/p11/300/300', rating: 4.7, reviewCount: 15, description: 'Elegant evening dress.', inStock: true, badge: 'Limited' },
-      { id: 'p12', name: '4K Monitor 32"', price: 450.00, category: 1, image: 'https://picsum.photos/seed/p12/300/300', rating: 4.3, reviewCount: 55, description: 'Stunning 4K resolution and high refresh rate.', inStock: true },
-      { id: 'p13', name: 'Gardening Gloves', price: 15.00, category: 3, image: 'https://picsum.photos/seed/p13/300/300', rating: 3.5, reviewCount: 10, description: 'Durable gloves for all gardening tasks.', inStock: true },
+      { id: 'p1', name: 'Wireless Headphones Pro', price: 299.99, category: 'Electronics', image: 'https://picsum.photos/seed/p1/300/300', rating: 4.5, reviewCount: 50, description: 'Premium sound quality with active noise cancellation.', inStock: true, badge: 'New' as const },
+      { id: 'p2', name: 'Leather Messenger Bag', price: 149.50, category: 'Clothing', image: 'https://picsum.photos/seed/p2/300/300', rating: 4.0, reviewCount: 30, description: 'Handcrafted leather bag for modern professionals.', inStock: true, badge: 'Sale' as const },
+      { id: 'p3', name: 'Smart Home Hub', price: 99.00, category: 'Electronics', image: 'https://picsum.photos/seed/p3/300/300', rating: 4.8, reviewCount: 80, description: 'Control all your smart devices easily.', inStock: true },
+      { id: 'p4', name: 'Gaming Mouse RGB', price: 59.99, category: 'Electronics', image: 'https://picsum.photos/seed/p4/300/300', rating: 3.9, reviewCount: 15, description: 'Ergonomic design with customizable RGB lighting.', inStock: false },
+      { id: 'p5', name: 'Organic Coffee Beans', price: 19.99, category: 'Home & Garden', image: 'https://picsum.photos/seed/p5/300/300', rating: 5.0, reviewCount: 100, description: '100% Arabica, ethically sourced.', inStock: true },
+      { id: 'p6', name: 'Wool Scarf', price: 35.00, category: 'Clothing', image: 'https://picsum.photos/seed/p6/300/300', rating: 4.2, reviewCount: 20, description: 'Soft and warm pure wool scarf.', inStock: true },
+      { id: 'p7', name: 'Water Bottle Stainless', price: 25.00, category: 'Home & Garden', image: 'https://picsum.photos/seed/p7/300/300', rating: 4.6, reviewCount: 40, description: 'Keeps drinks cold for 24 hours.', inStock: true },
+      { id: 'p8', name: 'Fantasy Novel Set', price: 75.00, category: 'Books', image: 'https://picsum.photos/seed/p8/300/300', rating: 4.9, reviewCount: 60, description: 'An epic four-book fantasy series.', inStock: true },
+      { id: 'p9', name: 'Running Shoes X', price: 110.00, category: 'Sports', image: 'https://picsum.photos/seed/p9/300/300', rating: 4.1, reviewCount: 35, description: 'Lightweight and durable for long distance running.', inStock: true },
+      { id: 'p10', name: 'Yoga Mat Eco', price: 45.00, category: 'Sports', image: 'https://picsum.photos/seed/p10/300/300', rating: 4.4, reviewCount: 25, description: 'Non-slip and environmentally friendly.', inStock: true },
+      { id: 'p11', name: 'Designer Dress', price: 250.00, category: 'Clothing', image: 'https://picsum.photos/seed/p11/300/300', rating: 4.7, reviewCount: 15, description: 'Elegant evening dress.', inStock: true, badge: 'Limited' as const },
+      { id: 'p12', name: '4K Monitor 32"', price: 450.00, category: 'Electronics', image: 'https://picsum.photos/seed/p12/300/300', rating: 4.3, reviewCount: 55, description: 'Stunning 4K resolution and high refresh rate.', inStock: true },
+      { id: 'p13', name: 'Gardening Gloves', price: 15.00, category: 'Home & Garden', image: 'https://picsum.photos/seed/p13/300/300', rating: 3.5, reviewCount: 10, description: 'Durable gloves for all gardening tasks.', inStock: true },
     ]);
 
     const categories = ref([
-      { id: 1, name: 'Electronics', count: 4 },
-      { id: 2, name: 'Clothing', count: 3 },
-      { id: 3, name: 'Home & Garden', count: 2 },
-      { id: 4, name: 'Books', count: 1 },
-      { id: 5, name: 'Sports', count: 2 },
+      { id: 'Electronics', name: 'Electronics', count: 4 },
+      { id: 'Clothing', name: 'Clothing', count: 3 },
+      { id: 'Home & Garden', name: 'Home & Garden', count: 2 },
+      { id: 'Books', name: 'Books', count: 1 },
+      { id: 'Sports', name: 'Sports', count: 2 },
     ]);
 
-    const selectedCategories = ref<number[]>([]);
+    const selectedCategories = ref<string[]>([]);
     const priceRange = ref({ min: 0, max: 500 }); // Đặt max thấp hơn để dễ test
     const sortBy = ref('featured');
     const searchQuery = ref(''); // State mới cho Tìm kiếm
@@ -176,6 +180,7 @@ export default defineComponent({
     const currentPage = ref(1);
     const itemsPerPage = 8; // Đặt 8 sản phẩm/trang
     const isLoading = ref(false);
+    const wishlistIds = ref<string[]>([]);
 
     // Computed properties
     const filteredProducts = computed(() => {
@@ -261,16 +266,46 @@ export default defineComponent({
     };
 
     const addToCart = (product: any) => {
-      console.log('Added to cart:', product);
+      alert(`Đã thêm "${product.name}" vào Yêu cầu đặt hàng!`);
       // Giả định dispatch to a cart store
+    };
+
+    const loadWishlist = () => {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      wishlistIds.value = wishlist.map((item: any) => item.id);
+    };
+
+    const toggleWishlist = (product: any) => {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      const index = wishlist.findIndex((item: any) => item.id === product.id);
+      
+      if (index === -1) {
+        wishlist.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image
+        });
+        wishlistIds.value.push(product.id);
+      } else {
+        wishlist.splice(index, 1);
+        wishlistIds.value = wishlistIds.value.filter(id => id !== product.id);
+      }
+      
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      // Dispatch custom event for layout to update
+      window.dispatchEvent(new Event('wishlist-updated'));
+    };
+
+    const isInWishlist = (id: string | number) => {
+      return wishlistIds.value.includes(String(id));
     };
 
     const parseUrlParams = () => {
       if (route.query.categories) {
         selectedCategories.value = route.query.categories
           .toString()
-          .split(',')
-          .map(Number);
+          .split(',');
       } else {
         selectedCategories.value = [];
       }
@@ -285,6 +320,7 @@ export default defineComponent({
     // Lifecycle hooks
     onMounted(() => {
       parseUrlParams();
+      loadWishlist();
     });
 
     // Watchers
@@ -317,7 +353,9 @@ export default defineComponent({
       applyFilters,
       changePage,
       resetFilters,
-      addToCart
+      addToCart,
+      toggleWishlist,
+      isInWishlist
     };
   }
 });

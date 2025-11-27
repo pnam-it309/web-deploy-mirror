@@ -195,14 +195,25 @@
         </div>
       </div>
     </div>
+    
+    <!-- Order Detail Modal -->
+    <OrderDetailModal 
+      :is-open="showModal" 
+      :order="selectedOrder" 
+      @close="showModal = false" 
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import OrderDetailModal from './OrderDetailModal.vue';
 
-const router = useRouter();
+
+
+// Modal State
+const showModal = ref(false);
+const selectedOrder = ref({});
 
 // --- State Phân trang ---
 const currentPage = ref(1);
@@ -215,33 +226,39 @@ const statusFilter = ref('all');
 // --- Dữ liệu đơn hàng mẫu (Mở rộng để có nhiều trang hơn) ---
 const orders = ref([
   {
-    id: 1, number: 'WU88191139', date: '2023-10-15', status: 'Delivered', total: '299.00', expectedDelivery: 'Delivered on Oct 18, 2023', shippingAddress: { city: 'New York', country: 'USA' },
-    items: [{ id: 1, name: 'Wireless Headphones', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg' }, { id: 2, name: 'Leather Journal', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg' }, { id: 3, name: 'Desk Organizer', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-03.jpg' }]
+    id: 1, 
+    number: 'ORD-1764215464728', 
+    date: '2025-11-27', 
+    status: 'Processing', 
+    total: '29990000', 
+    expectedDelivery: 'Expected on Nov 30, 2025', 
+    shippingAddress: { city: 'Hanoi', country: 'Vietnam', address: '123 Pham Hung' },
+    customer: { name: 'vfgbhn', email: 'dcfg@gmail.com', phone: '4135246' },
+    items: [{ id: 1, name: 'iPhone 15 Pro Max', image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80', price: 29990000, quantity: 1 }]
   },
   {
-    id: 2, number: 'WU88191138', date: '2023-10-10', status: 'Shipped', total: '99.00', expectedDelivery: 'Expected on Oct 20, 2023', shippingAddress: { city: 'Los Angeles', country: 'USA' },
-    items: [{ id: 4, name: 'Bluetooth Speaker', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-04.jpg' }]
+    id: 2, number: 'WU88191138', date: '2023-10-10', status: 'Shipped', total: '99000', expectedDelivery: 'Expected on Oct 20, 2023', shippingAddress: { city: 'Los Angeles', country: 'USA' },
+    items: [{ id: 4, name: 'Bluetooth Speaker', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-04.jpg', price: 99000, quantity: 1 }]
   },
   {
-    id: 3, number: 'WU88191137', date: '2023-10-05', status: 'Processing', total: '199.00', expectedDelivery: 'Expected on Oct 25, 2023', shippingAddress: { city: 'Chicago', country: 'USA' },
-    items: [{ id: 5, name: 'Leather Wallet', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg' }, { id: 6, name: 'Watch', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg' }]
+    id: 3, number: 'WU88191137', date: '2023-10-05', status: 'Processing', total: '199000', expectedDelivery: 'Expected on Oct 25, 2023', shippingAddress: { city: 'Chicago', country: 'USA' },
+    items: [{ id: 5, name: 'Leather Wallet', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg', price: 50000, quantity: 1 }, { id: 6, name: 'Watch', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg', price: 149000, quantity: 1 }]
   },
   {
-    id: 4, number: 'WU88191136', date: '2023-09-28', status: 'Cancelled', total: '149.00', expectedDelivery: 'Cancelled on Sep 30, 2023', shippingAddress: { city: 'Houston', country: 'USA' },
-    items: [{ id: 7, name: 'Sunglasses', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-03.jpg' }]
-  },
-  // Thêm đơn hàng để kích hoạt phân trang
-  {
-    id: 5, number: 'WU88191135', date: '2023-09-25', status: 'Delivered', total: '450.00', expectedDelivery: 'Delivered on Sep 28, 2023', shippingAddress: { city: 'Miami', country: 'USA' },
-    items: [{ id: 8, name: 'Gaming Mouse', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-04.jpg' }, { id: 9, name: 'Mechanical Keyboard', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg' }]
+    id: 4, number: 'WU88191136', date: '2023-09-28', status: 'Cancelled', total: '149000', expectedDelivery: 'Cancelled on Sep 30, 2023', shippingAddress: { city: 'Houston', country: 'USA' },
+    items: [{ id: 7, name: 'Sunglasses', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-03.jpg', price: 149000, quantity: 1 }]
   },
   {
-    id: 6, number: 'WU88191134', date: '2023-09-20', status: 'Shipped', total: '75.00', expectedDelivery: 'Expected on Sep 30, 2023', shippingAddress: { city: 'Dallas', country: 'USA' },
-    items: [{ id: 10, name: 'T-Shirt', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg' }]
+    id: 5, number: 'WU88191135', date: '2023-09-25', status: 'Delivered', total: '450000', expectedDelivery: 'Delivered on Sep 28, 2023', shippingAddress: { city: 'Miami', country: 'USA' },
+    items: [{ id: 8, name: 'Gaming Mouse', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-04.jpg', price: 150000, quantity: 1 }, { id: 9, name: 'Mechanical Keyboard', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-01.jpg', price: 300000, quantity: 1 }]
   },
   {
-    id: 7, number: 'WU88191133', date: '2023-09-15', status: 'Processing', total: '50.00', expectedDelivery: 'Expected on Oct 1, 2023', shippingAddress: { city: 'San Jose', country: 'USA' },
-    items: [{ id: 11, name: 'Socks', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-03.jpg' }]
+    id: 6, number: 'WU88191134', date: '2023-09-20', status: 'Shipped', total: '75000', expectedDelivery: 'Expected on Sep 30, 2023', shippingAddress: { city: 'Dallas', country: 'USA' },
+    items: [{ id: 10, name: 'T-Shirt', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-02.jpg', price: 75000, quantity: 1 }]
+  },
+  {
+    id: 7, number: 'WU88191133', date: '2023-09-15', status: 'Processing', total: '50000', expectedDelivery: 'Expected on Oct 1, 2023', shippingAddress: { city: 'San Jose', country: 'USA' },
+    items: [{ id: 11, name: 'Socks', image: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-04-product-03.jpg', price: 50000, quantity: 1 }]
   }
 ]);
 
@@ -281,9 +298,8 @@ const applyFilters = () => {
 
 // --- Logic View Details (Sửa từ trackOrder) ---
 const viewDetails = (order: any) => {
-  // Chuyển hướng đến trang chi tiết đơn hàng
-  // Sử dụng Order Number làm ID trong URL (hoặc Order ID thực nếu có)
-  router.push(`/customer/orders/${order.number}`);
+  selectedOrder.value = order;
+  showModal.value = true;
 };
 
 

@@ -42,9 +42,32 @@
           <div class="flex items-center">
             <h1 class="ml-2 text-lg font-semibold text-gray-900">{{ $route.meta.title || 'Dashboard' }}</h1>
           </div>
+          <div class="flex items-center flex-1 px-4">
+            <div class="w-full max-w-lg lg:max-w-xs relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+              </div>
+              <input type="text" 
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="Search"
+                @keydown.enter="handleSearch($event)"
+              >
+            </div>
+          </div>
           <div class="flex items-center space-x-4">
+            <router-link to="/customer/wishlist" class="p-1 text-gray-400 hover:text-gray-500 relative">
+              <span class="sr-only">Wishlist</span>
+              <HeartIcon class="w-6 h-6" />
+              <span v-if="wishlistCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                {{ wishlistCount }}
+              </span>
+            </router-link>
+            <router-link to="/customer/orders" class="p-1 text-gray-400 hover:text-gray-500 relative">
+              <span class="sr-only">Cart</span>
+              <ShoppingCartIcon class="w-6 h-6" />
+            </router-link>
             <button @click="toast.info('No new notifications')"
-              class="p-1 text-gray-500 rounded-full hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              class="p-1 text-gray-400 hover:text-gray-500 focus:outline-none">
               <span class="sr-only">View notifications</span>
               <BellIcon class="w-6 h-6" />
             </button>
@@ -63,23 +86,35 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, computed } from 'vue';
+import { onMounted, onUnmounted, watch, computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { toast } from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
-import { BellIcon, HomeIcon, ShoppingCartIcon, DocumentTextIcon, UserCircleIcon, Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import { BellIcon, HomeIcon, ShoppingCartIcon, DocumentTextIcon, UserCircleIcon, Cog6ToothIcon, MagnifyingGlassIcon, HeartIcon } from '@heroicons/vue/24/outline';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
+const wishlistCount = ref(0);
+
+const updateWishlistCount = () => {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+  wishlistCount.value = wishlist.length;
+};
+
+const handleSearch = (event: any) => {
+  const query = event.target.value;
+  router.push({ path: '/customer/products', query: { search: query } });
+};
+
 // Navigation items
 const navItems = [
   { path: '/customer/dashboard', label: 'Dashboard', icon: HomeIcon },
   { path: '/customer/orders', label: 'My Orders', icon: ShoppingCartIcon },
-  { path: '/customer/products', label: 'Chi tiết sản phẩm', icon: DocumentTextIcon },
-  { path: '/customer/account', label: 'Sản phẩm yêu thích', icon: UserCircleIcon },
+  { path: '/customer/products', label: 'Sản phẩm', icon: DocumentTextIcon },
+  { path: '/customer/wishlist', label: 'Sản phẩm yêu thích', icon: UserCircleIcon },
   { path: '/customer/settings', label: 'Settings', icon: Cog6ToothIcon },
 ];
 
@@ -112,6 +147,17 @@ const handleLogout = async () => {
 // Khi vừa load trang
 onMounted(() => {
   toast.success("Chào mừng bạn đến với catalgo web");
+  updateWishlistCount();
+  window.addEventListener('wishlist-updated', updateWishlistCount);
+  
+  // Also update when storage changes (e.g. from another tab)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'wishlist') updateWishlistCount();
+  });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('wishlist-updated', updateWishlistCount);
 });
 
 // Khi thay đổi route
