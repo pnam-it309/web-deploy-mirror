@@ -1,4 +1,4 @@
-package udpm.hn.server.core.admin.manage_customer.model.request;
+package udpm.hn.server.core.admin.manage_customer.dto.request;
 
 import lombok.Data;
 

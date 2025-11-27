@@ -1,4 +1,4 @@
-package udpm.hn.server.core.admin.manage_customer.model.response;
+package udpm.hn.server.core.admin.manage_customer.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
