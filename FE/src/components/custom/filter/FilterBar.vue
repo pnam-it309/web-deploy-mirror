@@ -1,3 +1,4 @@
+<!-- đếch dùng đến bg, nguyên cái file filter -->
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 

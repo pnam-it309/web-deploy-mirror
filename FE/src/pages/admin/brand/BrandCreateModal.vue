@@ -26,10 +26,11 @@
           required
           :disabled="loading || !!editItem"
         />
+
         <div class="col-span-2">
           <InputCustom
             v-model="form.slug"
-            label="Slug"
+            label="Slug (Tự động tạo)"
             required
             :disabled="true" 
             class="bg-gray-100" 
@@ -77,9 +78,8 @@
 </template>
 
 <script setup>
-// 3. THÊM IMPORT "toSlug" VÀ "watch"
 import { ref, watch, defineProps, defineEmits } from 'vue';
-import { toSlug } from '@/utils/slug'; // <-- THÊM DÒNG NÀY
+import { toSlug } from '@/utils/slug';
 
 import ModalCustom from '@/components/custom/Modal/ModalCustom.vue';
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
@@ -124,6 +124,7 @@ watch(
   },
   { immediate: true }
 );
+
 watch(
   () => form.value.name,
   (newName) => {
@@ -133,13 +134,16 @@ watch(
   }
 );
 
-
 const save = () => {
   validationError.value = null; 
   if (!form.value.name || !form.value.code) {
     validationError.value = 'Vui lòng điền đầy đủ Tên và Code.';
     return;
   }
-  emit('save', { ...form.value });
+  
+  const payload = { ...form.value };
+  delete payload.slug; 
+
+  emit('save', payload);
 };
 </script>

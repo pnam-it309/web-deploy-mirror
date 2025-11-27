@@ -4,13 +4,6 @@
       {{ isEdit ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới' }}
     </template>
 
-    <div
-      v-if="validationError"
-      class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm"
-    >
-      {{ validationError }}
-    </div>
-    
     <div class="space-y-4">
       <InputCustom
         v-model.trim="form.name"
@@ -20,7 +13,6 @@
       />
       
       <div>
-        <!-- SỬA: Áp dụng "Template Chuẩn" (Tự tạo Slug) -->
         <InputCustom
           v-model.trim="form.slug"
           label="Slug (Tự động tạo)"
@@ -40,18 +32,32 @@
             :value="opt.id"
             :disabled="isOptionDisabled(opt.id)"
           >
-            <span v-html="indent(opt.level)"></span>{{ opt.name }}
+            {{ formatOption(opt.name, opt.level) }}
           </option>
         </SelectCustom>
-        <AlertCustom
-          type="error"
-          :show="!!parentError"
-          @close="parentError = null"
-          class="mt-2"
-        >
-          {{ parentError }}
-        </AlertCustom>
+        
+        <div class="mt-2">
+          <AlertCustom
+            v-if="parentError"
+            type="error"
+            :show="true"
+            @close="parentError = null"
+          >
+            {{ parentError }}
+          </AlertCustom>
+        </div>
       </div>
+    </div>
+
+    <div class="mt-4">
+      <AlertCustom
+        v-if="validationError"
+        type="error"
+        :show="true"
+        @close="validationError = null"
+      >
+        {{ validationError }}
+      </AlertCustom>
     </div>
 
     <template #footer>
@@ -65,8 +71,8 @@
 
 <script setup lang="ts">
 import { reactive, computed, watch, ref } from 'vue'
-import { toSlug } from '@/utils/slug'; // <-- THÊM IMPORT
-import { useCategoryStore } from '@/stores/category.store'; // <-- DÙNG STORE
+import { toSlug } from '@/utils/slug';
+import { useCategoryStore } from '@/stores/category.store';
 import ModalCustom from '@/components/custom/Modal/ModalCustom.vue'
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue'
 import InputCustom from '@/components/custom/Input/InputCustom.vue'
@@ -74,17 +80,14 @@ import SelectCustom from '@/components/custom/Select/SelectCustom.vue'
 import TextareaCustom from '@/components/custom/TextArea/TextAreaCustom.vue'
 import AlertCustom from '@/components/custom/Alert/AlertCustom.vue'
 
-// (Sửa: Bỏ 'categories' khỏi props)
 const props = defineProps({
   editItem: { type: Object, default: null },
   loading: Boolean,
 })
 const emit = defineEmits(['close', 'saved'])
 
-// LẤY CATEGORIES TỪ STORE
 const categoryStore = useCategoryStore();
 
-/** Reactive form (Sửa: Dùng string | null cho ID) */
 const form = reactive({
   id: undefined as string | undefined,
   name: '',
@@ -93,14 +96,11 @@ const form = reactive({
   parentId: null as string | null
 })
 
-/** Errors */
-const validationError = ref<string | null>(null) // (Sửa: Đổi tên slugError -> validationError)
+const validationError = ref<string | null>(null)
 const parentError = ref<string | null>(null)
 
-/** isEdit */
 const isEdit = computed(() => !!props.editItem)
 
-/** When editItem changes, populate form (Sửa: Dùng string | null) */
 watch(
   () => props.editItem,
   (val) => {
@@ -111,7 +111,6 @@ watch(
       form.description = val.description || ''
       form.parentId = val.parentId ?? null
     } else {
-      // reset
       form.id = undefined
       form.name = ''
       form.slug = ''
@@ -124,20 +123,18 @@ watch(
   { immediate: true }
 )
 
-// THÊM: Watch (theo dõi) "name" để "Tự tạo Slug"
 watch(
   () => form.name,
   (newName) => {
-    if (!props.editItem) { // Chỉ tự tạo khi 'Tạo mới'
+    if (!props.editItem) {
       form.slug = toSlug(newName); 
     }
   }
 );
 
-/** Build flattened tree (Sửa: Dùng categoryStore.categories và ID string) */
 const flattenedCategories = computed(() => {
   const map = new Map<string | null, any[]>()
-  for (const c of categoryStore.categories) { // <-- DÙNG STORE
+  for (const c of categoryStore.categories) {
     const pid = (c as any).parentId ?? null
     if (!map.has(pid)) map.set(pid, [])
     map.get(pid)!.push(c)
@@ -146,7 +143,7 @@ const flattenedCategories = computed(() => {
     arr.sort((a, b) => a.name.localeCompare(b.name))
   }
 
-  const out: { id: string; name: string; level: number }[] = [] // <-- ID LÀ STRING
+  const out: { id: string; name: string; level: number }[] = []
   const dfs = (nodes: any[], level = 0) => {
     if (!nodes) return
     for (const n of nodes) {
@@ -161,19 +158,17 @@ const flattenedCategories = computed(() => {
   return out
 })
 
-/** Helper: build parent chain (Sửa: Dùng ID string) */
-const climbsTo = (startId: string | null, findId: string) => { // <-- ID LÀ STRING
+const climbsTo = (startId: string | null, findId: string) => {
   let cur = startId
   while (cur !== null && cur !== undefined) {
     if (cur === findId) return true
-    const p = categoryStore.categories.find((c: any) => c.id === cur) // <-- DÙNG STORE
+    const p = categoryStore.categories.find((c: any) => c.id === cur)
     cur = p ? ((p as any).parentId ?? null) : null
   }
   return false
 }
 
-/** Disable options (Sửa: Dùng ID string) */
-const isOptionDisabled = (optionId: string) => { // <-- ID LÀ STRING
+const isOptionDisabled = (optionId: string) => {
   if (!isEdit.value) return false
   const currentId = props.editItem?.id
   if (!currentId) return false
@@ -182,13 +177,11 @@ const isOptionDisabled = (optionId: string) => { // <-- ID LÀ STRING
   return false
 }
 
-/** Indentation helper */
-const indent = (level: number) => {
-  if (!level) return ''
-  return '&nbsp;'.repeat(level * 4)
+const formatOption = (name: string, level: number) => {
+  const spaces = '\u00A0\u00A0\u00A0\u00A0'.repeat(level);
+  return `${spaces}${name}`;
 }
 
-/** Validation (Sửa: Bỏ validate Slug) */
 const validate = () => {
   validationError.value = null
   parentError.value = null
@@ -198,9 +191,6 @@ const validate = () => {
     return false
   }
 
-  // (Xoá logic validate Slug)
-
-  // parent validation (Giữ nguyên)
   if (form.parentId != null && form.id != null) {
     if (form.parentId === form.id) {
       parentError.value = 'Không thể chọn chính danh mục làm cha.'
@@ -215,21 +205,18 @@ const validate = () => {
   return true
 }
 
-/** Save handler (Sửa: Bỏ 'slug' khỏi payload) */
 const onSave = () => {
   if (!validate()) return
 
   const payload: any = {
     id: form.id,
     name: form.name.trim(),
-    // (Xoá 'slug', vì BE tự tạo)
     description: form.description?.trim() || null,
     parentId: form.parentId ?? null
   }
   emit('saved', payload)
 }
 
-/** Close handler */
 const onClose = () => {
   emit('close')
 }

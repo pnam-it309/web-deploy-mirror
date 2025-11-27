@@ -8,7 +8,7 @@ import {
 
 // Layouts
 const AuthLayout = () => import('@/layouts/AuthLayout.vue')
-const AdminLayout = () => import('@/layouts/AdminLayout.vue')
+const AdminLayout = () => import('@/layouts/AdminSidebar.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 
 // Public pages

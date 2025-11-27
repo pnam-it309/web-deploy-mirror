@@ -9,16 +9,14 @@
           label="Tìm kiếm"
           placeholder="Tên sản phẩm, SKU..."
           @input="onInput"
-        >
-          <!-- Icon tìm kiếm (Optional: Nếu InputCustom hỗ trợ slot prefix/suffix) -->
-        </InputCustom>
+        />
       </div>
 
       <!-- 2. Thương hiệu -->
       <div>
         <SelectCustom 
           v-model="filter.brandId" 
-          label="Thương hiệu"
+          label="Thương hiệu" 
           @change="onChange"
         >
           <option value="">Tất cả thương hiệu</option>
@@ -30,7 +28,7 @@
       <div>
         <SelectCustom 
           v-model="filter.categoryId" 
-          label="Danh mục"
+          label="Danh mục" 
           @change="onChange"
         >
           <option value="">Tất cả danh mục</option>
@@ -42,7 +40,7 @@
       <div>
         <SelectCustom 
           v-model="filter.status" 
-          label="Trạng thái"
+          label="Trạng thái" 
           @change="onChange"
         >
           <option value="">Tất cả trạng thái</option>
@@ -50,59 +48,59 @@
           <option value="INACTIVE">Ngừng bán</option>
         </SelectCustom>
       </div>
-      
+
       <!-- 5. Khoảng giá (Nâng cao) -->
       <div class="col-span-1 md:col-span-3 lg:col-span-2 flex items-center space-x-2">
-         <div class="flex-1">
-            <InputCustom 
-              v-model.number="filter.minPrice" 
-              label="Giá từ" 
-              type="number" 
-              placeholder="0" 
-              @input="onInput"
-            />
-         </div>
-         <span class="pt-6 text-gray-400 font-bold">-</span>
-         <div class="flex-1">
-            <InputCustom 
-              v-model.number="filter.maxPrice" 
-              label="Đến"
-              type="number" 
-              placeholder="Tối đa" 
-              @input="onInput"
-            />
-         </div>
+        <div class="flex-1">
+          <InputCustom
+            v-model.number="filter.minPrice"
+            label="Giá từ"
+            type="number"
+            placeholder="0"
+            @input="onInput"
+          />
+        </div>
+        <span class="pt-6 text-gray-400 font-bold">-</span>
+        <div class="flex-1">
+          <InputCustom
+            v-model.number="filter.maxPrice"
+            label="Đến"
+            type="number"
+            placeholder="Tối đa"
+            @input="onInput"
+          />
+        </div>
       </div>
 
       <!-- Nút Reset -->
-      <!-- Canh lề dưới cùng để thẳng hàng với các input -->
-      <div class="col-span-1 flex justify-end md:justify-start">
-         <ButtonCustom 
-           color="soft-gray"
-           @click="resetFilter"
-           class="w-full md:w-auto h-[38px] flex items-center justify-center gap-2"
-         >
-           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-           Làm mới
-         </ButtonCustom>
+      <div class="col-span-1 flex justify-end md:justify-start md:col-span-4 lg:col-span-4 mt-2">
+        <ButtonCustom
+          color="sage" 
+          @click="resetFilter"
+          class="h-[42px] flex items-center justify-center gap-2 px-6"
+        >
+          <ReloadOutlined /> Làm mới
+        </ButtonCustom>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, defineProps, defineEmits } from 'vue';
-// Import các component tùy chỉnh
-import InputCustom from '@/components/custom/Input/InputCustom.vue';
-import SelectCustom from '@/components/custom/Select/SelectCustom.vue';
-import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
+import { reactive } from 'vue'
+import { ReloadOutlined } from '@ant-design/icons-vue'
+
+// Import các component tùy chỉnh chuẩn
+import InputCustom from '@/components/custom/Input/InputCustom.vue'
+import SelectCustom from '@/components/custom/Select/SelectCustom.vue'
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue'
 
 const props = defineProps({
   brands: { type: Array as () => any[], default: () => [] },
   categories: { type: Array as () => any[], default: () => [] },
-});
+})
 
-const emit = defineEmits(['filter']);
+const emit = defineEmits(['filter'])
 
 const filter = reactive({
   keyword: '',
@@ -111,47 +109,49 @@ const filter = reactive({
   status: '',
   minPrice: null as number | null,
   maxPrice: null as number | null,
-});
+})
 
-let debounceTimer: any = null;
+let debounceTimer: any = null
 
 // Hàm debounce để tránh spam API khi gõ phím
 const onInput = () => {
-  if (debounceTimer) clearTimeout(debounceTimer);
+  if (debounceTimer) clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
-    emitFilter();
-  }, 500); // Chờ 500ms sau khi ngừng gõ mới gọi API
-};
+    emitFilter()
+  }, 500) // Chờ 500ms sau khi ngừng gõ mới gọi API
+}
 
 // Với Select box thì gọi ngay
 const onChange = () => {
-  emitFilter();
-};
+  emitFilter()
+}
 
 const emitFilter = () => {
   // Clone và loại bỏ các giá trị rỗng để URL sạch đẹp
-  const payload = { ...filter };
-  if (!payload.keyword) delete (payload as any).keyword;
-  if (!payload.brandId) delete (payload as any).brandId;
-  if (!payload.categoryId) delete (payload as any).categoryId;
-  if (!payload.status) delete (payload as any).status;
-  if (payload.minPrice === null || payload.minPrice === 0 || payload.minPrice === '') delete (payload as any).minPrice;
-  if (payload.maxPrice === null || payload.maxPrice === 0 || payload.maxPrice === '') delete (payload as any).maxPrice;
-  
-  emit('filter', payload);
-};
+  const payload = { ...filter }
+  if (!payload.keyword) delete (payload as any).keyword
+  if (!payload.brandId) delete (payload as any).brandId
+  if (!payload.categoryId) delete (payload as any).categoryId
+  if (!payload.status) delete (payload as any).status
+  if (payload.minPrice === null || payload.minPrice === 0 || payload.minPrice === '')
+    delete (payload as any).minPrice
+  if (payload.maxPrice === null || payload.maxPrice === 0 || payload.maxPrice === '')
+    delete (payload as any).maxPrice
+
+  emit('filter', payload)
+}
 
 const resetFilter = () => {
-  filter.keyword = '';
-  filter.brandId = '';
-  filter.categoryId = '';
-  filter.status = '';
-  filter.minPrice = null;
-  filter.maxPrice = null;
-  emitFilter();
-};
+  filter.keyword = ''
+  filter.brandId = ''
+  filter.categoryId = ''
+  filter.status = ''
+  filter.minPrice = null
+  filter.maxPrice = null
+  emitFilter()
+}
 </script>
 
 <style scoped>
-/* Nếu cần chỉnh sửa thêm style riêng */
+/* Không cần thêm style vì đã dùng Tailwind và Component Custom */
 </style>

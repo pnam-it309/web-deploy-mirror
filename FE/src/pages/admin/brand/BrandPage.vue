@@ -1,98 +1,112 @@
 <template>
   <div class="p-6">
-    <!-- TIÊU ĐỀ VÀ NÚT TẠO MỚI -->
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-semibold">Quản lý Thương hiệu</h1>
-      <ButtonCustom color="primary" @click="openCreateModal">
-        + Thêm thương hiệu
-      </ButtonCustom>
-    </div>
-  <div class="mb-4">
+    <!-- FILTER -->
+    <div class="mb-4">
        <BrandFilter @filter="handleFilterChange" />
     </div>
-    <!-- KHUNG BÁO LỖI -->
+
+    <!-- ERROR ALERT -->
     <div
       v-if="error"
-      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+      class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg relative mb-4 shadow-sm"
       role="alert"
     >
       <strong class="font-bold">Lỗi!</strong>
       <span class="block sm:inline"> {{ error }}</span>
     </div>
-
+    
+    <ButtonCustom color="coffee" @click="openCreateModal">
+      + Thêm thương hiệu
+    </ButtonCustom>
     <!-- BẢNG DỮ LIỆU -->
     <CardCustom>
       <!-- TRẠNG THÁI LOADING -->
-      <div v-if="isLoading && !brands.length" class="p-6 text-center">
-        <p>Đang tải dữ liệu...</p>
+      <div v-if="isLoading && !brands.length" class="p-12 text-center">
+        <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-[#adc178] rounded-full mb-2"></div>
+        <p class="text-gray-500 text-sm font-medium">Đang tải dữ liệu...</p>
       </div>
 
       <table v-else class="w-full text-left border-collapse">
-        <thead class="bg-gray-100">
+        <!-- Header: Màu Sage nhạt, chữ Nâu -->
+        <thead class="bg-[#f7f9ef]">
           <tr>
-            <th class="p-3 border-b">#</th>
-            <th class="p-3 border-b">Tên thương hiệu</th>
-            <th class="p-3 border-b">Mã code</th>
-            <th class="p-3 border-b">Slug</th>
-            <th class="p-3 border-b">Mô tả</th>
-            <th class="p-3 border-b">Trạng thái</th>
-            <th class="p-3 border-b">Logo</th>
-            <th class="p-3 border-b text-center">Hành động</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e]">#</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e]">Tên thương hiệu</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e]">Mã code</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e]">Slug</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e]">Mô tả</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e] text-center">Trạng thái</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e] text-center">Logo</th>
+            <th class="p-4 border-b border-[#e6dfc0] font-bold text-sm text-[#5a483e] text-center">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          <!-- DÙNG DỮ LIỆU TỪ STORE -->
           <tr
             v-for="(brand, index) in brands"
             :key="brand.id"
-            class="hover:bg-gray-50"
+            class="hover:bg-[#f0ead2]/30 transition-colors border-b border-[#f0ead2] last:border-0"
           >
-            <td class="p-3 border-b">{{ index + 1 }}</td>
-            <td class="p-3 border-b font-medium">{{ brand.name }}</td>
-            <td class="p-3 border-b">{{ brand.code }}</td>
-            <td class="p-3 border-b">{{ brand.slug }}</td>
-            <td class="p-3 border-b truncate max-w-xs">
-              {{ brand.description }}
+            <td class="p-4 text-sm text-gray-500">{{ index + 1 }}</td>
+            
+            <td class="p-4 font-medium text-[#6c584c]">{{ brand.name }}</td>
+            
+            <td class="p-4 text-sm font-mono text-gray-600 bg-gray-50/50 px-2 py-1 rounded w-fit">{{ brand.code }}</td>
+            
+            <td class="p-4 text-sm text-gray-500 italic">{{ brand.slug }}</td>
+            
+            <td class="p-4 text-sm text-gray-600 truncate max-w-[200px]" :title="brand.description">
+              {{ brand.description || '—' }}
             </td>
-            <td class="p-3 border-b">
+            
+            <td class="p-4 text-center">
+              <!-- Badge trạng thái custom theo Brand Palette -->
               <span
                 :class="[
-                  'px-2 py-1 rounded-full text-xs leading-5 font-semibold',
+                  'px-2.5 py-1 rounded-full text-xs font-medium border',
                   brand.status === 'ACTIVE'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800',
+                    ? 'bg-[#dde5b6]/40 text-[#386641] border-[#adc178]/30' // Xanh Olive nhạt
+                    : 'bg-red-50 text-red-700 border-red-100',
                 ]"
               >
-                {{ brand.status }}
+                {{ brand.status === 'ACTIVE' ? 'Đang hoạt động' : 'Ngừng hoạt động' }}
               </span>
             </td>
-            <td class="p-3 border-b">
-              <img
-                vif="brand.logoUrl"
-                :src="brand.logoUrl"
-                alt="Logo"
-                class="w-10 h-10 object-contain"
-              />
+            
+            <td class="p-4 text-center">
+              <div class="flex justify-center">
+                <img
+                  v-if="brand.logoUrl"
+                  :src="brand.logoUrl"
+                  alt="Logo"
+                  class="w-10 h-10 object-contain rounded-lg border border-gray-100 bg-white p-0.5 shadow-sm"
+                />
+                <span v-else class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg text-xs text-gray-400 border border-dashed border-gray-200">
+                  No img
+                </span>
+              </div>
             </td>
-            <td
-              class="p-3 border-b text-center grid gap-2 grid-rows-2 justify-center"
-            >
-              <ButtonCustom color="info" size="small" @click="editBrand(brand)">
-                Sửa
-              </ButtonCustom>
-              <ButtonCustom
-                color="danger"
-                size="small"
-                @click="askDeleteBrand(brand)"
-              >
-                Xoá
-              </ButtonCustom>
+            
+            <td class="p-4 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <!-- Nút Sửa: Màu Sage Soft (Xanh nhẹ) -->
+                <ButtonCustom color="default" size="small" @click="editBrand(brand)">
+                  Sửa
+                </ButtonCustom>
+                <!-- Nút Xoá: Màu Mocha Soft (Nâu đỏ nhẹ) -->
+                <ButtonCustom color="cream" size="small" @click="askDeleteBrand(brand)">
+                  Xoá
+                </ButtonCustom>
+              </div>
             </td>
           </tr>
-          <!-- TRẠNG THÁI RỖNG -->
+          
+          <!-- Empty State -->
           <tr v-if="!brands.length && !isLoading">
-            <td colspan="8" class="p-6 text-center text-gray-500 italic">
-              Chưa có thương hiệu nào.
+            <td colspan="8" class="p-12 text-center text-gray-500 italic bg-[#fffdf5]/50">
+              <div class="flex flex-col items-center justify-center">
+                <span class="text-4xl mb-2">📭</span>
+                <span>Chưa có thương hiệu nào.</span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -108,7 +122,7 @@
       @save="saveBrand"
     />
 
-    <!-- MODAL XÁC NHẬN XOÁ (Thay thế confirm()) -->
+    <!-- MODAL XÁC NHẬN XOÁ -->
     <ModalCustom
       :show="showDeleteConfirm"
       @close="cancelDelete"
@@ -116,55 +130,50 @@
     >
       <template #title>Xác nhận xoá</template>
       <template #default>
-        <p>
-          Bạn có chắc chắn muốn xoá thương hiệu "<strong>{{
-            brandToDelete?.name
-          }}</strong
-          >"?
+        <p class="text-gray-700">
+          Bạn có chắc chắn muốn xoá thương hiệu <strong class="text-[#6c584c]">{{ brandToDelete?.name }}</strong>?
         </p>
-        <p class="text-sm text-red-600 mt-2">
-          Hành động này sẽ chỉ đổi trạng thái sang INACTIVE (Soft Delete).
+        <p class="text-sm text-red-500 mt-2 bg-red-50 p-2 rounded border border-red-100">
+          ⚠️ Hành động này sẽ chuyển trạng thái sang <strong>Ngừng hoạt động</strong>.
         </p>
       </template>
       <template #footer>
-        <ButtonCustom color="secondary" @click="cancelDelete">
-          Huỷ
+        <!-- Nút Huỷ: Màu Cream (Kem) -->
+        <ButtonCustom color="cream" @click="cancelDelete">
+          Huỷ bỏ
         </ButtonCustom>
+        <!-- Nút Xoá: Màu Mocha (Nâu đậm) -->
         <ButtonCustom
-          color="danger"
+          color="mocha"
           :loading="isLoading"
           @click="confirmDelete"
         >
-          Xoá
+          Xác nhận xoá
         </ButtonCustom>
       </template>
     </ModalCustom>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useBrandStore } from '@/stores/brand.store'; // Import store
-import { storeToRefs } from 'pinia'; // Dùng để lấy state
+import { useBrandStore } from '@/stores/brand.store';
+import { storeToRefs } from 'pinia';
 import BrandCreateModal from './BrandCreateModal.vue';
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
 import CardCustom from '@/components/custom/Card/CardCustom.vue';
-import ModalCustom from '@/components/custom/Modal/ModalCustom.vue'; // Import Modal
+import ModalCustom from '@/components/custom/Modal/ModalCustom.vue';
 import BrandFilter from './BrandFilter.vue';
 
 // 1. KHỞI TẠO STORE
 const brandStore = useBrandStore();
-
-// 2. LẤY STATE (dùng storeToRefs để giữ reactivity)
-// Xoá bỏ hoàn toàn "brands = ref([...])" (dữ liệu giả)
 const { brands, isLoading, error } = storeToRefs(brandStore);
 
-// 3. TẢI DỮ LIỆU KHI COMPONENT ĐƯỢC TẠO
 onMounted(() => {
-  brandStore.fetchBrands(); // Gọi action từ store
+  brandStore.fetchBrands();
 });
 
-// --- Logic cho Modal Tạo/Sửa ---
+// --- Logic Modal Tạo/Sửa ---
 const showModal = ref(false);
 const selectedBrand = ref(null);
 
@@ -174,34 +183,29 @@ const openCreateModal = () => {
 };
 const closeModal = () => (showModal.value = false);
 
-// 4. HÀM SAVE (GỌI STORE ACTION)
-const saveBrand = async (brandData) => {
+const saveBrand = async (brandData: any) => {
   try {
     if (brandData.id) {
-      // Logic Cập nhật
       await brandStore.updateBrand(brandData.id, brandData);
     } else {
-      // Logic Tạo mới
       await brandStore.createBrand(brandData);
     }
-    closeModal(); // Chỉ đóng modal khi API thành công
+    closeModal();
   } catch (err) {
-    // Nếu API thất bại, store đã gán lỗi
-    // Modal sẽ không đóng, user có thể sửa lại
     console.error('Lỗi không thể lưu:', err);
   }
 };
 
-const editBrand = (brand) => {
-  selectedBrand.value = { ...brand }; // Copy để tránh sửa trực tiếp state
+const editBrand = (brand: any) => {
+  selectedBrand.value = { ...brand };
   showModal.value = true;
 };
 
-// --- Logic cho Modal Xoá (Thay thế confirm()) ---
+// --- Logic Modal Xoá ---
 const showDeleteConfirm = ref(false);
-const brandToDelete = ref(null);
+const brandToDelete = ref<any>(null);
 
-const askDeleteBrand = (brand) => {
+const askDeleteBrand = (brand: any) => {
   brandToDelete.value = brand;
   showDeleteConfirm.value = true;
 };
@@ -211,15 +215,14 @@ const cancelDelete = () => {
   brandToDelete.value = null;
 };
 
-// 5. HÀM DELETE (GỌI STORE ACTION)
 const confirmDelete = async () => {
   if (brandToDelete.value) {
     await brandStore.deleteBrand(brandToDelete.value.id);
-    cancelDelete(); // Đóng modal xác nhận
+    cancelDelete();
   }
 };
-const handleFilterChange = (filterParams) => {
+
+const handleFilterChange = (filterParams: any) => {
   brandStore.fetchBrands(filterParams);
 };
-
 </script>
