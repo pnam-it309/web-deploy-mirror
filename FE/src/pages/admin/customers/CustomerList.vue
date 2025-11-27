@@ -12,36 +12,50 @@
     <div v-if="loading">Đang tải dữ liệu...</div>
     <div v-else>
       <BreadcrumbDefault label="Quản lý khách hàng">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex flex-wrap gap-3 items-center">
+        <div class="flex flex-wrap gap-3 items-center mb-4">
+          <div class="relative flex-1 max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+            </div>
             <input
               v-model="filters.search"
               type="text"
               placeholder="Tìm theo tên, email, số điện thoại"
-              class="border border-stroke rounded-md px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              @input="applyFilters"
-            />
-            <select
-              v-model="filters.status"
-              class="border border-stroke rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              @change="applyFilters"
-            >
-              <option value="">Tất cả trạng thái</option>
-              <option value="active">Đang hoạt động</option>
-              <option value="inactive">Ngừng hoạt động</option>
-              <option value="banned">Đã khóa</option>
-            </select>
-            <ButtonDefault
-              label="Làm mới"
-              customClasses="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
-              @click="resetFilters"
+              class="block w-full pl-10 pr-3 py-2 border border-stroke rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              @keyup.enter="applyFilters"
             />
           </div>
-          <ButtonDefault
-            label="Thêm khách hàng"
-            customClasses="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
+          <select
+            v-model="filters.status"
+            class="border border-stroke rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Ngừng hoạt động</option>
+            <option value="banned">Đã khóa</option>
+          </select>
+          <button
+            @click="applyFilters"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <MagnifyingGlassIcon class="h-4 w-4 mr-2" />
+            Tìm kiếm
+          </button>
+          <button
+            @click="resetFilters"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <ArrowPathIcon class="h-4 w-4 mr-2" />
+            Làm mới
+          </button>
+        </div>
+        <div class="mt-2">
+          <ButtonDefault 
+            customClasses="bg-[#6c584c] hover:bg-[#5a483e] text-white px-4 py-2 rounded-md whitespace-nowrap"
             @click="goToCreate"
-          />
+          >
+            + Thêm khách hàng
+          </ButtonDefault>
         </div>
         <DivCustom label="Danh sách khách hàng">
 
@@ -55,7 +69,9 @@
               @change="handleTableChange"
             >
               <template #default="{ item }: { item: Customer }">
-                <div :class="columns[0].class">{{ item.id }}</div>
+                <div :class="columns[0].class">
+                  <span class="font-mono text-sm">{{ formatAccountCode(item.id) }}</span>
+                </div>
                 <div :class="columns[1].class">{{ item.name }}</div>
                 <div :class="columns[2].class">
                   <span class="truncate block max-w-[280px]" :title="item.email">{{ item.email }}</span>
@@ -96,7 +112,7 @@ import BreadcrumbDefault from '@/components/custom/Div/BreadcrumbDefault.vue'
 import DivCustom from '@/components/custom/Div/DivCustom.vue'
 import TableCustom from '@/components/custom/Table/TableCustom.vue'
 import ButtonDefault from '@/components/custom/Button/ButtonDefault.vue'
-import { EyeIcon, ArrowsRightLeftIcon } from '@heroicons/vue/24/outline'
+import { EyeIcon, ArrowsRightLeftIcon, MagnifyingGlassIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
 import request from '@/services/request'
 
 interface Customer {
@@ -147,7 +163,16 @@ interface PaginationState {
 
 export default defineComponent({
   name: 'CustomerList',
-  components: { BreadcrumbDefault, DivCustom, TableCustom, ButtonDefault },
+  components: { 
+    BreadcrumbDefault, 
+    DivCustom, 
+    TableCustom, 
+    ButtonDefault, 
+    EyeIcon, 
+    ArrowsRightLeftIcon,
+    MagnifyingGlassIcon,
+    ArrowPathIcon
+  },
   setup() {
     const router = useRouter();
 
@@ -241,6 +266,11 @@ export default defineComponent({
       // Server returns the current page already
       return customers.value
     });
+
+    // Format account code (first 6 characters of ID)
+    const formatAccountCode = (id: string): string => {
+      return id ? `KH${id.substring(0, 6).toUpperCase()}` : '';
+    };
 
     // Methods
     const formatCurrency = (value: number): string => {
@@ -439,49 +469,37 @@ export default defineComponent({
     });
 
     return {
-      // State
       loading,
+      customers,
+      filteredCustomers,
+      paginatedCustomers,
+      pagination,
+      filters,
+      columns,
+      customerGroups,
+      selectedCustomers,
+      bulkAction,
+      showAdvancedFilters,
+      allSelected,
       showDeleteModal,
       customerToDelete,
       deleting,
       deleteOption,
-      showAdvancedFilters,
-      selectedCustomers,
-      bulkAction,
-      filters,
-      pagination,
-      customers,
-      customerGroups,
-
-      // Table
-      columns,
-
-      // Computed
-      allSelected,
-      filteredCustomers,
-      paginatedCustomers,
-
-      // Methods
-      applyFilters,
-      resetFilters,
-      exportCustomers,
-      formatCurrency,
-      formatDate,
-      getStatusClass,
-      getStatusText,
-      getGroupColor,
       toggleSelectAll,
-      applyBulkAction,
-      goToPage,
-      previousPage,
-      nextPage,
       handleTableChange,
       editCustomer,
-      goToCreate,
+      deleteCustomer: confirmDeleteCustomer,
+      confirmDelete: deleteCustomer,
       toggleStatus,
-      confirmDeleteCustomer,
-      deleteCustomer,
-      fetchCustomers,
+      goToCreate,
+      applyFilters,
+      resetFilters,
+      formatCurrency,
+      formatDate,
+      formatAccountCode,
+      getStatusClass,
+      getStatusText,
+      getGroupColor
     };
   },
 });
