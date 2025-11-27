@@ -1,6 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 sm:p-8 lg:pl-0 font-sans">
     <div class="max-w-7xl mx-auto space-y-8">
+      <!-- Filter Component -->
+      <DashCusFil @filter="handleFilter" />
 
       <!-- Hero Banner -->
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 shadow-xl text-white">
@@ -206,6 +208,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import DashCusFil from './DashCusFil.vue';
 import { useRouter } from 'vue-router';
 import { 
   SparklesIcon, 
@@ -241,7 +244,40 @@ const categories = [
 ];
 
 // Featured Products Mock Data
-const featuredProducts = ref<Product[]>([
+// Store original products to reset filters
+const allProducts = ref<Product[]>([]);
+const featuredProducts = ref<Product[]>([]);
+
+// Handle filter changes from DashCusFil component
+const handleFilter = (filters: any) => {
+  let filtered = [...allProducts.value];
+
+  // Filter by categories
+  if (filters.categories && filters.categories.length > 0) {
+    filtered = filtered.filter(product => 
+      filters.categories.includes(product.category.toLowerCase())
+    );
+  }
+
+  // Filter by price range
+  if (filters.minPrice) {
+    filtered = filtered.filter(product => product.price >= filters.minPrice);
+  }
+  if (filters.maxPrice) {
+    filtered = filtered.filter(product => product.price <= filters.maxPrice);
+  }
+
+  // Filter by stock status
+  if (filters.inStockOnly) {
+    filtered = filtered.filter(product => product.inStock);
+  }
+
+  featuredProducts.value = filtered;
+};
+
+// Initialize products
+const initializeProducts = () => {
+  const products = [
   { 
     id: 'p1', 
     name: 'iPhone 15 Pro Max', 
@@ -288,7 +324,10 @@ const featuredProducts = ref<Product[]>([
     description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.', 
     inStock: true 
   },
-]);
+];
+  allProducts.value = [...products];
+  featuredProducts.value = [...products];
+};
 
 // --- Methods ---
 
@@ -364,6 +403,7 @@ const startTimer = () => {
 onMounted(() => {
   updateWishlistCount();
   startTimer();
+  initializeProducts();
   window.addEventListener('wishlist-updated', updateWishlistCount);
 });
 
