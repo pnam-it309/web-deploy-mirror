@@ -35,9 +35,8 @@ const AdminCategories = () => import('@/pages/admin/categories/CategoryPage.vue'
 const AdminCategoryCreateModal = () => import('@/pages/admin/categories/CategoryCreateModal.vue')
 
 // -- Customer Pages --
-const AdminCustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
-const AdminCustomerCreate = () => import('@/pages/admin/customers/CustomerCreate.vue')
-const AdminCustomerDetail = () => import('@/pages/admin/customers/CustomerDetail.vue')
+const AdminCustomer = () => import('@/pages/admin/manage_customer/ManageCustomerPage.vue')
+const AdminCustomerCreate = () => import('@/pages/admin/manage_customer/ManageCustomerCreate.vue')
 
 // -- Brand Pages --
 const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
@@ -116,7 +115,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'customers',
         name: 'admin-customers',
-        component: AdminCustomerList,
+        component: AdminCustomer,
         meta: { title: 'Quản lý khách hàng', apiEndpoint: '/api/v1/admin/customers' }
       },
       {
@@ -124,12 +123,6 @@ const routes: RouteRecordRaw[] = [
         name: 'admin-customers-new',
         component: AdminCustomerCreate,
         meta: { title: 'Thêm khách hàng' }
-      },
-      {
-        path: 'customers/:id',
-        name: 'admin-customers-detail',
-        component: AdminCustomerDetail,
-        meta: { title: 'Chi tiết khách hàng' }
       },
       {
         path: 'settings',
