@@ -12,12 +12,16 @@ import {
   Bars3Icon,
   BellIcon,
   UserCircleIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  MoonIcon,
+  SunIcon
 } from '@heroicons/vue/24/outline'
+import { useTheme } from '@/composable/useTheme'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
+const { isDark, toggleTheme } = useTheme()
 
 // State cho Header
 const isProfileOpen = ref(false)
@@ -123,7 +127,7 @@ onUnmounted(() => {
                 class="absolute right-0 z-20 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
               >
                 <div class="px-4 py-2 border-b border-gray-100">
-                    <p class="text-sm text-gray-900 font-medium truncate">{{ authStore.user?.name }}</p>
+                    <p class="text-sm text-gray-900 font-medium truncate">{{ authStore.user?.fullName }}</p>
                     <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email }}</p>
                 </div>
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
@@ -132,6 +136,20 @@ onUnmounted(() => {
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
                     <span class="w-4 h-4 mr-2">⚙️</span> Cài đặt
                 </a>
+                <button
+                  @click="toggleTheme"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
+                >
+                   <div class="flex items-center">
+                     <MoonIcon v-if="isDark" class="w-4 h-4 mr-2"/>
+                     <SunIcon v-else class="w-4 h-4 mr-2"/>
+                     {{ isDark ? 'Chế độ sáng' : 'Chế độ tối' }}
+                   </div>
+                   <!-- Simple Toggle Switch UI -->
+                   <div class="w-8 h-4 bg-gray-200 rounded-full relative transition-colors" :class="{'bg-indigo-600': isDark}">
+                      <div class="w-4 h-4 bg-white rounded-full shadow absolute top-0 left-0 transition-transform" :class="{'translate-x-4': isDark}"></div>
+                   </div>
+                </button>
                 <button
                   @click="logout"
                   class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
