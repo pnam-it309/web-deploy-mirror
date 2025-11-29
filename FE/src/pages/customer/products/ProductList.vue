@@ -3,53 +3,10 @@
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
       <div class="page-header bg-white shadow-sm p-6 rounded-lg mb-8 text-center">
-        <h1>Our Products</h1>
-        <p class="text-lg text-gray-500">Browse our wide selection of products</p>
+        <h1>Sản phẩm của chúng tôi</h1>
       </div>
 
       <div class="product-container flex flex-col lg:flex-row gap-6">
-
-        <aside class="filters lg:flex-none lg:w-64 bg-white p-6 rounded-lg shadow-md h-fit">
-          <div class="filter-section">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
-            <div class="filter-options space-y-2">
-              <div v-for="category in categories" :key="category.id"
-                class="filter-option flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" :id="'cat-' + category.id" v-model="selectedCategories" :value="category.id"
-                    @change="applyFilters"
-                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                  <label :for="'cat-' + category.id" class="ml-3 text-sm text-gray-700 cursor-pointer">
-                    {{ category.name }}
-                  </label>
-                </div>
-                <span class="count text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{{ category.count
-                  }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="filter-section border-t border-gray-200 pt-6 mt-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Price Range</h3>
-            <div class="price-range space-y-3">
-              <div class="price-inputs flex items-center gap-2">
-                <input type="number" v-model.number="priceRange.min" placeholder="Min" min="0"
-                  class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                <span class="text-gray-500">to</span>
-                <input type="number" v-model.number="priceRange.max" placeholder="Max" :min="priceRange.min"
-                  class="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
-              </div>
-              <button
-                class="apply-filters w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
-                @click="applyFilters">Apply Price Filter</button>
-            </div>
-          </div>
-
-          <button
-            class="clear-filters w-full py-2 mt-6 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
-            @click="resetFilters">Clear All Filters</button>
-        </aside>
-
         <div class="product-grid-container lg:flex-1">
           <div
             class="toolbar bg-white shadow-sm p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center mb-6">
@@ -71,8 +28,8 @@
             </div>
 
             <div class="flex items-center justify-between w-full sm:w-auto">
-              <div class="results-count text-sm text-gray-600 mr-4 whitespace-nowrap">
-                Showing {{ paginatedProducts.length }} of {{ filteredProducts.length }} results
+              <div v-if="!isLoading" class="results-count text-sm text-gray-600 mr-4 whitespace-nowrap">
+                Showing **{{ paginatedProducts.length }}** of **{{ totalProductsCount }}** results
               </div>
               <div class="sort-options flex items-center gap-2">
                 <label class="text-sm text-gray-600">Sort by:</label>
@@ -87,28 +44,25 @@
               </div>
             </div>
           </div>
-
-          <div v-if="isLoading" class="loading">
-            <div class="spinner"></div>
+          <div v-if="isLoading" class="loading p-12 bg-white rounded-lg shadow-sm text-center">
+            <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
             <p>Loading products...</p>
           </div>
-
-          <div v-else-if="filteredProducts.length === 0" class="no-results">
-            <p>No products match your filters. Try adjusting your search criteria.</p>
+          <div v-else-if="products.length === 0" class="no-results">
+            <p class="p-6 bg-white rounded-lg shadow-sm">No products match your filters. Try adjusting your search
+              criteria.</p>
             <button class="clear-filters" @click="resetFilters">Clear All Filters</button>
           </div>
-
           <div v-else class="product-grid">
-            <ProductCard 
-              v-for="product in paginatedProducts" 
-              :key="product.id" 
-              :product="product"
-              :is-in-wishlist="isInWishlist(product.id)"
-              @add-to-cart="addToCart" 
-              @toggle-wishlist="toggleWishlist"
-            />
+            <ProductCard v-for="product in paginatedProducts" :key="product.id" :product="product"
+              :is-in-wishlist="isInWishlist(product.id)" @add-to-cart="addToCart" @toggle-wishlist="toggleWishlist" />
           </div>
-
           <div v-if="totalPages > 1" class="pagination bg-white p-4 rounded-lg shadow-md mt-6">
             <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)" class="page-nav">
               &larr; Previous
@@ -134,7 +88,28 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+// Giả định component ProductCard.vue đã tồn tại
 import ProductCard from './ProductCard.vue';
+// Giả định thư viện Axios đã được cài đặt
+import axios from 'axios';
+
+// --- Interface Sản phẩm (Tùy chỉnh theo API Backend của bạn) ---
+interface Product {
+  id: string;
+  name: string;
+  price: number; // Giả định giá trị USD
+  category: string; // Tên category
+  image: string; // URL hình ảnh
+  rating: number;
+  reviewCount: number;
+  description: string;
+  inStock: boolean;
+  badge?: 'New' | 'Sale' | 'Limited';
+}
+
+// --- CONFIGURATION ---
+const API_BASE_URL = 'http://your-backend-api.com/public/view_products';
+const ITEMS_PER_PAGE = 8; // Số sản phẩm trên mỗi trang
 
 export default defineComponent({
   name: 'ProductList',
@@ -146,90 +121,92 @@ export default defineComponent({
     const router = useRouter();
 
     // --- State ---
-    const products = ref([
-      // Mock Data (Thêm nhiều sản phẩm hơn để kiểm tra phân trang)
-      { id: 'p1', name: 'Wireless Headphones Pro', price: 299.99, category: 'Electronics', image: 'https://picsum.photos/seed/p1/300/300', rating: 4.5, reviewCount: 50, description: 'Premium sound quality with active noise cancellation.', inStock: true, badge: 'New' as const },
-      { id: 'p2', name: 'Leather Messenger Bag', price: 149.50, category: 'Clothing', image: 'https://picsum.photos/seed/p2/300/300', rating: 4.0, reviewCount: 30, description: 'Handcrafted leather bag for modern professionals.', inStock: true, badge: 'Sale' as const },
-      { id: 'p3', name: 'Smart Home Hub', price: 99.00, category: 'Electronics', image: 'https://picsum.photos/seed/p3/300/300', rating: 4.8, reviewCount: 80, description: 'Control all your smart devices easily.', inStock: true },
-      { id: 'p4', name: 'Gaming Mouse RGB', price: 59.99, category: 'Electronics', image: 'https://picsum.photos/seed/p4/300/300', rating: 3.9, reviewCount: 15, description: 'Ergonomic design with customizable RGB lighting.', inStock: false },
-      { id: 'p5', name: 'Organic Coffee Beans', price: 19.99, category: 'Home & Garden', image: 'https://picsum.photos/seed/p5/300/300', rating: 5.0, reviewCount: 100, description: '100% Arabica, ethically sourced.', inStock: true },
-      { id: 'p6', name: 'Wool Scarf', price: 35.00, category: 'Clothing', image: 'https://picsum.photos/seed/p6/300/300', rating: 4.2, reviewCount: 20, description: 'Soft and warm pure wool scarf.', inStock: true },
-      { id: 'p7', name: 'Water Bottle Stainless', price: 25.00, category: 'Home & Garden', image: 'https://picsum.photos/seed/p7/300/300', rating: 4.6, reviewCount: 40, description: 'Keeps drinks cold for 24 hours.', inStock: true },
-      { id: 'p8', name: 'Fantasy Novel Set', price: 75.00, category: 'Books', image: 'https://picsum.photos/seed/p8/300/300', rating: 4.9, reviewCount: 60, description: 'An epic four-book fantasy series.', inStock: true },
-      { id: 'p9', name: 'Running Shoes X', price: 110.00, category: 'Sports', image: 'https://picsum.photos/seed/p9/300/300', rating: 4.1, reviewCount: 35, description: 'Lightweight and durable for long distance running.', inStock: true },
-      { id: 'p10', name: 'Yoga Mat Eco', price: 45.00, category: 'Sports', image: 'https://picsum.photos/seed/p10/300/300', rating: 4.4, reviewCount: 25, description: 'Non-slip and environmentally friendly.', inStock: true },
-      { id: 'p11', name: 'Designer Dress', price: 250.00, category: 'Clothing', image: 'https://picsum.photos/seed/p11/300/300', rating: 4.7, reviewCount: 15, description: 'Elegant evening dress.', inStock: true, badge: 'Limited' as const },
-      { id: 'p12', name: '4K Monitor 32"', price: 450.00, category: 'Electronics', image: 'https://picsum.photos/seed/p12/300/300', rating: 4.3, reviewCount: 55, description: 'Stunning 4K resolution and high refresh rate.', inStock: true },
-      { id: 'p13', name: 'Gardening Gloves', price: 15.00, category: 'Home & Garden', image: 'https://picsum.photos/seed/p13/300/300', rating: 3.5, reviewCount: 10, description: 'Durable gloves for all gardening tasks.', inStock: true },
-    ]);
-
-    const categories = ref([
-      { id: 'Electronics', name: 'Electronics', count: 4 },
-      { id: 'Clothing', name: 'Clothing', count: 3 },
-      { id: 'Home & Garden', name: 'Home & Garden', count: 2 },
-      { id: 'Books', name: 'Books', count: 1 },
-      { id: 'Sports', name: 'Sports', count: 2 },
-    ]);
+    // products giờ là nơi lưu trữ dữ liệu từ API
+    const products = ref<Product[]>([]);
+    const totalProductsCount = ref(0);
+    const categories = ref<{ id: string, name: string, count: number }[]>([]); // Sẽ fetch từ API nếu cần
 
     const selectedCategories = ref<string[]>([]);
-    const priceRange = ref({ min: 0, max: 500 }); // Đặt max thấp hơn để dễ test
+    const priceRange = ref({ min: 0, max: 500 });
     const sortBy = ref('featured');
-    const searchQuery = ref(''); // State mới cho Tìm kiếm
+    const searchQuery = ref('');
 
     // --- Phân trang State ---
     const currentPage = ref(1);
-    const itemsPerPage = 8; // Đặt 8 sản phẩm/trang
     const isLoading = ref(false);
     const wishlistIds = ref<string[]>([]);
 
-    // Computed properties
-    const filteredProducts = computed(() => {
-      const query = searchQuery.value.toLowerCase();
+    // -------------------------------------------------------------
+    // LOGIC GỌI API
+    // -------------------------------------------------------------
+    const fetchProducts = async () => {
+      isLoading.value = true;
 
-      const filtered = products.value
-        .filter(product => {
-          // 1. Lọc theo Tìm kiếm
-          const matchesSearch = product.name.toLowerCase().includes(query);
+      const params = {
+        page: currentPage.value - 1, // API thường bắt đầu từ trang 0
+        size: ITEMS_PER_PAGE,
+        search: searchQuery.value,
+        sort: sortBy.value,
+        minPrice: priceRange.value.min,
+        maxPrice: priceRange.value.max >= 500 ? undefined : priceRange.value.max,
+        categories: selectedCategories.value.length > 0 ? selectedCategories.value.join(',') : undefined,
+      };
 
-          // 2. Lọc theo Danh mục
-          const matchesCategory = selectedCategories.value.length === 0 ||
-            selectedCategories.value.includes(product.category);
+      try {
+        // !!! LƯU Ý: Đảm bảo cấu hình CORS ở Backend hoặc Proxy Frontend để API hoạt động !!!
+        const response = await axios.get(API_BASE_URL, { params });
 
-          // 3. Lọc theo Giá
-          const matchesPrice = (!priceRange.value.min || product.price >= priceRange.value.min) &&
-            (!priceRange.value.max || product.price <= priceRange.value.max);
+        // Giả định API trả về { content: Product[], totalElements: number }
+        const data = response.data;
 
-          return matchesSearch && matchesCategory && matchesPrice;
-        })
-        .sort((a, b) => {
-          // 4. Sắp xếp
-          switch (sortBy.value) {
-            case 'price-asc': return a.price - b.price;
-            case 'price-desc': return b.price - a.price;
-            case 'name-asc': return a.name.localeCompare(b.name);
-            case 'name-desc': return b.name.localeCompare(a.name);
-            default: return 0; // featured
-          }
-        });
+        // Cập nhật sản phẩm
+        products.value = data.content.map((item: any) => ({
+          ...item,
+          // Giả định item.id tồn tại và item.price đã là number
+          id: String(item.id),
+          price: Number(item.price),
+          inStock: item.stockQuantity > 0, // Tính toán từ stockQuantity
+          category: item.category?.name || item.category, // Lấy tên category
+          image: item.image || `https://picsum.photos/seed/${item.id}/300/300`,
+        })) as Product[];
 
-      return filtered;
-    });
+        totalProductsCount.value = data.totalElements || products.value.length;
+
+        // **********************************************
+        // NẾU CẦN TẢI DANH MỤC TỪ API:
+        // **********************************************
+        // const categoryResponse = await axios.get('API_CATEGORIES_URL');
+        // categories.value = categoryResponse.data;
+
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        products.value = [];
+        totalProductsCount.value = 0;
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    // -------------------------------------------------------------
+    // COMPUTED
+    // -------------------------------------------------------------
+    // Giữ tên filteredProducts và paginatedProducts cho template cũ, nhưng chúng chỉ là products.value
+    const filteredProducts = computed(() => products.value);
 
     const totalPages = computed(() =>
-      Math.ceil(filteredProducts.value.length / itemsPerPage)
+      Math.ceil(totalProductsCount.value / ITEMS_PER_PAGE)
     );
 
-    const paginatedProducts = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return filteredProducts.value.slice(start, end);
-    });
+    const paginatedProducts = computed(() => products.value);
 
-    // Methods
+    // -------------------------------------------------------------
+    // METHODS
+    // -------------------------------------------------------------
+
     const applyFilters = () => {
-      // Reset về trang 1 khi lọc/tìm kiếm/sắp xếp thay đổi
       currentPage.value = 1;
       updateUrl();
+      fetchProducts(); // Gọi API khi bộ lọc/tìm kiếm thay đổi
     };
 
     const changePage = (page: number) => {
@@ -237,6 +214,7 @@ export default defineComponent({
         currentPage.value = page;
         updateUrl();
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        fetchProducts(); // Gọi API khi chuyển trang
       }
     };
 
@@ -247,6 +225,7 @@ export default defineComponent({
       searchQuery.value = '';
       currentPage.value = 1;
       updateUrl();
+      fetchProducts(); // Gọi API khi reset
     };
 
     const updateUrl = () => {
@@ -259,15 +238,16 @@ export default defineComponent({
       if (priceRange.value.min) query.minPrice = priceRange.value.min;
       if (priceRange.value.max < 500) query.maxPrice = priceRange.value.max;
       if (sortBy.value !== 'featured') query.sort = sortBy.value;
-      if (searchQuery.value) query.search = searchQuery.value; // Thêm tìm kiếm vào URL
+      if (searchQuery.value) query.search = searchQuery.value;
       if (currentPage.value > 1) query.page = currentPage.value;
 
       router.push({ query });
     };
 
+    // --- Wishlist/Cart Mock Functions ---
+    // Giữ nguyên các hàm này để template không báo lỗi
     const addToCart = (product: any) => {
-      alert(`Đã thêm "${product.name}" vào Yêu cầu đặt hàng!`);
-      // Giả định dispatch to a cart store
+      alert(`Added "${product.name}" to Cart!`);
     };
 
     const loadWishlist = () => {
@@ -276,25 +256,13 @@ export default defineComponent({
     };
 
     const toggleWishlist = (product: any) => {
-      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      const index = wishlist.findIndex((item: any) => item.id === product.id);
-      
+      // Mock toggle logic
+      const index = wishlistIds.value.indexOf(product.id);
       if (index === -1) {
-        wishlist.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.image
-        });
         wishlistIds.value.push(product.id);
       } else {
-        wishlist.splice(index, 1);
-        wishlistIds.value = wishlistIds.value.filter(id => id !== product.id);
+        wishlistIds.value.splice(index, 1);
       }
-      
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-      // Dispatch custom event for layout to update
-      window.dispatchEvent(new Event('wishlist-updated'));
     };
 
     const isInWishlist = (id: string | number) => {
@@ -302,6 +270,7 @@ export default defineComponent({
     };
 
     const parseUrlParams = () => {
+      // Logic parse URL query params
       if (route.query.categories) {
         selectedCategories.value = route.query.categories
           .toString()
@@ -313,36 +282,42 @@ export default defineComponent({
       if (route.query.minPrice) priceRange.value.min = Number(route.query.minPrice);
       if (route.query.maxPrice) priceRange.value.max = Number(route.query.maxPrice);
       if (route.query.sort) sortBy.value = route.query.sort.toString();
-      if (route.query.search) searchQuery.value = route.query.search.toString(); // Lấy từ URL
+      if (route.query.search) searchQuery.value = route.query.search.toString();
       if (route.query.page) currentPage.value = Number(route.query.page);
+
+      // Tải dữ liệu ban đầu
+      fetchProducts();
     };
 
-    // Lifecycle hooks
+    // --- Lifecycle hooks ---
     onMounted(() => {
       parseUrlParams();
       loadWishlist();
+      // Nếu bạn muốn tải Categories từ API, hãy gọi ở đây
+      // fetchCategories();
     });
 
-    // Watchers
-    watch([sortBy, currentPage], () => {
-      updateUrl();
+    // --- Watchers ---
+    watch([sortBy, currentPage, selectedCategories, priceRange], () => {
+      // Khi filter/sort thay đổi, gọi API (đã được xử lý trong applyFilters/changePage)
     });
 
-    // Watch for route query changes to handle browser navigation
     watch(() => route.query, () => {
+      // Xử lý nút back/forward của trình duyệt
       parseUrlParams();
     });
 
     return {
       // State
-      products,
-      categories,
+      products, // Danh sách sản phẩm (từ API)
+      categories, // Danh sách categories (fix cứng hoặc từ API)
       selectedCategories,
       priceRange,
       sortBy,
       searchQuery,
       currentPage,
       isLoading,
+      totalProductsCount, // Tổng số lượng sản phẩm
 
       // Computed
       filteredProducts,
