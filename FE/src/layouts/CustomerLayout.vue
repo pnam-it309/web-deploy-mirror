@@ -42,23 +42,12 @@
           <div class="flex items-center">
             <h1 class="ml-2 text-lg font-semibold text-gray-900">{{ $route.meta.title || 'Dashboard' }}</h1>
           </div>
-          <div class="flex items-center flex-1 px-4">
-            <div class="w-full max-w-lg lg:max-w-xs relative">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
-              </div>
-              <input type="text" 
-                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Search"
-                @keydown.enter="handleSearch($event)"
-              >
-            </div>
-          </div>
           <div class="flex items-center space-x-4">
             <router-link to="/customer/wishlist" class="p-1 text-gray-400 hover:text-gray-500 relative">
               <span class="sr-only">Wishlist</span>
               <HeartIcon class="w-6 h-6" />
-              <span v-if="wishlistCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+              <span v-if="wishlistCount > 0"
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 {{ wishlistCount }}
               </span>
             </router-link>
@@ -149,7 +138,7 @@ onMounted(() => {
   toast.success("Chào mừng bạn đến với catalgo web");
   updateWishlistCount();
   window.addEventListener('wishlist-updated', updateWishlistCount);
-  
+
   // Also update when storage changes (e.g. from another tab)
   window.addEventListener('storage', (e) => {
     if (e.key === 'wishlist') updateWishlistCount();

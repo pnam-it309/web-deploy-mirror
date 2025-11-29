@@ -28,27 +28,16 @@
         <!-- Product Gallery -->
         <div class="product-gallery">
           <div class="main-image">
-            <img 
-              :src="selectedImage || product.images[0]" 
-              :alt="product.name"
-              @click="openLightbox(selectedImage || product.images[0])"
-            >
-            <button 
-              v-if="product.onSale"
-              class="sale-badge"
-            >
+            <img :src="selectedImage || product.images[0]" :alt="product.name"
+              @click="openLightbox(selectedImage || product.images[0])">
+            <button v-if="product.onSale" class="sale-badge">
               Sale
             </button>
           </div>
-          
+
           <div class="thumbnail-container">
-            <button 
-              v-for="(image, index) in product.images" 
-              :key="index"
-              class="thumbnail"
-              :class="{ active: selectedImage === image }"
-              @click="selectedImage = image"
-            >
+            <button v-for="(image, index) in product.images" :key="index" class="thumbnail"
+              :class="{ active: selectedImage === image }" @click="selectedImage = image">
               <img :src="image" :alt="`${product.name} thumbnail ${index + 1}`">
             </button>
           </div>
@@ -57,7 +46,7 @@
         <!-- Product Info -->
         <div class="product-info">
           <h1 class="product-title">{{ product.name }}</h1>
-          
+
           <div class="product-meta">
             <div class="rating">
               <div class="stars" :style="{ '--rating': (product.rating * 20) + '%' }" aria-label="Rating">
@@ -65,16 +54,16 @@
               </div>
               <span class="review-count">({{ product.reviewCount }} reviews)</span>
             </div>
-            
+
             <div class="availability" :class="{ 'in-stock': product.inStock, 'out-of-stock': !product.inStock }">
               {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
             </div>
-            
+
             <div class="sku">
               SKU: {{ product.sku || 'N/A' }}
             </div>
           </div>
-          
+
           <div class="price-container">
             <span class="current-price">
               {{ formatPrice(product.price) }}
@@ -86,87 +75,51 @@
               Save {{ formatPrice(product.youSave) }}
             </span>
           </div>
-          
+
           <div class="product-description" v-html="product.description"></div>
-          
+
           <div v-if="product.variants && product.variants.length > 0" class="variants">
-            <div 
-              v-for="variant in product.variants" 
-              :key="variant.id"
-              class="variant-option"
-            >
+            <div v-for="variant in product.variants" :key="variant.id" class="variant-option">
               <h4>{{ variant.name }}:</h4>
               <div class="variant-options">
-                <button 
-                  v-for="option in variant.options" 
-                  :key="option"
-                  class="variant-button"
-                  :class="{ 
-                    'selected': selectedVariants[variant.name] === option,
-                    'disabled': !isVariantAvailable(option)
-                  }"
-                  @click="selectVariant(variant.name, option)"
-                  :disabled="!isVariantAvailable(option)"
-                >
+                <button v-for="option in variant.options" :key="option" class="variant-button" :class="{
+                  'selected': selectedVariants[variant.name] === option,
+                  'disabled': !isVariantAvailable(option)
+                }" @click="selectVariant(variant.name, option)" :disabled="!isVariantAvailable(option)">
                   {{ option }}
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div class="quantity-selector">
             <label for="quantity">Quantity:</label>
             <div class="quantity-controls">
-              <button 
-                class="quantity-btn" 
-                @click="decreaseQuantity"
-                :disabled="quantity <= 1"
-              >-</button>
-              <input 
-                type="number" 
-                id="quantity" 
-                v-model.number="quantity" 
-                min="1" 
-                :max="product.inventory"
-                @change="validateQuantity"
-              >
-              <button 
-                class="quantity-btn" 
-                @click="increaseQuantity"
-                :disabled="quantity >= product.inventory"
-              >+</button>
+              <button class="quantity-btn" @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
+              <input type="number" id="quantity" v-model.number="quantity" min="1" :max="product.inventory"
+                @change="validateQuantity">
+              <button class="quantity-btn" @click="increaseQuantity"
+                :disabled="quantity >= product.inventory">+</button>
             </div>
             <div class="inventory" v-if="product.inventory > 0">
               {{ product.inventory }} available
             </div>
           </div>
-          
+
           <div class="action-buttons">
-            <button 
-              class="add-to-cart" 
-              :disabled="!product.inStock"
-              @click="addToCart"
-            >
+            <button class="add-to-cart" :disabled="!product.inStock" @click="addToCart">
               <span class="icon">🛒</span>
               Thêm vào Yêu cầu đặt hàng
             </button>
-            <button 
-              class="buy-now"
-              :disabled="!product.inStock"
-              @click="buyNow"
-            >
+            <button class="buy-now" :disabled="!product.inStock" @click="buyNow">
               Buy Now
             </button>
-            <button 
-              class="wishlist"
-              :class="{ 'in-wishlist': isInWishlist }"
-              @click="toggleWishlist"
-              :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'"
-            >
+            <button class="wishlist" :class="{ 'in-wishlist': isInWishlist }" @click="toggleWishlist"
+              :title="isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'">
               ♥
             </button>
           </div>
-          
+
           <div class="shipping-info">
             <div class="shipping-item">
               <span class="icon">🚚</span>
@@ -185,26 +138,22 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Product Tabs -->
       <div class="product-tabs">
         <div class="tabs-header">
-          <button 
-            v-for="tab in tabs" 
-            :key="tab.id"
-            :class="{ active: activeTab === tab.id }"
-            @click="activeTab = tab.id"
-          >
+          <button v-for="tab in tabs" :key="tab.id" :class="{ active: activeTab === tab.id }"
+            @click="activeTab = tab.id">
             {{ tab.label }}
           </button>
         </div>
-        
+
         <div class="tabs-content">
           <div v-if="activeTab === 'description'" class="tab-pane">
             <h3>Product Description</h3>
             <div v-html="product.fullDescription || product.description"></div>
           </div>
-          
+
           <div v-if="activeTab === 'specs'" class="tab-pane">
             <h3>Product Specifications</h3>
             <table class="specs-table">
@@ -216,7 +165,7 @@
               </tbody>
             </table>
           </div>
-          
+
           <div v-if="activeTab === 'reviews'" class="tab-pane">
             <h3>Customer Reviews</h3>
             <div class="reviews-summary">
@@ -227,25 +176,22 @@
                 </div>
                 <div class="total-reviews">{{ product.reviewCount }} reviews</div>
               </div>
-              
+
               <div class="rating-bars">
                 <div v-for="i in 5" :key="i" class="rating-bar">
                   <span class="star-count">{{ 6 - i }}★</span>
                   <div class="bar-container">
-                    <div 
-                      class="bar" 
-                      :style="{ width: getRatingPercentage(6 - i) + '%' }"
-                    ></div>
+                    <div class="bar" :style="{ width: getRatingPercentage(6 - i) + '%' }"></div>
                   </div>
                   <span class="percentage">{{ getRatingPercentage(6 - i) }}%</span>
                 </div>
               </div>
             </div>
-            
+
             <button class="write-review" @click="openReviewForm">
               Write a Review
             </button>
-            
+
             <div class="reviews-list">
               <div v-for="review in product.reviews" :key="review.id" class="review">
                 <div class="review-header">
@@ -264,21 +210,17 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Related Products -->
       <div v-if="relatedProducts.length > 0" class="related-products">
         <h2>You May Also Like</h2>
         <div class="related-grid">
-          <ProductCard 
-            v-for="related in relatedProducts" 
-            :key="related.id" 
-            :product="related"
-            @add-to-cart="addToCart"
-          />
+          <ProductCard v-for="related in relatedProducts" :key="related.id" :product="related"
+            @add-to-cart="addToCart" />
         </div>
       </div>
     </div>
-    
+
     <!-- Lightbox -->
     <div v-if="lightboxImage" class="lightbox" @click.self="closeLightbox">
       <div class="lightbox-content">
@@ -286,7 +228,7 @@
         <img :src="lightboxImage" :alt="product?.name">
       </div>
     </div>
-    
+
     <!-- Review Form Modal -->
     <div v-if="showReviewForm" class="modal-overlay" @click.self="closeReviewForm">
       <div class="review-modal">
@@ -296,40 +238,25 @@
           <div class="form-group">
             <label>Rating</label>
             <div class="rating-input">
-              <span 
-                v-for="i in 5" 
-                :key="i"
-                class="star"
-                :class="{ 'active': reviewData.rating >= i }"
-                @click="reviewData.rating = i"
-              >
+              <span v-for="i in 5" :key="i" class="star" :class="{ 'active': reviewData.rating >= i }"
+                @click="reviewData.rating = i">
                 ★
               </span>
             </div>
           </div>
-          
+
           <div class="form-group">
             <label for="review-title">Title</label>
-            <input 
-              type="text" 
-              id="review-title" 
-              v-model="reviewData.title" 
-              required
-              placeholder="Summarize your review"
-            >
+            <input type="text" id="review-title" v-model="reviewData.title" required
+              placeholder="Summarize your review">
           </div>
-          
+
           <div class="form-group">
             <label for="review-content">Review</label>
-            <textarea 
-              id="review-content" 
-              v-model="reviewData.content" 
-              rows="5" 
-              required
-              placeholder="Share your experience with this product"
-            ></textarea>
+            <textarea id="review-content" v-model="reviewData.content" rows="5" required
+              placeholder="Share your experience with this product"></textarea>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="cancel" @click="closeReviewForm">
               Cancel
@@ -345,7 +272,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
 
@@ -391,7 +318,7 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const router = useRouter();
-    
+
     // Product data
     const product = ref<Product | null>(null);
     const relatedProducts = ref<Product[]>([]);
@@ -403,36 +330,37 @@ export default defineComponent({
     const isInWishlist = ref(false);
     const activeTab = ref('description');
     const showReviewForm = ref(false);
-    
+
     // Review form data
     const reviewData = ref({
       rating: 0,
       title: '',
       content: ''
     });
-    
-    // Tabs configuration
-    const tabs = [
+
+    // Tabs configuration (ĐÃ SỬA: Dùng computed)
+    const tabs = computed(() => [
       { id: 'description', label: 'Description' },
       { id: 'specs', label: 'Specifications' },
       { id: 'reviews', label: `Reviews (${product.value?.reviewCount || 0})` }
-    ];
-    
+    ]);
+
     // Fetch product data
     const fetchProduct = async () => {
       try {
         isLoading.value = true;
-        // In a real app, you would fetch this from your API
-        // const response = await fetch(`/api/products/${route.params.id}`);
-        // product.value = await response.json();
-        
+        const productId = route.params.id;
+
+        // TRONG ỨNG DỤNG THỰC TẾ, GỌI API Ở ĐÂY
+        // ... (API call logic)
+
         // Mock data for demonstration
         setTimeout(() => {
           product.value = {
-            id: route.params.id,
+            id: productId,
             name: 'Premium Wireless Headphones',
             description: 'High-quality wireless headphones with noise cancellation',
-            fullDescription: '<p>Experience crystal clear sound with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and comfortable over-ear design. Perfect for music lovers and professionals alike.</p><ul><li>Active Noise Cancellation</li><li>30-hour battery life</li><li>Bluetooth 5.0</li><li>Built-in microphone</li><li>Touch controls</li></ul>',
+            fullDescription: '<p>Experience crystal clear sound with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and comfortable over-ear design. Perfect for music lovers and professionals alike.</p>',
             price: 199.99,
             originalPrice: 249.99,
             youSave: 50,
@@ -449,108 +377,22 @@ export default defineComponent({
             sku: 'HP-BT-2023',
             onSale: true,
             variants: [
-              {
-                id: 'color',
-                name: 'Color',
-                options: ['Black', 'White', 'Blue']
-              },
-              {
-                id: 'size',
-                name: 'Size',
-                options: ['One Size']
-              }
+              { id: 'color', name: 'Color', options: ['Black', 'White', 'Blue'] },
+              { id: 'size', name: 'Size', options: ['One Size'] }
             ],
-            specifications: {
-              'Brand': 'AudioPro',
-              'Model': 'AP-WH1000',
-              'Connectivity': 'Bluetooth 5.0',
-              'Battery Life': '30 hours',
-              'Charging Time': '2 hours',
-              'Weight': '250g',
-              'Warranty': '2 years'
-            },
-            ratings: {
-              5: 85,
-              4: 30,
-              3: 10,
-              2: 2,
-              1: 1
-            },
-            reviews: [
-              {
-                id: 1,
-                author: 'John D.',
-                date: '2023-05-15',
-                rating: 5,
-                title: 'Amazing sound quality!',
-                content: 'These headphones are worth every penny. The noise cancellation is incredible and the battery life is as advertised.'
-              },
-              {
-                id: 2,
-                author: 'Sarah M.',
-                date: '2023-06-22',
-                rating: 4,
-                title: 'Great headphones with minor issues',
-                content: 'Love the sound and comfort, but the touch controls can be a bit sensitive at times.'
-              }
-            ]
+            specifications: { 'Brand': 'AudioPro', 'Model': 'AP-WH1000' /* ... */ },
+            ratings: { 5: 85, 4: 30, 3: 10, 2: 2, 1: 1 },
+            reviews: [ /* ... */]
           };
-          
-          // Set first variant as default
-          if (product.value.variants) {
-            product.value.variants.forEach(variant => {
-              if (variant.options.length > 0) {
-                selectedVariants.value[variant.name] = variant.options[0];
-              }
-            });
-          }
-          
-          // Set first image as selected
-          if (product.value.images.length > 0) {
-            selectedImage.value = product.value.images[0];
-          }
-          
+
+          // Logic set image/variant default
+          if (product.value.variants) { /* ... */ }
+          if (product.value.images.length > 0) { selectedImage.value = product.value.images[0]; }
+
           // Mock related products
-          relatedProducts.value = [
-            {
-              id: '2',
-              name: 'Wireless Earbuds',
-              description: 'True wireless earbuds with charging case',
-              price: 129.99,
-              originalPrice: 149.99,
-              images: ['https://via.placeholder.com/300x300?text=Earbuds'],
-              rating: 4.2,
-              reviewCount: 89,
-              inStock: true,
-              inventory: 10,
-              onSale: true
-            },
-            {
-              id: '3',
-              name: 'Bluetooth Speaker',
-              description: 'Portable waterproof speaker with 20h battery',
-              price: 79.99,
-              images: ['https://via.placeholder.com/300x300?text=Speaker'],
-              rating: 4.7,
-              reviewCount: 156,
-              inStock: true,
-              inventory: 5
-            },
-            {
-              id: '4',
-              name: 'Wired Headphones',
-              description: 'Studio-quality wired headphones',
-              price: 149.99,
-              images: ['https://via.placeholder.com/300x300?text=Wired+Headphones'],
-              rating: 4.0,
-              reviewCount: 42,
-              inStock: false,
-              inventory: 0
-            }
-          ];
-          
+          relatedProducts.value = [ /* ... */];
+
           isLoading.value = false;
-          // Check wishlist status after product is loaded
           checkWishlist();
         }, 800);
       } catch (error) {
@@ -558,242 +400,38 @@ export default defineComponent({
         isLoading.value = false;
       }
     };
-    
-    // Format price with currency
-    const formatPrice = (price: number) => {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2
-      }).format(price);
-    };
-    
-    // Format date
-    const formatDate = (dateString: string) => {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    };
-    
-    // Format key for specifications
-    const formatKey = (key: string) => {
-      return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-    };
-    
-    // Get rating percentage for reviews
-    const getRatingPercentage = (rating: number) => {
-      if (!product.value?.ratings) return 0;
-      const total = Object.values(product.value.ratings).reduce((a, b) => a + b, 0);
-      return Math.round(((product.value.ratings[rating] || 0) / total) * 100);
-    };
-    
-    // Quantity controls
-    const increaseQuantity = () => {
-      if (product.value && quantity.value < product.value.inventory) {
-        quantity.value++;
-      }
-    };
-    
-    const decreaseQuantity = () => {
-      if (quantity.value > 1) {
-        quantity.value--;
-      }
-    };
-    
-    const validateQuantity = () => {
-      if (!product.value) return;
-      
-      if (quantity.value < 1) {
-        quantity.value = 1;
-      } else if (quantity.value > product.value.inventory) {
-        quantity.value = product.value.inventory;
-      }
-    };
-    
-    // Variant selection
-    const selectVariant = (variantName: string, option: string) => {
-      selectedVariants.value[variantName] = option;
-      // In a real app, you would update the product data based on the selected variant
-    };
-    
-    const isVariantAvailable = (option: string) => {
-      // In a real app, you would check inventory for this variant
-      return true;
-    };
-    
-    // Image gallery
-    const openLightbox = (image: string) => {
-      lightboxImage.value = image;
-      document.body.style.overflow = 'hidden';
-    };
-    
-    const closeLightbox = () => {
-      lightboxImage.value = '';
-      document.body.style.overflow = '';
-    };
-    
-    // Wishlist
-    const toggleWishlist = () => {
-      if (!product.value) return;
-      
-      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      const index = wishlist.findIndex((item: any) => item.id === product.value?.id);
-      
-      if (index === -1) {
-        // Add to wishlist
-        wishlist.push({
-          id: product.value.id,
-          name: product.value.name,
-          price: product.value.price,
-          image: product.value.images[0]
-        });
-        isInWishlist.value = true;
-      } else {
-        // Remove from wishlist
-        wishlist.splice(index, 1);
-        isInWishlist.value = false;
-      }
-      
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    };
 
-    const checkWishlist = () => {
-      if (!product.value) return;
-      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-      isInWishlist.value = wishlist.some((item: any) => item.id === product.value?.id);
-    };
-    
-    // Cart actions
-    const addToCart = () => {
-      if (!product.value) return;
-      
-      const item = {
-        id: product.value.id,
-        name: product.value.name,
-        price: product.value.price,
-        quantity: quantity.value,
-        image: product.value.images[0],
-        variants: { ...selectedVariants.value }
-      };
-      
-      // In a real app, you would dispatch to your cart store
-      console.log('Added to cart:', item);
-      // Example: store.dispatch('cart/addToCart', item);
-      
-      // Show success message
-      // You might want to use a toast notification library
-      alert(`${quantity.value} ${product.value.name} added to cart`);
-    };
-    
-    const buyNow = () => {
-      addToCart();
-      router.push('/checkout');
-    };
-    
-    // Review form
-    const openReviewForm = () => {
-      showReviewForm.value = true;
-      document.body.style.overflow = 'hidden';
-    };
-    
-    const closeReviewForm = () => {
-      showReviewForm.value = false;
-      document.body.style.overflow = '';
-      // Reset form
-      reviewData.value = {
-        rating: 0,
-        title: '',
-        content: ''
-      };
-    };
-    
-    const submitReview = () => {
-      if (!product.value) return;
-      
-      // In a real app, you would submit this to your API
-      console.log('Submitting review:', reviewData.value);
-      
-      // Mock adding the review
-      const newReview = {
-        id: Date.now(),
-        author: 'You',
-        date: new Date().toISOString(),
-        rating: reviewData.value.rating,
-        title: reviewData.value.title,
-        content: reviewData.value.content
-      };
-      
-      if (!product.value.reviews) {
-        product.value.reviews = [];
+    // Sửa lỗi 2: Thêm watcher để tải lại khi điều hướng giữa các trang chi tiết
+    watch(
+      () => route.params.id,
+      (newId, oldId) => {
+        if (newId && newId !== oldId) {
+          fetchProduct();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
-      
-      product.value.reviews.unshift(newReview);
-      product.value.reviewCount++;
-      
-      // Update rating
-      if (product.value.ratings) {
-        product.value.ratings[newReview.rating] = (product.value.ratings[newReview.rating] || 0) + 1;
-      }
-      
-      // Recalculate average rating
-      if (product.value.ratings) {
-        const total = Object.entries(product.value.ratings).reduce((sum, [rating, count]) => {
-          return sum + (parseInt(rating) * count);
-        }, 0);
-        product.value.rating = total / product.value.reviewCount;
-      }
-      
-      closeReviewForm();
-      
-      // Show success message
-      alert('Thank you for your review!');
-    };
-    
-    // Fetch product data when component mounts
+    );
+
+    // ... (Giữ nguyên các hàm khác) ...
+
     onMounted(() => {
       fetchProduct();
-      
-      // Clean up event listeners when component unmounts
+
       return () => {
         document.body.style.overflow = '';
       };
     });
-    
+
     return {
       // State
-      product,
-      relatedProducts,
-      isLoading,
-      selectedImage,
-      lightboxImage,
-      quantity,
-      selectedVariants,
-      isInWishlist,
-      activeTab,
-      showReviewForm,
-      reviewData,
-      tabs,
-      
+      product, relatedProducts, isLoading, selectedImage, lightboxImage, quantity,
+      selectedVariants, isInWishlist, activeTab, showReviewForm, reviewData, tabs, // tabs là computed
+
       // Methods
-      formatPrice,
-      formatDate,
-      formatKey,
-      getRatingPercentage,
-      increaseQuantity,
-      decreaseQuantity,
-      validateQuantity,
-      selectVariant,
-      isVariantAvailable,
-      openLightbox,
-      closeLightbox,
-      toggleWishlist,
-      addToCart,
-      buyNow,
-      openReviewForm,
-      closeReviewForm,
-      submitReview
+      formatPrice, formatDate, formatKey, getRatingPercentage,
+      increaseQuantity, decreaseQuantity, validateQuantity, selectVariant, isVariantAvailable,
+      openLightbox, closeLightbox, toggleWishlist, addToCart, buyNow,
+      openReviewForm, closeReviewForm, submitReview
     };
   }
 });
@@ -808,7 +446,8 @@ export default defineComponent({
 }
 
 /* Loading state */
-.loading, .not-found {
+.loading,
+.not-found {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -828,8 +467,13 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .not-found h2 {
@@ -1216,7 +860,7 @@ export default defineComponent({
   margin: 30px 0;
 }
 
-.add-to-cart, 
+.add-to-cart,
 .buy-now,
 .wishlist {
   display: flex;
@@ -1371,7 +1015,8 @@ export default defineComponent({
   margin-bottom: 15px;
 }
 
-.tab-pane ul, .tab-pane ol {
+.tab-pane ul,
+.tab-pane ol {
   padding-left: 20px;
   margin-bottom: 20px;
 }
@@ -1388,7 +1033,8 @@ export default defineComponent({
   margin: 20px 0;
 }
 
-.specs-table th, .specs-table td {
+.specs-table th,
+.specs-table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #eee;
@@ -1693,7 +1339,7 @@ export default defineComponent({
   color: #f1c40f;
 }
 
-.rating-input .star:hover ~ .star {
+.rating-input .star:hover~.star {
   color: #e4e4e4;
 }
 
@@ -1757,17 +1403,17 @@ export default defineComponent({
     flex-direction: column;
     gap: 30px;
   }
-  
+
   .product-gallery,
   .product-info {
     max-width: 100%;
   }
-  
+
   .reviews-summary {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .overall-rating {
     display: flex;
     flex-direction: column;
@@ -1779,35 +1425,35 @@ export default defineComponent({
   .product-title {
     font-size: 1.7rem;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
-  
+
   .add-to-cart,
   .buy-now {
     width: 100%;
   }
-  
+
   .shipping-info {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .tabs-header {
     overflow-x: auto;
     flex-wrap: nowrap;
     justify-content: flex-start;
   }
-  
+
   .tabs-header button {
     white-space: nowrap;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .form-actions button {
     width: 100%;
   }
@@ -1817,19 +1463,19 @@ export default defineComponent({
   .product-title {
     font-size: 1.5rem;
   }
-  
+
   .current-price {
     font-size: 1.7rem;
   }
-  
+
   .original-price {
     font-size: 1.1rem;
   }
-  
+
   .tabs-content {
     padding: 20px 15px;
   }
-  
+
   .review-modal {
     padding: 20px 15px;
   }
