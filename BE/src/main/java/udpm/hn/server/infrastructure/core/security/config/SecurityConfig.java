@@ -2,7 +2,6 @@ package udpm.hn.server.infrastructure.core.security.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +28,6 @@ import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 import udpm.hn.server.infrastructure.core.security.filter.TokenAuthenticationFilter;
-import udpm.hn.server.utils.Helper;
 
 import static udpm.hn.server.utils.Helper.appendWildcard;
 
@@ -147,6 +145,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
 }
