@@ -39,9 +39,9 @@
           </div>
         </div>
 
-        <!-- Customer Button -->
+        <!-- Customer Button with Google Sign In -->
         <div 
-          @click="handleRedirectLoginCUSTOMER"
+          @click="handleCustomerLogin"
           class="group relative bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-transparent hover:border-green-500"
         >
           <div class="flex flex-col items-center text-center">
@@ -53,7 +53,15 @@
               >
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">Khách hàng</h3>
-            <p class="text-gray-600 text-sm">Truy cập trang dành cho khách hàng</p>
+            <p class="text-gray-600 text-sm">Đăng nhập bằng Gmail để tiếp tục</p>
+            <div class="mt-4 flex items-center justify-center">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" 
+                alt="Google" 
+                class="h-6 w-6 mr-2"
+              >
+              <span class="text-sm text-gray-700">Đăng nhập với Google</span>
+            </div>
           </div>
         </div>
       </div>
@@ -98,10 +106,10 @@ const processingOAuth = ref(false)
 
 // Hàm xử lý OAuth callback
 const processOAuthCallback = async () => {
-  const { state } = route.query
+  const { code, state } = route.query
   
-  if (!state) {
-    console.log('📭 Không có state parameter')
+  if (!code) {
+    console.log('📭 Không có code parameter trong URL')
     return false
   }
 
@@ -109,15 +117,47 @@ const processOAuthCallback = async () => {
   processingOAuth.value = true
 
   try {
-    // Decode the state parameter
-    const decodedState = JSON.parse(decodeURIComponent(atob(state as string)))
-    console.log('🔓 Decoded state:', decodedState)
+    // Determine the role from the cookie or URL state
+    let role = ROLES.CUSTOMER
     
-    const { accessToken, refreshToken } = decodedState
+    // Try to get role from cookie first
+    const roleCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('screen='))
+      ?.split('=')[1]
+    
+    if (roleCookie) {
+      role = roleCookie
+      console.log('🔑 Lấy role từ cookie:', role)
+    } 
+    // If no cookie, try to get from state if it's a simple role string
+    else if (state && typeof state === 'string' && !state.startsWith('{') && !state.includes('${SCREEN_R}')) {
+      role = state
+      console.log('� Lấy role từ state:', role)
+    }
+    
+    // Exchange the authorization code for tokens
+    console.log('🔄 Đang trao đổi mã xác thực...')
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include' // Important for cookies
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || 'Lỗi khi xác thực với máy chủ')
+    }
+    
+    const { accessToken, refreshToken, user: userData } = await response.json()
     
     if (!accessToken) {
-      throw new Error('Không tìm thấy access token')
+      throw new Error('Không nhận được access token từ máy chủ')
     }
+    
+    console.log('✅ Đăng nhập thành công với role:', role)
 
     console.log('✅ Token nhận được:', accessToken.substring(0, 50) + '...')
 
@@ -126,7 +166,7 @@ const processOAuthCallback = async () => {
     console.log('🔍 Decoded JWT:', decodedToken)
 
     // Tạo user object từ JWT
-    const user = {
+    const user = userData || {
       id: decodedToken.sub || decodedToken.id,
       email: decodedToken.email || decodedToken.sub,
       name: decodedToken.name || 'User',
@@ -177,6 +217,24 @@ const processOAuthCallback = async () => {
     return false
   } finally {
     processingOAuth.value = false
+  }
+}
+
+// Handle customer login with Google
+const handleCustomerLogin = () => {
+  try {
+    // Set role to CUSTOMER before redirecting to Google OAuth
+    setRoleCookie(ROLES.CUSTOMER)
+    
+    // Call the function to get the OAuth URL
+    const oauthUrl = URL_OAUTH2_GOOGLE_CUSTOMER()
+    console.log('[AUTH] Redirecting to:', oauthUrl)
+    
+    // Redirect to Google OAuth for customer login
+    window.location.href = oauthUrl
+  } catch (error) {
+    console.error('Error during customer login:', error)
+    toast.error('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.')
   }
 }
 

@@ -15,12 +15,12 @@ public interface RoleAuthRepository extends RoleRepository {
                       FROM
                           Role r
                       LEFT JOIN
-                       AdminRole ar ON r.id = ar.role.id
+                       Customerole ar ON r.id = ar.role.id
                       WHERE
-                          ar.admin.id = :id
+                          ar.customer.id = :id
                     """
     )
-    List<String> findRoleByAdminId(@Param("id") String id);
+    List<String> findRoleByCusId(@Param("id") String id);
 
     @Query(
             value = """
@@ -35,6 +35,6 @@ public interface RoleAuthRepository extends RoleRepository {
                           sr.admin.id = :id
                     """
     )
-    List<String> findRoleByStaffId(@Param("id") String id);
+    List<String> findRoleByAdminId(@Param("id") String id);
 
 }

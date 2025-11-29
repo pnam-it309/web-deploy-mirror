@@ -38,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if(exitStaff.isPresent()) {
             Admin adminPre = exitStaff.get();
-            List<String> roles = roleAuthRepository.findRoleByStaffId(adminPre.getId());
+            List<String> roles = roleAuthRepository.findRoleByAdminId(adminPre.getId());
             return staffAuthRepository.findById(adminPre.getId())
                     .map(staff -> UserPrincipal.create(staff,roles))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with id : " + adminPre.getId()));

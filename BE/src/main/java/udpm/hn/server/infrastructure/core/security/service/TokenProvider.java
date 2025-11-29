@@ -93,9 +93,6 @@ public class TokenProvider {
                 tokenInfoResponse.setPictureUrl(pictureObj.toString());
             }
 
-            tokenInfoResponse.setEmailFPT(userPrincipal.getEmail());
-            tokenInfoResponse.setEmailSV(userPrincipal.getEmail());
-
             if (adminUser != null) {
                 tokenInfoResponse.setUserCode(adminUser.getCode());
             }
@@ -154,11 +151,6 @@ public class TokenProvider {
         claims.put("host", tokenInfoResponse.getHost());
         claims.put("roleScreen", tokenInfoResponse.getRoleScreen());
         claims.put("roleSwitch", tokenInfoResponse.getRoleSwitch());
-
-        String email = tokenInfoResponse.getEmailFPT() != null
-                ? tokenInfoResponse.getEmailFPT()
-                : tokenInfoResponse.getEmailSV();
-        claims.put("email", email);
 
         return claims;
     }
