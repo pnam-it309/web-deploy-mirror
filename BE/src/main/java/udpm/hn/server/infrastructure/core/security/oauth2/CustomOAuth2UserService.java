@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.entity.Admin;
 import udpm.hn.server.entity.Customer;
+import udpm.hn.server.entity.Customerole;
+import udpm.hn.server.entity.Role;
 import udpm.hn.server.infrastructure.core.constant.CookieConstant;
 import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import udpm.hn.server.infrastructure.core.constant.OAuth2Constant;
@@ -29,6 +31,7 @@ import udpm.hn.server.utils.CookieUtils;
 
 import java.util.List;
 import java.util.Optional;
+import udpm.hn.server.infrastructure.core.constant.Roles;
 
 @Service
 @Slf4j
@@ -111,6 +114,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
     }
 
+    private void assignCustomerRole(Customer customer) {
+        try {
+            // Find the CUSTOMER role by code
+            Role customerRole = roleAuthRepository.findRolesByCode(Roles.CUSTOMER.name());
+            
+            if (customerRole != null) {
+                Customerole customerRoleMapping = new Customerole();
+                customerRoleMapping.setCustomer(customer);
+                customerRoleMapping.setRole(customerRole);
+                customerRoleAuthRepository.save(customerRoleMapping);
+                log.info("Assigned CUSTOMER role to customer: {}", customer.getEmail());
+            } else {
+                log.error("CUSTOMER role not found in the database");
+                throw new OAuth2AuthenticationProcessingException("CUSTOMER role not configured in the system");
+            }
+        } catch (Exception e) {
+            log.error("Error assigning CUSTOMER role to customer: {}", e.getMessage(), e);
+            throw new OAuth2AuthenticationProcessingException("Error assigning role to customer");
+        }
+    }
+
     private OAuth2User processAdmin(OAuth2UserInfo oAuth2UserInfo, String role) {
         log.info("Processing admin user: {}", oAuth2UserInfo.getEmail());
 
@@ -120,7 +144,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         if (staffOptional.isPresent()) {
-            List<String> roleUser = roleAuthRepository.findRoleByStaffId(staffOptional.get().getId());
+            List<String> roleUser = roleAuthRepository.findRoleByAdminId(staffOptional.get().getId());
 
             if (roleUser.contains(role)) {
                 Admin admin = staffOptional.get();
@@ -143,27 +167,42 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processCustomer(OAuth2UserInfo oAuth2UserInfo, String role) {
         log.info("Processing customer user: {}", oAuth2UserInfo.getEmail());
 
+        // Try to find existing customer
         Optional<Customer> customerOptional = customerAuthRepository.findByEmailAndStatus(
                 oAuth2UserInfo.getEmail(),
                 EntityStatus.ACTIVE
         );
 
+        Customer customer;
         if (customerOptional.isPresent()) {
-            List<String> roleUser = customerRoleAuthRepository.getRoleCodesByCustomerId(customerOptional.get().getId());
-
-            if (roleUser.contains(role)) {
-                Customer customer = customerOptional.get();
-                // Update customer information
-                customer.setPicture(oAuth2UserInfo.getImageUrl());
-                customerAuthRepository.save(customer);
-                return UserPrincipal.create(customer, oAuth2UserInfo.getAttributes(), roleUser);
-            } else {
-                log.warn("User {} does not have required role: {}", oAuth2UserInfo.getEmail(), role);
-                CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
-                throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
-            }
+            // Update existing customer
+            customer = customerOptional.get();
+            customer.setPicture(oAuth2UserInfo.getImageUrl());
+            customer.setName(oAuth2UserInfo.getName());
+            customerAuthRepository.save(customer);
         } else {
-            log.warn("Customer user not found: {}", oAuth2UserInfo.getEmail());
+            // Create new customer
+            log.info("Creating new customer account for: {}", oAuth2UserInfo.getEmail());
+            customer = new Customer();
+            customer.setEmail(oAuth2UserInfo.getEmail());
+            customer.setName(oAuth2UserInfo.getName());
+            customer.setPicture(oAuth2UserInfo.getImageUrl());
+            // Generate a simple code from email (you might want to implement a better code generation logic)
+            customer.setCode("CUS_" + oAuth2UserInfo.getEmail().replace("@", "_"));
+            customer.setStatus(EntityStatus.ACTIVE);
+            customer = customerAuthRepository.save(customer);
+            
+            // Assign CUSTOMER role
+            assignCustomerRole(customer);
+        }
+
+        // Get roles for the customer
+        List<String> roleUser = customerRoleAuthRepository.getRoleCodesByCustomerId(customer.getId());
+        
+        if (roleUser.contains(role)) {
+            return UserPrincipal.create(customer, oAuth2UserInfo.getAttributes(), roleUser);
+        } else {
+            log.warn("User {} does not have required role: {}", oAuth2UserInfo.getEmail(), role);
             CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
             throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
         }

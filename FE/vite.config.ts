@@ -8,6 +8,9 @@ export default defineConfig({
     global: 'globalThis',
   },
   plugins: [vue()],
+  optimizeDeps: {
+    include: ['v-calendar']
+  },
   server: {
     port: 6789, // Port của Frontend (Vue)
     strictPort: false,
