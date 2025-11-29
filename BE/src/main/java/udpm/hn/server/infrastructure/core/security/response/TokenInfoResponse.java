@@ -27,18 +27,11 @@ public class TokenInfoResponse {
 
     private List<String> rolesName;
 
-    private String emailFe;
-
-    private String emailFPT;
-
-    private String emailSV;
-
     private String email;
 
     private String roleSwitch;
 
     private String roleScreen ;
 
-    private String idFacility;
 
 }

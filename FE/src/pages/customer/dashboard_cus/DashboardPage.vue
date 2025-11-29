@@ -1,9 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 sm:p-8 lg:pl-0 font-sans">
     <div class="max-w-7xl mx-auto space-y-8">
-      <!-- Filter Component -->
-      <DashCusFil @filter="handleFilter" />
-
       <!-- Hero Banner -->
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 shadow-xl text-white">
         <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -246,33 +243,6 @@ const categories = [
 // Store original products to reset filters
 const allProducts = ref<Product[]>([]);
 const featuredProducts = ref<Product[]>([]);
-
-// Handle filter changes from DashCusFil component
-const handleFilter = (filters: any) => {
-  let filtered = [...allProducts.value];
-
-  // Filter by categories
-  if (filters.categories && filters.categories.length > 0) {
-    filtered = filtered.filter(product =>
-      filters.categories.includes(product.category.toLowerCase())
-    );
-  }
-
-  // Filter by price range
-  if (filters.minPrice) {
-    filtered = filtered.filter(product => product.price >= filters.minPrice);
-  }
-  if (filters.maxPrice) {
-    filtered = filtered.filter(product => product.price <= filters.maxPrice);
-  }
-
-  // Filter by stock status
-  if (filters.inStockOnly) {
-    filtered = filtered.filter(product => product.inStock);
-  }
-
-  featuredProducts.value = filtered;
-};
 
 // Initialize products
 const initializeProducts = () => {

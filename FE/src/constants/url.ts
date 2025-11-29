@@ -14,13 +14,13 @@ export const SCREEN_ROLE_CUSTOMER = ROLES.CUSTOMER
 
 // ✅ URL login Google cho ADMIN
 export const URL_OAUTH2_GOOGLE_ADMIN = (): string => {
-  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/selection`)
+  const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
   return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
 }
 
 // ✅ URL login Google cho CUSTOMER
 export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
-  const redirectUri = encodeURIComponent(`${DOMAIN_FRONTEND}/selection`)
+  const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
   return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
 }
 

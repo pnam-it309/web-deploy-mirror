@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import udpm.hn.server.core.admin.order.dto.request.OrderCreateRequest;
 import udpm.hn.server.core.admin.order.dto.response.OrderResponse;
 
-public interface OrderService {
+public interface OrderADService {
     Page<OrderResponse> getAllOrders(Pageable pageable);
     OrderResponse getOrderById(String id);
     OrderResponse createOrder(OrderCreateRequest request);

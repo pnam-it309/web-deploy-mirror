@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import udpm.hn.server.core.admin.order.dto.request.OrderCreateRequest;
 import udpm.hn.server.core.admin.order.dto.response.OrderResponse;
 import udpm.hn.server.core.admin.order.repository.OrderManageRepository;
-import udpm.hn.server.core.admin.order.service.OrderService;
+import udpm.hn.server.core.admin.order.service.OrderADService;
 import udpm.hn.server.core.admin.product.repository.ProductManageRepository;
 import udpm.hn.server.entity.Order;
 import udpm.hn.server.entity.OrderItem;
@@ -20,12 +20,11 @@ import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class OrderADADServiceImpl implements OrderADService {
 
     private final OrderManageRepository orderRepository;
     private final ProductManageRepository productRepository;
