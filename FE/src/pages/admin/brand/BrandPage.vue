@@ -1,11 +1,10 @@
 <template>
-  <div class="p-6 min-h-screen bg-[#f8f9fa] dark:bg-brand-dark-200 transition-colors duration-300">
+  <div class="p-6 min-h-screen bg-[#f8f9fa] dark:bg-brand-dark-200 transition-colors duration-300 rounded-lg">
     <!-- FILTER -->
     <div class="mb-5">
       <BrandFilter @filter="handleFilterChange" />
     </div>
 
-    <!-- ERROR -->
     <div
       v-if="error"
       class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-5 shadow-sm flex items-center"
@@ -13,7 +12,6 @@
       <span class="font-bold mr-1">Lỗi!</span> {{ error }}
     </div>
     <ButtonCustom color="coffee" @click="openCreateModal"> + Thêm thương hiệu </ButtonCustom>
-    <!-- TABLE CUSTOM -->
     <TableCustom
       :data="brands"
       :columns="columns"
