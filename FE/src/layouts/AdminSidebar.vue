@@ -6,7 +6,6 @@ import { useSidebarStore } from '@/stores/sidebar.store'
 import { useTheme } from '@/composable/useTheme'
 
 import Sidebar from '@/components/custom/Sidebar/Sidebar.vue'
-// Import ButtonCustom
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue' 
 
 import {
@@ -167,8 +166,7 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside) })
       </header>
 
       <!-- MAIN VIEW -->
-      <!-- SỬA: Nền chính màu Gray-900 -->
-      <main class="flex-1 overflow-y-auto bg-[#f9fafb] dark:bg-gray-900 p-4 sm:p-6 relative scroll-smooth transition-colors duration-300">
+      <main class="flex-1 overflow-y-auto bg-[#f9fafb] dark:bg-yellow-100 p-4 sm:p-6 relative scroll-smooth transition-colors duration-300">
         <router-view v-slot="{ Component }">
              <transition name="fade" mode="out-in">
                 <component :is="Component" />
@@ -177,8 +175,6 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside) })
       </main>
     </div>
   </div>
-  
-  <!-- Loading -->
   <div v-else class="flex items-center justify-center h-screen bg-brand-cream/20 dark:bg-gray-900">
     <div class="text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-brand-olive mx-auto mb-4"></div>
@@ -188,7 +184,6 @@ onUnmounted(() => { document.removeEventListener('click', handleClickOutside) })
 </template>
 
 <style scoped>
-/* Transition cho Router View */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
