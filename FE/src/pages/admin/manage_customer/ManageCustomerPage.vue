@@ -1,14 +1,5 @@
 <template>
-  <div class="p-6 min-h-screen bg-[#f8f9fa] dark:bg-brand-dark-200 transition-colors duration-300">
-    
-    <!-- HEADER -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-2">
-        <h2 class="text-2xl font-bold text-[#5a483e] dark:text-brand-sage tracking-tight">Quản lý Khách hàng</h2>
-        <span class="px-2.5 py-0.5 rounded-full bg-[#f0ead2] dark:bg-brand-coffee/20 text-[#6c584c] dark:text-brand-cream text-xs font-bold border border-[#e6dfc0] dark:border-brand-coffee/30">{{ customers.length }} khách hàng</span>
-      </div>
-    </div>
-
+  <div class="p-6 min-h-screen bg-[#f8f9fa] dark:bg-brand-dark-200 transition-colors duration-300 rounded-lg">
     <!-- FILTER -->
     <div class="mb-5">
       <ManageCustomerFilter @filter="handleFilter" />
