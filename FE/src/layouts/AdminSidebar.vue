@@ -3,11 +3,11 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useSidebarStore } from '@/stores/sidebar.store'
+import { useTheme } from '@/composable/useTheme'
 
-// Import Component Sidebar đã tách
-import Sidebar from '@/components/custom/Sidebar/Sidebar.vue' 
+import Sidebar from '@/components/custom/Sidebar/Sidebar.vue'
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue' 
 
-// Import Icons cho Header
 import {
   Bars3Icon,
   BellIcon,
@@ -16,14 +16,12 @@ import {
   MoonIcon,
   SunIcon
 } from '@heroicons/vue/24/outline'
-import { useTheme } from '@/composable/useTheme'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const sidebarStore = useSidebarStore()
 const { isDark, toggleTheme } = useTheme()
 
-// State cho Header
 const isProfileOpen = ref(false)
 
 const userInitials = computed(() => {
@@ -38,7 +36,6 @@ const userInitials = computed(() => {
 
 const isAuthenticated = computed(() => authStore.isAuthenticated && authStore.user !== null)
 
-// Click outside to close profile dropdown
 const handleClickOutside = (event: MouseEvent) => {
   const profileButton = document.getElementById('user-menu-button')
   const profileDropdown = document.getElementById('user-menu-dropdown')
@@ -55,59 +52,60 @@ const logout = () => {
   router.push('/login')
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+onMounted(() => { document.addEventListener('click', handleClickOutside) })
+onUnmounted(() => { document.removeEventListener('click', handleClickOutside) })
 </script>
 
 <template>
-  <!-- Layout Container -->
-  <div v-if="isAuthenticated" class="flex h-screen bg-[#f8f9fa] text-gray-800 font-sans overflow-hidden">
+  <!-- SỬA: Dùng màu Gray-900 cho nền tối thay vì brand-dark-200 (đảm bảo hiện màu đen) -->
+  <div v-if="isAuthenticated" class="flex h-screen bg-[#f8f9fa] dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans overflow-hidden transition-colors duration-300">
     
-    <!-- 1. SIDEBAR COMPONENT -->
-    <!-- Sidebar tự lo việc hiển thị và mobile toggle -->
     <Sidebar />
 
-    <!-- 2. MAIN CONTENT AREA -->
     <div class="flex flex-col flex-1 w-0 overflow-hidden">
       
-      <!-- Top Header -->
-      <header class="relative z-10 flex items-center justify-between h-16 px-4 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm sm:px-6 lg:px-8 flex-shrink-0">
-        <!-- Left: Toggle Button (Mobile) & Title -->
-        <div class="flex items-center">
-          <button
+      <!-- HEADER -->
+      <!-- SỬA: Header dùng Gray-800 đậm hơn nền chính một chút -->
+      <header class="relative z-10 flex items-center justify-between h-16 px-4 bg-white/80 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm sm:px-6 lg:px-8 flex-shrink-0 transition-colors duration-300">
+        
+        <!-- Left: Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <!-- SỬA: Nút toggle mobile -->
+          <ButtonCustom
             @click="sidebarStore.toggleSidebar()"
-            class="lg:hidden p-2 -ml-2 text-gray-500 rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            color="cream-soft"
+            class="lg:hidden !p-2 !rounded-lg dark:bg-gray-700 dark:text-gray-200"
           >
             <Bars3Icon class="w-6 h-6" />
-          </button>
-          <h1 class="ml-2 text-lg font-semibold text-[#5a483e]">
-            {{ $route.meta.title || 'Dashboard' }}
+          </ButtonCustom>
+
+          <!-- Tiêu đề trang: Màu đậm ở Light, màu sáng ở Dark -->
+          <h1 class="text-lg font-bold text-brand-mocha dark:text-gray-100 tracking-wide transition-colors">
+            {{ $route.meta.title }}
           </h1>
         </div>
 
-        <!-- Right: Actions & Profile -->
-        <div class="flex items-center space-x-4">
+        <!-- Right: Actions -->
+        <div class="flex items-center space-x-3">
+          
           <!-- Notification Btn -->
-          <button class="p-1 text-gray-400 hover:text-gray-500 transition-colors relative">
-            <span class="sr-only">View notifications</span>
-            <BellIcon class="w-6 h-6" />
-            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
-          </button>
+          <div class="relative">
+            <!-- SỬA: Nút thông báo trên nền tối -->
+            <ButtonCustom class="!p-2 !rounded-full relative bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-300 border-none shadow-none">
+              <BellIcon class="w-6 h-6" />
+              <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800"></span>
+            </ButtonCustom>
+          </div>
 
           <!-- Profile Dropdown -->
-          <div class="relative ml-3">
+          <div class="relative ml-2">
             <button
               id="user-menu-button"
               @click="isProfileOpen = !isProfileOpen"
-              class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#adc178] transition-shadow"
+              class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-olive transition-shadow"
             >
-              <span class="sr-only">Open user menu</span>
-              <div class="w-8 h-8 rounded-full bg-[#dde5b6] flex items-center justify-center text-[#386641] font-bold shadow-inner">
+              <!-- Avatar: Light nền kem, Dark nền xám -->
+              <div class="w-9 h-9 rounded-full bg-brand-cream dark:bg-gray-700 flex items-center justify-center text-brand-mocha dark:text-white font-bold shadow-sm border border-brand-sage/50 dark:border-gray-600 transition-colors">
                 {{ userInitials }}
               </div>
             </button>
@@ -124,46 +122,51 @@ onUnmounted(() => {
               <div
                 id="user-menu-dropdown"
                 v-show="isProfileOpen"
-                class="absolute right-0 z-20 w-48 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 z-20 w-60 py-2 mt-2 origin-top-right bg-white dark:bg-gray-800 rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 dark:ring-white/10 focus:outline-none divide-y divide-gray-100 dark:divide-gray-700 transition-colors"
               >
-                <div class="px-4 py-2 border-b border-gray-100">
-                    <p class="text-sm text-gray-900 font-medium truncate">{{ authStore.user?.fullName }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ authStore.user?.email }}</p>
+                <div class="px-4 py-3">
+                    <p class="text-sm font-bold text-gray-800 dark:text-white truncate">{{ authStore.user?.fullName }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ authStore.user?.email }}</p>
                 </div>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                    <UserCircleIcon class="w-4 h-4 mr-2"/> Hồ sơ
-                </a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
-                    <span class="w-4 h-4 mr-2">⚙️</span> Cài đặt
-                </a>
-                <button
-                  @click="toggleTheme"
-                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between"
-                >
-                   <div class="flex items-center">
-                     <MoonIcon v-if="isDark" class="w-4 h-4 mr-2"/>
-                     <SunIcon v-else class="w-4 h-4 mr-2"/>
-                     {{ isDark ? 'Chế độ sáng' : 'Chế độ tối' }}
-                   </div>
-                   <!-- Simple Toggle Switch UI -->
-                   <div class="w-8 h-4 bg-gray-200 rounded-full relative transition-colors" :class="{'bg-indigo-600': isDark}">
-                      <div class="w-4 h-4 bg-white rounded-full shadow absolute top-0 left-0 transition-transform" :class="{'translate-x-4': isDark}"></div>
-                   </div>
-                </button>
-                <button
-                  @click="logout"
-                  class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                >
-                   <ArrowLeftOnRectangleIcon class="w-4 h-4 mr-2"/> Đăng xuất
-                </button>
+
+                <div class="py-1">
+                  <a href="#" class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <UserCircleIcon class="mr-3 h-5 w-5 text-gray-400 group-hover:text-brand-olive dark:text-gray-500 dark:group-hover:text-gray-300" /> Hồ sơ
+                  </a>
+                  
+                  <!-- Nút Chuyển Theme trong Dropdown -->
+                  <button
+                    @click="toggleTheme"
+                    class="w-full group flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <div class="flex items-center">
+                       <MoonIcon v-if="isDark" class="mr-3 h-5 w-5 text-yellow-400"/>
+                       <SunIcon v-else class="mr-3 h-5 w-5 text-orange-500"/>
+                       <span>{{ isDark ? 'Giao diện Tối' : 'Giao diện Sáng' }}</span>
+                    </div>
+                    <!-- Switch -->
+                    <div class="w-8 h-4 rounded-full relative transition-colors duration-300" :class="isDark ? 'bg-brand-olive' : 'bg-gray-300'">
+                        <div class="w-3 h-3 bg-white rounded-full shadow absolute top-0.5 left-0.5 transition-transform duration-300" :class="{'translate-x-4': isDark}"></div>
+                    </div>
+                  </button>
+                </div>
+
+                <div class="py-1">
+                  <button
+                    @click="logout"
+                    class="w-full group flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                     <ArrowLeftOnRectangleIcon class="mr-3 h-5 w-5 text-red-400 group-hover:text-red-500"/> Đăng xuất
+                  </button>
+                </div>
               </div>
             </transition>
           </div>
         </div>
       </header>
 
-      <!-- Main View (Scrollable) -->
-      <main class="flex-1 overflow-y-auto bg-[#f9fafb] p-4 sm:p-6 relative scroll-smooth">
+      <!-- MAIN VIEW -->
+      <main class="flex-1 overflow-y-auto bg-[#f9fafb] dark:bg-yellow-100 p-4 sm:p-6 relative scroll-smooth transition-colors duration-300">
         <router-view v-slot="{ Component }">
              <transition name="fade" mode="out-in">
                 <component :is="Component" />
@@ -172,18 +175,15 @@ onUnmounted(() => {
       </main>
     </div>
   </div>
-  
-  <!-- Loading State -->
-  <div v-else class="flex items-center justify-center h-screen bg-gray-50">
+  <div v-else class="flex items-center justify-center h-screen bg-brand-cream/20 dark:bg-gray-900">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-[#adc178] mx-auto mb-4"></div>
-      <p class="text-lg font-medium text-gray-600">Đang tải dữ liệu...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-brand-olive mx-auto mb-4"></div>
+      <p class="text-lg font-medium text-brand-mocha dark:text-gray-200">Đang tải dữ liệu...</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Transition cho Router View */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -192,4 +192,4 @@ onUnmounted(() => {
 .fade-leave-to {
   opacity: 0;
 }
-</style>
+</style> 
