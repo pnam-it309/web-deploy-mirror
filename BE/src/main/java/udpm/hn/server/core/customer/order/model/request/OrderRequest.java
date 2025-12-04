@@ -1,4 +1,4 @@
-package udpm.hn.server.core.customer.register.dto.request;
+package udpm.hn.server.core.customer.order.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

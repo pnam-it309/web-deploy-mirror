@@ -16,9 +16,7 @@ import java.util.List;
 @RequestMapping(MappingConstants.API_CUSTOMER_VIEW_PRODUCT)
 @RequiredArgsConstructor
 public class ViewProductController {
-<<<<<<< HEAD
 
-=======
     private final ViewProductService viewProductService;
 
     /**
@@ -42,5 +40,4 @@ public class ViewProductController {
         List<Product> products = viewProductService.getAllProducts();
         return ResponseEntity.ok(products);
     }
->>>>>>> 4bab92755b1013be1f0d06361b618e54f77e5bf0
 }

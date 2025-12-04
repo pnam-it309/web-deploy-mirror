@@ -107,7 +107,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_CATEGORIES)).permitAll()
             .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_PRODUCTS)).permitAll()
-            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_REGISTER)).permitAll()
+            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_ORDER)).permitAll()
         );
 
         // Customer API endpoints
