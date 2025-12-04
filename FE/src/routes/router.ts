@@ -26,6 +26,7 @@ const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetai
 
 // -- Order Pages --
 const AdminOrders = () => import('@/pages/admin/orders/OrderPage.vue')
+const AdminOrderCreateModal = () => import('@/pages/admin/orders/OrderCreateModal.vue')
 
 const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
 
@@ -119,6 +120,7 @@ const routes: RouteRecordRaw[] = [
         name: 'admin-orders',
         component: AdminOrders,
         meta: { title: 'Quản lý đơn hàng', apiEndpoint: '/api/v1/admin/orders' },
+        children: [{ path: 'new', name: 'admin-orders-new', component: AdminOrderCreateModal }],
       },
       {
         path: 'customers',

@@ -2,30 +2,19 @@
 export default {
   darkMode: 'class',
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{vue,ts,tsx,js,jsx}'
   ],
   theme: {
     extend: {
       colors: {
-        brand: {
-          // --- LIGHT MODE COLORS ---
-          cream: '#f0ead2',
-          sage: '#dde5b6',
-          olive: '#adc178',
-          coffee: '#a98467',
-          mocha: '#6c584c',
-          
-          // --- DARK MODE COLORS (High Contrast) ---
-          // Sử dụng tông nâu rất đậm (gần như đen) để làm nền
-          dark: {
-            50:  '#5e504a', // Border / Separator (Sáng nhất trong dark)
-            100: '#3e332e', // Card Background (Nổi lên trên nền)
-            200: '#241c18', // Main Page Background (Nền chính)
-            300: '#120d0b', // Sidebar / Header / Deepest (Tối nhất)
-            text: '#f0ead2' // Cream sáng dùng cho text chính
-          }
-        }
+        primary: '#0B5FFF',
+        slateDark: '#0F172A',
+        grayLight: '#F6F8FA',
+        accent: '#FFB020'
+      },
+      fontFamily: {
+        sans: ['Inter', 'Poppins', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol']
       }
     },
   },
