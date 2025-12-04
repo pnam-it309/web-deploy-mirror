@@ -1,9 +1,8 @@
-package udpm.hn.server.infrastructure.processing.search;
+package udpm.hn.server.infrastructure.processing.search.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.infrastructure.processing.search.model.BaseSearchDocument;
-import udpm.hn.server.infrastructure.processing.search.service.SearchService;
 
 import java.util.List;
 import java.util.Optional;
