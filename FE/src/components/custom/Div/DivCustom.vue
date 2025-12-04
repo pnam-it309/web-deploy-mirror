@@ -1,32 +1,24 @@
 <template>
-  <div
-    :class="[
-      'col-span-12 xl:col-span-8 rounded-xl shadow-sm backdrop-blur-sm border transition-all duration-300 hover:shadow-md',
-      containerClasses
-    ]"
-  >
+  <div class="page-wrapper flex flex-col bg-gray-50/50">
     <div
-      v-if="props.label"
       :class="[
-        'px-5 py-3.5 rounded-t-xl border-b',
-        headerClasses
+        'content-wrapper flex-grow p-6 shadow-sm border rounded-xl m-4 backdrop-blur-sm',
+        wrapperColorClasses
       ]"
     >
-      <div class="flex items-center gap-2.5">
-        <div :class="['text-lg flex items-center', iconClasses]">
+      <div v-if="label" class="ml-1 mb-6 flex items-center gap-2">
+        <div :class="iconColorClass">
           <slot name="icon" />
         </div>
-        <span :class="['text-base font-bold tracking-wide', textClasses]">
-          {{ props.label }}
-        </span>
+        
+        <router-link 
+          :to="link || '#'"
+          :class="['text-lg font-bold transition-colors duration-200', linkColorClass]"
+        >
+          {{ pageTitle }}
+        </router-link>
       </div>
-    </div>
-
-    <!-- Body -->
-    <div class="px-6 py-6 sm:px-7.5">
-      <div class="flex justify-end mb-4" v-if="$slots.extra">
-        <slot name="extra" />
-      </div>
+      
       <slot />
     </div>
   </div>
@@ -34,42 +26,44 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const props = defineProps({
   label: String,
-  color: { type: String, default: 'default' } // cream, sage, coffee...
+  link: String,
+  color: { type: String, default: 'default' }
 })
 
-const containerClasses = computed(() => {
+const route = useRoute()
+const pageTitle = computed(() => {
+  // Logic tiêu đề cũ giữ nguyên
+  if (route.name === 'StudentDetails') return 'Chi tiết sinh viên'
+  if (route.name === 'StudentList') return 'Quản lý sinh viên'
+  return props.label
+})
+
+const wrapperColorClasses = computed(() => {
   switch(props.color) {
     case 'cream': return 'bg-[#fffdf5] border-[#e6dfc0]'
     case 'sage': return 'bg-[#f7f9ef] border-[#dde5b6]'
-    case 'coffee': return 'bg-[#fffaf5] border-[#a98467]/30'
-    default: return 'bg-white/90 border-[#e6dfc0]' // Mặc định hơi hướng Cream
+    default: return 'bg-white/90 border-gray-200/80'
   }
 })
 
-const headerClasses = computed(() => {
-  switch(props.color) {
-    case 'cream': return 'bg-[#f0ead2]/40 border-[#e6dfc0]'
-    case 'sage': return 'bg-[#dde5b6]/30 border-[#dde5b6]'
-    case 'coffee': return 'bg-[#a98467]/10 border-[#a98467]/30'
-    default: return 'bg-[#f0ead2]/30 border-[#e6dfc0]'
-  }
+const iconColorClass = computed(() => {
+    switch(props.color) {
+        case 'sage': return 'text-[#6a994e]'
+        default: return 'text-[#a98467]' // Coffee
+    }
 })
 
-const iconClasses = computed(() => {
-  switch(props.color) {
-    case 'sage': return 'text-[#6a994e]'
-    case 'coffee': return 'text-[#a98467]'
-    default: return 'text-[#adc178]' // Olive
-  }
-})
-
-const textClasses = computed(() => {
-  switch(props.color) {
-    case 'coffee': return 'text-[#8c6239]'
-    default: return 'text-[#6c584c]' // Mocha
-  }
+const linkColorClass = computed(() => {
+    switch(props.color) {
+        case 'sage': return 'text-[#386641] hover:text-[#6a994e]'
+        default: return 'text-[#6c584c] hover:text-[#a98467]' // Mocha -> Coffee
+    }
 })
 </script>
+
+<style scoped>
+</style>
