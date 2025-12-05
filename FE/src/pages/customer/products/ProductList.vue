@@ -91,24 +91,10 @@ import { useRoute, useRouter } from 'vue-router';
 // Giả định component ProductCard.vue đã tồn tại
 import ProductCard from './ProductCard.vue';
 // Giả định thư viện Axios đã được cài đặt
-import axios from 'axios';
-
-// --- Interface Sản phẩm (Tùy chỉnh theo API Backend của bạn) ---
-interface Product {
-  id: string;
-  name: string;
-  price: number; // Giả định giá trị USD
-  category: string; // Tên category
-  image: string; // URL hình ảnh
-  rating: number;
-  reviewCount: number;
-  description: string;
-  inStock: boolean;
-  badge?: 'New' | 'Sale' | 'Limited';
-}
+import request from '@/services/request';
+import { API_PUBLIC_PRODUCTS } from '@/constants/url';
 
 // --- CONFIGURATION ---
-const API_BASE_URL = 'http://your-backend-api.com/public/view_products';
 const ITEMS_PER_PAGE = 8; // Số sản phẩm trên mỗi trang
 
 export default defineComponent({
@@ -119,6 +105,20 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const router = useRouter();
+
+    // --- Interface Sản phẩm (Tùy chỉnh theo API Backend của bạn) ---
+    interface Product {
+      id: string;
+      name: string;
+      price: number; // Giả định giá trị USD
+      category: string; // Tên category
+      image: string; // URL hình ảnh
+      rating: number;
+      reviewCount: number;
+      description: string;
+      inStock: boolean;
+      badge?: 'New' | 'Sale' | 'Limited';
+    }
 
     // --- State ---
     // products giờ là nơi lưu trữ dữ liệu từ API
@@ -153,24 +153,35 @@ export default defineComponent({
       };
 
       try {
-        // !!! LƯU Ý: Đảm bảo cấu hình CORS ở Backend hoặc Proxy Frontend để API hoạt động !!!
-        const response = await axios.get(API_BASE_URL, { params });
+        // Sử dụng request service thay vì axios trực tiếp để tận dụng baseURL và interceptors
+        const response = await request.get(API_PUBLIC_PRODUCTS, { params });
 
-        // Giả định API trả về { content: Product[], totalElements: number }
-        const data = response.data;
 
-        // Cập nhật sản phẩm
-        products.value = data.content.map((item: any) => ({
-          ...item,
-          // Giả định item.id tồn tại và item.price đã là number
-          id: String(item.id),
-          price: Number(item.price),
-          inStock: item.stockQuantity > 0, // Tính toán từ stockQuantity
-          category: item.category?.name || item.category, // Lấy tên category
-          image: item.image || `https://picsum.photos/seed/${item.id}/300/300`,
-        })) as Product[];
+        // API trả về DefaultResponse<PaginationResponse<Product[]>>
+        // response.data là DefaultResponse
+        // response.data.data là PaginationResponse (chứa data và totalPages/totalElements)
+        // response.data.data.data là mảng sản phẩm
+        const apiResponse = response.data;
 
-        totalProductsCount.value = data.totalElements || products.value.length;
+        if (apiResponse.success && apiResponse.data) {
+          const pageData = apiResponse.data;
+          // Kiểm tra xem pageData có phải là mảng không hay là object phân trang
+          const content = Array.isArray(pageData) ? pageData : (pageData.data || []);
+
+          products.value = content.map((item: any) => ({
+            ...item,
+            id: String(item.id),
+            price: Number(item.price),
+            inStock: item.stockQuantity > 0,
+            category: item.categoryName || item.category?.name || item.category,
+            image: item.image || `https://picsum.photos/seed/${item.id}/300/300`,
+          })) as Product[];
+
+          totalProductsCount.value = pageData.totalElements || pageData.total || products.value.length;
+        } else {
+          products.value = [];
+          totalProductsCount.value = 0;
+        }
 
         // **********************************************
         // NẾU CẦN TẢI DANH MỤC TỪ API:

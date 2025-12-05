@@ -1,10 +1,10 @@
-package udpm.hn.server.core.customer.ViewProduct.Service.Impl;
+package udpm.hn.server.core.customer.ViewProduct.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import udpm.hn.server.core.customer.ViewProduct.Service.ViewProductService;
+import udpm.hn.server.core.customer.ViewProduct.service.ViewProductService;
 import udpm.hn.server.entity.Product;
 import udpm.hn.server.repository.ProductRepository;
 

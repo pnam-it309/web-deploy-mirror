@@ -25,13 +25,15 @@ export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
 }
 
 // Use proxy in development, direct URL in production
-export const API_URL = import.meta.env.DEV ? '/api/v1' : `${VITE_BASE_URL_SERVER}/api/v1` as string
+// Use proxy in development, direct URL in production
+// Khi dùng axios instance đã có baseURL='/api/v1', ta không cần prefix '/api/v1' ở đây nữa
+export const API_URL = '' 
 
 // AUTH API
-export const PREFIX_API_AUTH = `${API_URL}/auth` as string
+export const PREFIX_API_AUTH = `/auth` as string
 
 // ADMIN API
-export const PREFIX_API_ADMIN = `${API_URL}/admin` as string
+export const PREFIX_API_ADMIN = `/admin` as string
 
 // Product Management
 export const API_ADMIN_PRODUCT = `${PREFIX_API_ADMIN}/products` as string
@@ -55,13 +57,13 @@ export const API_ADMIN_REPORT = `${PREFIX_API_ADMIN}/reports` as string
 export const API_ADMIN_ANALYTICS = `${PREFIX_API_ADMIN}/analytics` as string
 
 // CUSTOMER API
-export const PREFIX_API_CUSTOMER = `${API_URL}/customer` as string
+export const PREFIX_API_CUSTOMER = `/customer` as string
 export const API_CUSTOMER_PROFILE = `${PREFIX_API_CUSTOMER}/profile` as string
-export const API_CUSTOMER_ORDERS = `${PREFIX_API_CUSTOMER}/orders` as string
+export const API_CUSTOMER_ORDERS = `${PREFIX_API_CUSTOMER}/order` as string
 export const API_CUSTOMER_CART = `${PREFIX_API_CUSTOMER}/cart` as string
 export const API_CUSTOMER_ADDRESS = `${PREFIX_API_CUSTOMER}/addresses` as string
 export const API_CUSTOMER_REGISTER = `${PREFIX_API_CUSTOMER}/register` as string
 // PUBLIC API
-export const PREFIX_API_PUBLIC = `${API_URL}/public` as string
+export const PREFIX_API_PUBLIC = `/public` as string
 export const API_PUBLIC_PRODUCTS = `${PREFIX_API_PUBLIC}/view_products` as string
 export const API_PUBLIC_CATEGORIES = `${PREFIX_API_PUBLIC}/categories` as string

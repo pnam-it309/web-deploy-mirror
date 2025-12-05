@@ -10,11 +10,11 @@
             <slot name="subtitle"></slot>
           </p>
         </div>
-        
+
         <div class="auth-content">
           <slot></slot>
         </div>
-        
+
         <div class="auth-footer">
           <slot name="footer">
             <p class="text-center text-sm text-gray-600">
@@ -89,7 +89,7 @@
   .auth-card {
     padding: 1.5rem;
   }
-  
+
   .auth-title {
     font-size: 1.25rem;
   }

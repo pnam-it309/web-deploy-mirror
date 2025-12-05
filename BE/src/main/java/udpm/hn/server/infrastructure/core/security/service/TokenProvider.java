@@ -87,6 +87,8 @@ public class TokenProvider {
             tokenInfoResponse.setRoleScreen(screenForRole.get());
             tokenInfoResponse.setUserId(userPrincipal.getId());
             tokenInfoResponse.setFullName(userPrincipal.getName());
+            tokenInfoResponse.setEmail(userPrincipal.getEmail());
+            tokenInfoResponse.setUserName(userPrincipal.getEmail());
 
             Object pictureObj = userPrincipal.getAttribute("picture");
             if (pictureObj != null) {
@@ -141,6 +143,7 @@ public class TokenProvider {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", tokenInfoResponse.getUserId());
         claims.put("userName", tokenInfoResponse.getUserName());
+        claims.put("email", tokenInfoResponse.getEmail());
         claims.put("userCode", tokenInfoResponse.getUserCode());
         claims.put("fullName", tokenInfoResponse.getFullName());
         claims.put("pictureUrl", tokenInfoResponse.getPictureUrl());

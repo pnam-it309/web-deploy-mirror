@@ -23,6 +23,7 @@ public interface CustomerOrderRepository extends JpaRepository<Order, String> {
             o.order_status as orderStatus,
             o.payment_status as paymentStatus,
             o.estimated_delivery_date as estimatedDeliveryDate,
+            o.customer_address as customerAddress,
             (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) as itemsCount
         FROM orders o
         WHERE o.customer_email = :email

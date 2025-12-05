@@ -1,4 +1,4 @@
-package udpm.hn.server.core.customer.ViewProduct.Model.Response;
+package udpm.hn.server.core.customer.ViewProduct.model.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
