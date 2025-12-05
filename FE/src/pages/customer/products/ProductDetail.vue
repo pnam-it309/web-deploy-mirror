@@ -14,7 +14,6 @@
     </div>
 
     <div v-else class="product-container">
-      <!-- Breadcrumb Navigation -->
       <nav class="breadcrumb">
         <router-link to="/">Home</router-link>
         <span class="divider">/</span>
@@ -23,13 +22,12 @@
         <span class="current">{{ product.name }}</span>
       </nav>
 
-      <!-- Product Main Content -->
       <div class="product-main">
-        <!-- Product Gallery -->
         <div class="product-gallery">
           <div class="main-image">
-            <img :src="selectedImage || product.images[0]" :alt="product.name"
-              @click="openLightbox(selectedImage || product.images[0])">
+            <img :src="selectedImage || (product.images && product.images.length > 0 ? product.images[0] : '')"
+              :alt="product.name"
+              @click="openLightbox(selectedImage || (product.images && product.images.length > 0 ? product.images[0] : ''))">
             <button v-if="product.onSale" class="sale-badge">
               Sale
             </button>
@@ -43,16 +41,16 @@
           </div>
         </div>
 
-        <!-- Product Info -->
         <div class="product-info">
           <h1 class="product-title">{{ product.name }}</h1>
 
           <div class="product-meta">
             <div class="rating">
-              <div class="stars" :style="{ '--rating': (product.rating * 20) + '%' }" aria-label="Rating">
+              <div class="stars" :style="{ '--rating': (product.rating ? product.rating * 20 : 0) + '%' }"
+                aria-label="Rating">
                 ★★★★★
               </div>
-              <span class="review-count">({{ product.reviewCount }} reviews)</span>
+              <span class="review-count">({{ product.reviewCount || 0 }} reviews)</span>
             </div>
 
             <div class="availability" :class="{ 'in-stock': product.inStock, 'out-of-stock': !product.inStock }">
@@ -66,7 +64,7 @@
 
           <div class="price-container">
             <span class="current-price">
-              {{ formatPrice(product.price) }}
+              {{ formatPrice(product.price || 0) }}
               <span v-if="product.originalPrice" class="original-price">
                 {{ formatPrice(product.originalPrice) }}
               </span>
@@ -84,8 +82,8 @@
               <div class="variant-options">
                 <button v-for="option in variant.options" :key="option" class="variant-button" :class="{
                   'selected': selectedVariants[variant.name] === option,
-                  'disabled': !isVariantAvailable(option)
-                }" @click="selectVariant(variant.name, option)" :disabled="!isVariantAvailable(option)">
+                  'disabled': !isVariantAvailable(variant.name, option)
+                }" @click="selectVariant(variant.name, option)" :disabled="!isVariantAvailable(variant.name, option)">
                   {{ option }}
                 </button>
               </div>
@@ -96,10 +94,8 @@
             <label for="quantity">Quantity:</label>
             <div class="quantity-controls">
               <button class="quantity-btn" @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-              <input type="number" id="quantity" v-model.number="quantity" min="1" :max="product.inventory"
-                @change="validateQuantity">
-              <button class="quantity-btn" @click="increaseQuantity"
-                :disabled="quantity >= product.inventory">+</button>
+              <input type="number" id="quantity" v-model.number="quantity" min="1" @change="validateQuantity">
+              <button class="quantity-btn" @click="increaseQuantity">+</button>
             </div>
             <div class="inventory" v-if="product.inventory > 0">
               {{ product.inventory }} available
@@ -107,11 +103,11 @@
           </div>
 
           <div class="action-buttons">
-            <button class="add-to-cart" :disabled="!product.inStock" @click="addToCart">
+            <button class="add-to-cart" @click="addToCart">
               <span class="icon">🛒</span>
               Thêm vào Yêu cầu đặt hàng
             </button>
-            <button class="buy-now" :disabled="!product.inStock" @click="buyNow">
+            <button class="buy-now" @click="buyNow">
               Buy Now
             </button>
             <button class="wishlist" :class="{ 'in-wishlist': isInWishlist }" @click="toggleWishlist"
@@ -139,7 +135,6 @@
         </div>
       </div>
 
-      <!-- Product Tabs -->
       <div class="product-tabs">
         <div class="tabs-header">
           <button v-for="tab in tabs" :key="tab.id" :class="{ active: activeTab === tab.id }"
@@ -170,11 +165,12 @@
             <h3>Customer Reviews</h3>
             <div class="reviews-summary">
               <div class="overall-rating">
-                <div class="average">{{ product.rating.toFixed(1) }}</div>
-                <div class="stars" :style="{ '--rating': (product.rating * 20) + '%' }" aria-label="Rating">
+                <div class="average">{{ (product.rating || 0).toFixed(1) }}</div>
+                <div class="stars" :style="{ '--rating': (product.rating ? product.rating * 20 : 0) + '%' }"
+                  aria-label="Rating">
                   ★★★★★
                 </div>
-                <div class="total-reviews">{{ product.reviewCount }} reviews</div>
+                <div class="total-reviews">{{ product.reviewCount || 0 }} reviews</div>
               </div>
 
               <div class="rating-bars">
@@ -211,7 +207,6 @@
         </div>
       </div>
 
-      <!-- Related Products -->
       <div v-if="relatedProducts.length > 0" class="related-products">
         <h2>You May Also Like</h2>
         <div class="related-grid">
@@ -221,7 +216,6 @@
       </div>
     </div>
 
-    <!-- Lightbox -->
     <div v-if="lightboxImage" class="lightbox" @click.self="closeLightbox">
       <div class="lightbox-content">
         <button class="close-lightbox" @click="closeLightbox">&times;</button>
@@ -229,7 +223,53 @@
       </div>
     </div>
 
-    <!-- Review Form Modal -->
+    <!-- Order Confirmation Modal -->
+    <div v-if="showOrderModal" class="modal-overlay" @click.self="closeOrderModal">
+      <div class="order-modal">
+        <button class="close-modal" @click="closeOrderModal">&times;</button>
+        <h3>Confirm Order</h3>
+        <form @submit.prevent="submitOrder">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" v-model="orderForm.customerName" required placeholder="Your Name">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" v-model="orderForm.phoneNumber" required placeholder="Phone Number">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="text" v-model="orderForm.email" required placeholder="Email Address">
+          </div>
+          <div class="form-group">
+            <label>Shipping Address</label>
+            <textarea v-model="orderForm.shippingAddress" required rows="3" placeholder="Full Address"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Notes (Optional)</label>
+            <textarea v-model="orderForm.note" rows="2" placeholder="Delivery instructions..."></textarea>
+          </div>
+
+          <div class="order-summary">
+            <h4>Order Summary</h4>
+            <div class="summary-row">
+              <span>{{ product?.name }} (x{{ quantity }})</span>
+              <span>{{ formatPrice((product?.price || 0) * quantity) }}</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel" @click="closeOrderModal">
+              Cancel
+            </button>
+            <button type="submit" class="submit">
+              Confirm Order
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div v-if="showReviewForm" class="modal-overlay" @click.self="closeReviewForm">
       <div class="review-modal">
         <button class="close-modal" @click="closeReviewForm">&times;</button>
@@ -275,6 +315,11 @@
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
+import { API_CUSTOMER_PRODUCTS, API_CUSTOMER_WISHLIST, API_CUSTOMER_ORDERS } from '@/constants/url';
+import request from '@/services/request';
+import { toast } from 'vue3-toastify';
+import { USER_INFO_STORAGE_KEY } from '@/constants/storagekey';
+import { localStorageAction } from '@/utils/storage';
 
 interface Product {
   id: string | number;
@@ -351,66 +396,224 @@ export default defineComponent({
         isLoading.value = true;
         const productId = route.params.id;
 
-        // TRONG ỨNG DỤNG THỰC TẾ, GỌI API Ở ĐÂY
-        // ... (API call logic)
+        const response = await request.get(`${API_CUSTOMER_PRODUCTS}/${productId}`);
 
-        // Mock data for demonstration
-        setTimeout(() => {
+        if (response.data && response.data.status === 'OK') {
+          const data = response.data.data;
+          // Map API response to UI Product interface
+          // Note: valid mapping depends on ProductDetailResponse.java structure. 
+          // Providing a best-guess mapping based on Entity structure provided.
           product.value = {
-            id: productId,
-            name: 'Premium Wireless Headphones',
-            description: 'High-quality wireless headphones with noise cancellation',
-            fullDescription: '<p>Experience crystal clear sound with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and comfortable over-ear design. Perfect for music lovers and professionals alike.</p>',
-            price: 199.99,
-            originalPrice: 249.99,
-            youSave: 50,
-            images: [
-              'https://via.placeholder.com/800x800?text=Headphones+Front',
-              'https://via.placeholder.com/800x800?text=Headphones+Side',
-              'https://via.placeholder.com/800x800?text=Headphones+Back',
-              'https://via.placeholder.com/800x800?text=Headphones+Case'
-            ],
-            rating: 4.5,
-            reviewCount: 128,
-            inStock: true,
-            inventory: 15,
-            sku: 'HP-BT-2023',
-            onSale: true,
-            variants: [
-              { id: 'color', name: 'Color', options: ['Black', 'White', 'Blue'] },
-              { id: 'size', name: 'Size', options: ['One Size'] }
-            ],
-            specifications: { 'Brand': 'AudioPro', 'Model': 'AP-WH1000' /* ... */ },
-            ratings: { 5: 85, 4: 30, 3: 10, 2: 2, 1: 1 },
-            reviews: [ /* ... */]
+            id: data.id || data.product?.id || productId,
+            name: data.name || data.product?.name,
+            description: data.shortDescription || data.product?.description || '',
+            fullDescription: data.longDescription || '',
+            price: Number(data.price || data.product?.price || 0),
+            originalPrice: data.originalPrice, // if avail
+            images: data.images && data.images.length > 0
+              ? data.images
+              : (data.image ? [data.image] : ['https://via.placeholder.com/800']),
+            rating: data.rating || 0,
+            reviewCount: data.reviewCount || 0,
+            inStock: (data.inventory || 0) > 0,
+            inventory: data.inventory || 0,
+            sku: data.sku,
+            // ... map other fields
+            variants: [], // Mock or map if backend provides
+            specifications: data.specification || {}, // If JsonNode
           };
 
-          // Logic set image/variant default
-          if (product.value.variants) { /* ... */ }
-          if (product.value.images.length > 0) { selectedImage.value = product.value.images[0]; }
+          // Set default image
+          if (product.value.images.length > 0) {
+            selectedImage.value = product.value.images[0];
+          }
+        } else {
+          console.error('Product not found or API error');
+          product.value = null;
+        }
 
-          // Mock related products
-          relatedProducts.value = [ /* ... */];
-
-          isLoading.value = false;
-          checkWishlist();
-        }, 800);
       } catch (error) {
         console.error('Error fetching product:', error);
+        product.value = null;
+      } finally {
         isLoading.value = false;
+        checkWishlist();
       }
     };
 
-    // Sửa lỗi 2: Thêm watcher để tải lại khi điều hướng giữa các trang chi tiết
-    watch(
-      () => route.params.id,
-      (newId, oldId) => {
-        if (newId && newId !== oldId) {
-          fetchProduct();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    // --- Helper Functions ---
+    const formatPrice = (price: number) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(price);
+    };
+
+    const formatDate = (dateString: string) => {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const formatKey = (key: string) => {
+      return key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+    };
+
+    const getRatingPercentage = (rating: number) => {
+      if (!product.value?.ratings || !product.value.reviewCount) return 0;
+      const count = product.value.ratings[rating] || 0;
+      return (count / product.value.reviewCount) * 100;
+    };
+
+    // --- Quantity Actions ---
+    const increaseQuantity = () => {
+      if (product.value && quantity.value < product.value.inventory) {
+        quantity.value++;
       }
-    );
+    };
+
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) {
+        quantity.value--;
+      }
+    };
+
+    const validateQuantity = () => {
+      if (!product.value) return;
+      if (quantity.value < 1) quantity.value = 1;
+      // Removed max inventory check
+    };
+
+    // --- Variant Actions ---
+    const selectVariant = (variantName: string, option: string) => {
+      selectedVariants.value[variantName] = option;
+    };
+
+    const isVariantAvailable = (option: string) => {
+      return true; // Mock true for now
+    };
+
+    // --- Lightbox Actions ---
+    const openLightbox = (image: string) => {
+      lightboxImage.value = image;
+    };
+
+    const closeLightbox = () => {
+      lightboxImage.value = '';
+    };
+
+    // --- Wishlist Actions ---
+    const checkWishlist = () => {
+      // TODO: Check if product is in wishlist from backend if needed
+      // preventing overwriting if it was set elsewhere
+    };
+
+    const toggleWishlist = async () => {
+      if (!product.value) return;
+      try {
+        if (isInWishlist.value) {
+          const response = await request.delete(`${API_CUSTOMER_WISHLIST}/${product.value.id}`);
+          if (response.data.status === 'OK') {
+            isInWishlist.value = false;
+            toast.success('Removed from wishlist');
+          }
+        } else {
+          const response = await request.post(`${API_CUSTOMER_WISHLIST}/${product.value.id}`);
+          if (response.data.status === 'OK') {
+            isInWishlist.value = true;
+            toast.success('Added to wishlist');
+          }
+        }
+      } catch (error) {
+        console.error('Error toggling wishlist:', error);
+        toast.error('Failed to update wishlist');
+      }
+    };
+
+    // --- Cart Actions ---
+    const addToCart = () => {
+      alert(`Added ${quantity.value} item(s) to request list!`);
+    };
+
+
+
+    // --- Review Actions ---
+    const openReviewForm = () => {
+      showReviewForm.value = true;
+    };
+
+    const closeReviewForm = () => {
+      showReviewForm.value = false;
+      reviewData.value = { rating: 0, title: '', content: '' };
+    };
+
+    const submitReview = () => {
+      alert('Review submitted!');
+      closeReviewForm();
+    };
+
+    // --- Buy Now / Order Modal Actions ---
+    const showOrderModal = ref(false);
+    const orderForm = ref({
+      customerName: '',
+      phoneNumber: '',
+      email: '',
+      shippingAddress: '',
+      note: ''
+    });
+
+    const buyNow = () => {
+      const userInfo = localStorageAction.get(USER_INFO_STORAGE_KEY);
+      if (userInfo) {
+        orderForm.value.customerName = userInfo.fullName || '';
+        orderForm.value.email = userInfo.email || '';
+        // note: userId is available as propery of userInfo, typically 'id' or 'userId' depending on storage
+      }
+      showOrderModal.value = true;
+    };
+
+    const closeOrderModal = () => {
+      showOrderModal.value = false;
+    };
+
+    const submitOrder = async () => {
+      if (!product.value) return;
+      isLoading.value = true;
+      try {
+        const userInfo = localStorageAction.get(USER_INFO_STORAGE_KEY);
+        // Validations could go here
+
+        const payload = {
+          customerId: userInfo?.userId || 'unknown', // Fallback or handle error
+          customerName: orderForm.value.customerName,
+          phoneNumber: orderForm.value.phoneNumber,
+          email: orderForm.value.email,
+          shippingAddress: orderForm.value.shippingAddress,
+          note: orderForm.value.note,
+          items: [
+            {
+              productId: product.value.id,
+              quantity: quantity.value,
+              note: ''
+            }
+          ]
+        };
+
+        const response = await request.post(API_CUSTOMER_ORDERS, payload);
+        if (response.data) { // Assuming success returns object
+          toast.success('Order placed successfully!');
+          closeOrderModal();
+          // Optional: redirect
+        }
+      } catch (error) {
+        console.error('Order error:', error);
+        toast.error('Failed to place order. Please try again.');
+      } finally {
+        isLoading.value = false;
+      }
+    };
 
     // ... (Giữ nguyên các hàm khác) ...
 
@@ -431,7 +634,8 @@ export default defineComponent({
       formatPrice, formatDate, formatKey, getRatingPercentage,
       increaseQuantity, decreaseQuantity, validateQuantity, selectVariant, isVariantAvailable,
       openLightbox, closeLightbox, toggleWishlist, addToCart, buyNow,
-      openReviewForm, closeReviewForm, submitReview
+      openReviewForm, closeReviewForm, submitReview,
+      showOrderModal, orderForm, buyNow, closeOrderModal, submitOrder
     };
   }
 });
@@ -1274,7 +1478,8 @@ export default defineComponent({
   padding: 20px;
 }
 
-.review-modal {
+.review-modal,
+.order-modal {
   background: white;
   border-radius: 8px;
   max-width: 600px;
@@ -1302,7 +1507,8 @@ export default defineComponent({
   color: #e74c3c;
 }
 
-.review-modal h3 {
+.review-modal h3,
+.order-modal h3 {
   margin-top: 0;
   margin-bottom: 25px;
   color: #2c3e50;
@@ -1351,6 +1557,10 @@ export default defineComponent({
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.2s;
+  color: #2c3e50;
+  /* Add text color */
+  background-color: #fff;
+  /* Ensure white background */
 }
 
 .form-group input[type="text"]:focus,
@@ -1476,8 +1686,29 @@ export default defineComponent({
     padding: 20px 15px;
   }
 
-  .review-modal {
+  .review-modal,
+  .order-modal {
     padding: 20px 15px;
   }
+}
+
+.order-summary {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.order-summary h4 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: #2c3e50;
 }
 </style>

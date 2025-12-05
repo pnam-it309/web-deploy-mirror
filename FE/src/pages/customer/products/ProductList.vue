@@ -92,7 +92,8 @@ import { useRoute, useRouter } from 'vue-router';
 import ProductCard from './ProductCard.vue';
 // Giả định thư viện Axios đã được cài đặt
 import request from '@/services/request';
-import { API_PUBLIC_PRODUCTS } from '@/constants/url';
+import { API_CUSTOMER_PRODUCTS, API_CUSTOMER_WISHLIST } from '@/constants/url';
+import { toast } from 'vue3-toastify';
 
 // --- CONFIGURATION ---
 const ITEMS_PER_PAGE = 8; // Số sản phẩm trên mỗi trang
@@ -118,6 +119,7 @@ export default defineComponent({
       description: string;
       inStock: boolean;
       badge?: 'New' | 'Sale' | 'Limited';
+      isFavorite?: boolean;
     }
 
     // --- State ---
@@ -154,8 +156,7 @@ export default defineComponent({
 
       try {
         // Sử dụng request service thay vì axios trực tiếp để tận dụng baseURL và interceptors
-        const response = await request.get(API_PUBLIC_PRODUCTS, { params });
-
+        const response = await request.get(API_CUSTOMER_PRODUCTS, { params });
 
         // API trả về DefaultResponse<PaginationResponse<Product[]>>
         // response.data là DefaultResponse
@@ -175,6 +176,7 @@ export default defineComponent({
             inStock: item.stockQuantity > 0,
             category: item.categoryName || item.category?.name || item.category,
             image: item.image || `https://picsum.photos/seed/${item.id}/300/300`,
+            isFavorite: item.isFavorite,
           })) as Product[];
 
           totalProductsCount.value = pageData.totalElements || pageData.total || products.value.length;
@@ -266,19 +268,42 @@ export default defineComponent({
       wishlistIds.value = wishlist.map((item: any) => item.id);
     };
 
-    const toggleWishlist = (product: any) => {
-      // Mock toggle logic
-      const index = wishlistIds.value.indexOf(product.id);
-      if (index === -1) {
-        wishlistIds.value.push(product.id);
-      } else {
-        wishlistIds.value.splice(index, 1);
+
+
+    const toggleWishlist = async (product: any) => {
+      try {
+        if (product.isFavorite) {
+          const response = await request.delete(`${API_CUSTOMER_WISHLIST}/${product.id}`);
+          if (response.data.status === 'OK') {
+            product.isFavorite = false;
+            toast.success('Removed from wishlist');
+          }
+        } else {
+          const response = await request.post(`${API_CUSTOMER_WISHLIST}/${product.id}`);
+          if (response.data.status === 'OK') {
+            product.isFavorite = true;
+            toast.success('Added to wishlist');
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error('Failed to update wishlist');
       }
     };
 
     const isInWishlist = (id: string | number) => {
-      return wishlistIds.value.includes(String(id));
+      // Since we are iterating over 'products' which now has 'isFavorite', 
+      // we can just return that property. However, the template calls this method with ID.
+      // It's better to pass the whole product object to 'is-in-wishlist' prop if possible, 
+      // but ProductCard expects a boolean.
+      // Let's find the product in our list.
+      const product = products.value.find(p => p.id === String(id));
+      return product ? !!product.isFavorite : false;
     };
+
+    // Update fetchProducts to map isFavorite
+    // ... inside fetchProducts mapping:
+    // isFavorite: item.isFavorite,
 
     const parseUrlParams = () => {
       // Logic parse URL query params

@@ -110,20 +110,24 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 throw new IllegalArgumentException("Insufficient stock for product: " + product.getName());
             }
 
+            BigDecimal price = product.getPrice() == null ? BigDecimal.ZERO : product.getPrice();
+            BigDecimal quantityVal = itemRequest.getQuantity() == null ? BigDecimal.ZERO : BigDecimal.valueOf(itemRequest.getQuantity());
+            BigDecimal itemTotalPrice = price.multiply(quantityVal);
+
             // Create order item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
             orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setUnitPrice(product.getPrice());
-            // Total price will be calculated by @PrePersist in OrderItem
+            orderItem.setUnitPrice(price);
+            orderItem.setTotalPrice(itemTotalPrice);
 
             // Update product stock
             product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
             productRepository.save(product);
 
             order.addItem(orderItem);
-            totalAmount = totalAmount.add(orderItem.getTotalPrice());
+            totalAmount = totalAmount.add(itemTotalPrice);
         }
 
         order.setTotalAmount(totalAmount);

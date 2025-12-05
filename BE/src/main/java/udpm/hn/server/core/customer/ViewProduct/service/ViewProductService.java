@@ -1,12 +1,12 @@
 package udpm.hn.server.core.customer.ViewProduct.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import udpm.hn.server.entity.Product;
-
-import java.util.List;
+import udpm.hn.server.core.common.base.ResponseObject;
+import udpm.hn.server.core.customer.ViewProduct.model.Request.ProductFilterRequest;
 
 public interface ViewProductService {
-    List<Product> getAllProducts();
-    Page<Product> getAllProducts(Pageable pageable);
+    ResponseObject<?> getAllProducts(ProductFilterRequest request);
+    ResponseObject<?> getProductDetail(String id);
+    ResponseObject<?> addToWishlist(String productId);
+    ResponseObject<?> removeFromWishlist(String productId);
+    ResponseObject<?> getWishlist();
 }

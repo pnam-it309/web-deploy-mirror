@@ -13,28 +13,16 @@
       <!-- Product Image Gallery -->
       <div class="space-y-4">
         <div class="aspect-square relative overflow-hidden rounded-lg bg-muted">
-          <img
-            :src="currentImage"
-            :alt="product.name"
-            class="w-full h-full object-cover"
-          />
-          <Badge
-            v-if="product.badge"
-            :variant="getBadgeVariant(product.badge)"
-            class="absolute top-4 left-4"
-          >
+          <img :src="currentImage" :alt="product.name" class="w-full h-full object-cover" />
+          <Badge v-if="product.badge" :variant="getBadgeVariant(product.badge)" class="absolute top-4 left-4">
             {{ product.badge }}
           </Badge>
         </div>
 
         <div class="grid grid-cols-4 gap-2">
-          <button
-            v-for="(img, index) in product.images || [product.image]"
-            :key="index"
-            @click="currentImage = img"
+          <button v-for="(img, index) in product.images || [product.image]" :key="index" @click="currentImage = img"
             class="aspect-square rounded-md overflow-hidden border-2 transition-all"
-            :class="currentImage === img ? 'border-primary' : 'border-transparent'"
-          >
+            :class="currentImage === img ? 'border-primary' : 'border-transparent'">
             <img :src="img" :alt="`${product.name} thumbnail ${index + 1}`" class="w-full h-full object-cover" />
           </button>
         </div>
@@ -51,15 +39,10 @@
           <!-- Rating -->
           <div class="flex items-center gap-2 mb-4">
             <div class="flex items-center gap-1">
-              <StarIcon
-                v-for="i in 5"
-                :key="i"
-                class="h-5 w-5"
-                :class="{
-                  'fill-yellow-400 text-yellow-400': i <= Math.floor(product.rating),
-                  'text-gray-300': i > Math.floor(product.rating)
-                }"
-              />
+              <StarIcon v-for="i in 5" :key="i" class="h-5 w-5" :class="{
+                'fill-yellow-400 text-yellow-400': i <= Math.floor(product.rating),
+                'text-gray-300': i > Math.floor(product.rating)
+              }" />
             </div>
             <span class="text-sm text-muted-foreground">
               {{ product.reviewCount || 0 }} reviews
@@ -79,51 +62,30 @@
           <!-- Add to Cart -->
           <div class="flex flex-wrap items-center gap-4 mb-8">
             <div class="flex items-center border rounded-md">
-              <button
-                @click="quantity > 1 ? quantity-- : null"
+              <button @click="quantity > 1 ? quantity-- : null"
                 class="px-4 py-2 text-lg text-muted-foreground hover:bg-muted"
-                :class="{ 'opacity-50 cursor-not-allowed': quantity <= 1 }"
-              >
+                :class="{ 'opacity-50 cursor-not-allowed': quantity <= 1 }">
                 -
               </button>
               <span class="w-12 text-center">{{ quantity }}</span>
-              <button
-                @click="quantity++"
-                class="px-4 py-2 text-lg text-muted-foreground hover:bg-muted"
-              >
+              <button @click="quantity++" class="px-4 py-2 text-lg text-muted-foreground hover:bg-muted">
                 +
               </button>
             </div>
 
-            <Button
-              size="lg"
-              class="flex-1 min-w-[200px]"
-              @click="addToCart"
-              :disabled="!product.inStock"
-            >
+            <Button size="lg" class="flex-1 min-w-[200px]" @click="addToCart" :disabled="!product.inStock">
               <ShoppingCartIcon class="h-5 w-5 mr-2" />
               Add to Cart
             </Button>
 
-            <Button
-              variant="outline"
-              size="icon"
-              class="h-12 w-12"
-              @click="toggleWishlist"
-            >
-              <HeartIcon
-                class="h-6 w-6"
-                :class="{ 'fill-red-500 text-red-500': isWishlisted }"
-              />
+            <Button variant="outline" size="icon" class="h-12 w-12" @click="toggleWishlist">
+              <HeartIcon class="h-6 w-6" :class="{ 'fill-red-500 text-red-500': isWishlisted }" />
             </Button>
           </div>
 
           <!-- Stock Status -->
           <div class="flex items-center gap-2 mb-6">
-            <div
-              class="w-3 h-3 rounded-full"
-              :class="product.inStock ? 'bg-green-500' : 'bg-red-500'"
-            ></div>
+            <div class="w-3 h-3 rounded-full" :class="product.inStock ? 'bg-green-500' : 'bg-red-500'"></div>
             <span class="text-sm">
               {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
             </span>
@@ -171,7 +133,8 @@
           {{ product.description }}
         </p>
         <p>
-          This high-quality product is designed to meet all your needs with its premium features and durable construction.
+          This high-quality product is designed to meet all your needs with its premium features and durable
+          construction.
           It's perfect for both professional and personal use, offering exceptional performance and reliability.
         </p>
       </TabsContent>
@@ -196,15 +159,10 @@
             <div class="text-center">
               <div class="text-5xl font-bold mb-2">{{ product.rating.toFixed(1) }}</div>
               <div class="flex justify-center mb-2">
-                <StarIcon
-                  v-for="i in 5"
-                  :key="i"
-                  class="h-5 w-5"
-                  :class="{
-                    'fill-yellow-400 text-yellow-400': i <= Math.floor(product.rating),
-                    'text-gray-300': i > Math.floor(product.rating)
-                  }"
-                />
+                <StarIcon v-for="i in 5" :key="i" class="h-5 w-5" :class="{
+                  'fill-yellow-400 text-yellow-400': i <= Math.floor(product.rating),
+                  'text-gray-300': i > Math.floor(product.rating)
+                }" />
               </div>
               <p class="text-sm text-muted-foreground">Based on {{ product.reviewCount || 0 }} reviews</p>
             </div>
@@ -213,10 +171,8 @@
               <div v-for="i in 5" :key="i" class="flex items-center gap-2 mb-2">
                 <span class="w-8 text-sm text-muted-foreground">{{ 6 - i }} stars</span>
                 <div class="h-2 bg-muted rounded-full flex-1 max-w-xs">
-                  <div
-                    class="h-full bg-yellow-400 rounded-full"
-                    :style="{ width: `${getRatingPercentage(6 - i)}%` }"
-                  ></div>
+                  <div class="h-full bg-yellow-400 rounded-full" :style="{ width: `${getRatingPercentage(6 - i)}%` }">
+                  </div>
                 </div>
                 <span class="text-sm text-muted-foreground w-8 text-right">
                   {{ getRatingCount(6 - i) }}
@@ -236,15 +192,10 @@
                 <div>
                   <h4 class="font-medium">{{ review.author }}</h4>
                   <div class="flex items-center gap-1">
-                    <StarIcon
-                      v-for="i in 5"
-                      :key="i"
-                      class="h-4 w-4"
-                      :class="{
-                        'fill-yellow-400 text-yellow-400': i <= review.rating,
-                        'text-gray-300': i > review.rating
-                      }"
-                    />
+                    <StarIcon v-for="i in 5" :key="i" class="h-4 w-4" :class="{
+                      'fill-yellow-400 text-yellow-400': i <= review.rating,
+                      'text-gray-300': i > review.rating
+                    }" />
                     <span class="text-xs text-muted-foreground ml-1">{{ formatDate(review.date) }}</span>
                   </div>
                 </div>
@@ -260,13 +211,8 @@
     <section class="mb-16">
       <h2 class="text-2xl font-bold mb-8">You May Also Like</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ProductCard
-          v-for="relatedProduct in relatedProducts"
-          :key="relatedProduct.id"
-          :product="relatedProduct"
-          class="h-full"
-          @add-to-cart="addRelatedToCart"
-        />
+        <ProductCard v-for="relatedProduct in relatedProducts" :key="relatedProduct.id" :product="relatedProduct"
+          class="h-full" @add-to-cart="addRelatedToCart" />
       </div>
     </section>
   </div>

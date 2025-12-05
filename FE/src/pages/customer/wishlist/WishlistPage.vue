@@ -2,17 +2,17 @@
   <div class="wishlist-page">
     <div class="container">
       <h1 class="page-title">Sản Phẩm Yêu Thích</h1>
-      
+
       <div v-if="wishlistItems.length === 0" class="empty-wishlist">
         <p>Danh sách yêu thích của bạn đang trống.</p>
         <router-link to="/customer/dashboard" class="continue-shopping">Tiếp tục mua sắm</router-link>
       </div>
-      
+
       <div v-else class="wishlist-content">
         <div class="actions-bar">
           <button @click="addAllToRequest" class="btn-add-all">Thêm tất cả vào Yêu cầu đặt hàng</button>
         </div>
-        
+
         <div class="wishlist-grid">
           <div v-for="item in wishlistItems" :key="item.id" class="wishlist-item">
             <div class="item-image">
@@ -21,7 +21,7 @@
             <div class="item-details">
               <h3 class="item-name">{{ item.name }}</h3>
               <p class="item-price">{{ formatPrice(item.price) }}</p>
-              
+
               <div class="item-actions">
                 <button @click="addToRequest(item)" class="btn-add">Thêm vào Yêu cầu</button>
                 <button @click="removeFromWishlist(item.id)" class="btn-remove">Xóa</button>
@@ -36,6 +36,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
+import request from '@/services/request';
+import { API_CUSTOMER_WISHLIST } from '@/constants/url';
+import { toast } from 'vue3-toastify';
 
 interface WishlistItem {
   id: string | number;
@@ -48,26 +51,45 @@ export default defineComponent({
   name: 'WishlistPage',
   setup() {
     const wishlistItems = ref<WishlistItem[]>([]);
+    const isLoading = ref(false);
 
-    const loadWishlist = () => {
-      const stored = localStorage.getItem('wishlist');
-      if (stored) {
-        try {
-          wishlistItems.value = JSON.parse(stored);
-        } catch (e) {
-          console.error('Error parsing wishlist', e);
-          wishlistItems.value = [];
+    const loadWishlist = async () => {
+      isLoading.value = true;
+      try {
+        const response = await request.get(API_CUSTOMER_WISHLIST);
+        console.log('Wishlist response:', response.data);
+        if (response.data && response.data.status === 'OK') {
+          const data = response.data.data;
+          if (Array.isArray(data)) {
+            wishlistItems.value = data.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              image: p.image || 'https://via.placeholder.com/300'
+            }));
+          } else {
+            console.error('Wishlist data is not an array:', data);
+            wishlistItems.value = [];
+          }
         }
+      } catch (e) {
+        console.error('Error loading wishlist', e);
+      } finally {
+        isLoading.value = false;
       }
     };
 
-    const saveWishlist = () => {
-      localStorage.setItem('wishlist', JSON.stringify(wishlistItems.value));
-    };
-
-    const removeFromWishlist = (id: string | number) => {
-      wishlistItems.value = wishlistItems.value.filter(item => item.id !== id);
-      saveWishlist();
+    const removeFromWishlist = async (id: string | number) => {
+      try {
+        const response = await request.delete(`${API_CUSTOMER_WISHLIST}/${id}`);
+        if (response.data && response.data.status === 'OK') {
+          wishlistItems.value = wishlistItems.value.filter(item => item.id !== id);
+          toast.success('Đã xóa khỏi danh sách yêu thích');
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error('Có lỗi xảy ra');
+      }
     };
 
     const addToRequest = (item: WishlistItem) => {
@@ -123,7 +145,7 @@ export default defineComponent({
   padding: 3rem;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .continue-shopping {
@@ -164,7 +186,7 @@ export default defineComponent({
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
