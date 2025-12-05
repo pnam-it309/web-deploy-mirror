@@ -2,13 +2,16 @@
   <div class="min-h-screen bg-gray-50 p-6 sm:p-8 lg:pl-0 font-sans">
     <div class="max-w-7xl mx-auto space-y-8">
       <!-- Filter Component -->
-      <DashCusFil @filter="handleFilter" />
 
       <!-- Hero Banner -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 shadow-xl text-white">
-        <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      <div
+        class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-purple-600 to-pink-600 shadow-xl text-white">
+        <div
+          class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
         <div class="relative z-10 p-8 md:p-12 lg:p-16">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-6">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-6">
             <SparklesIcon class="w-4 h-4 text-yellow-300" />
             <span>Khuyến mãi đặc biệt</span>
           </div>
@@ -19,7 +22,8 @@
           <p class="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl">
             Giảm giá lên đến 40% cho các sản phẩm công nghệ hàng đầu. Đừng bỏ lỡ cơ hội sở hữu những thiết bị mơ ước.
           </p>
-          <button @click="$router.push('/customer/products')" class="group bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
+          <button @click="$router.push('/customer/products')"
+            class="group bg-white text-blue-600 hover:bg-blue-50 px-8 py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2">
             Khám phá ngay
             <ArrowRightIcon class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
@@ -29,8 +33,12 @@
       <!-- Quick Stats / Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Orders Card -->
-        <div class="group relative overflow-hidden rounded-2xl bg-blue-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer" @click="$router.push('/customer/orders')">
-          <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors"></div>
+        <div
+          class="group relative overflow-hidden rounded-2xl bg-blue-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer"
+          @click="$router.push('/customer/orders')">
+          <div
+            class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors">
+          </div>
           <div class="flex justify-between items-start mb-8">
             <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
               <CubeIcon class="w-8 h-8 text-white" />
@@ -44,8 +52,12 @@
         </div>
 
         <!-- Wishlist Card -->
-        <div class="group relative overflow-hidden rounded-2xl bg-purple-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer" @click="$router.push('/customer/wishlist')">
-          <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors"></div>
+        <div
+          class="group relative overflow-hidden rounded-2xl bg-purple-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer"
+          @click="$router.push('/customer/wishlist')">
+          <div
+            class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors">
+          </div>
           <div class="flex justify-between items-start mb-8">
             <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
               <HeartIcon class="w-8 h-8 text-white" />
@@ -59,8 +71,11 @@
         </div>
 
         <!-- Offers Card -->
-        <div class="group relative overflow-hidden rounded-2xl bg-pink-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer">
-          <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors"></div>
+        <div
+          class="group relative overflow-hidden rounded-2xl bg-pink-500 text-white p-6 shadow-lg transition-transform hover:-translate-y-1 cursor-pointer">
+          <div
+            class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-colors">
+          </div>
           <div class="flex justify-between items-start mb-8">
             <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
               <GiftIcon class="w-8 h-8 text-white" />
@@ -82,9 +97,10 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div v-for="cat in categories" :key="cat.name"
-               class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
-               @click="filterByCategory(cat.id)">
-            <div :class="`w-14 h-14 rounded-2xl ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`">
+            class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
+            @click="filterByCategory(cat.id)">
+            <div
+              :class="`w-14 h-14 rounded-2xl ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`">
               <component :is="cat.icon" class="w-8 h-8 text-white" />
             </div>
             <h3 class="font-semibold text-gray-900 mb-1">{{ cat.name }}</h3>
@@ -109,7 +125,8 @@
             </div>
           </div>
           <button class="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-            Xem tất cả <ArrowRightIcon class="w-4 h-4" />
+            Xem tất cả
+            <ArrowRightIcon class="w-4 h-4" />
           </button>
         </div>
 
@@ -117,7 +134,8 @@
           <!-- Flash Sale Item 1 -->
           <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100">
             <div class="w-32 h-32 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden relative">
-              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" alt="Headphone" class="w-full h-full object-cover" />
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" alt="Headphone"
+                class="w-full h-full object-cover" />
               <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-25%</div>
             </div>
             <div class="flex-1 flex flex-col justify-center">
@@ -134,7 +152,8 @@
           <!-- Flash Sale Item 2 -->
           <div class="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100">
             <div class="w-32 h-32 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden relative">
-              <img src="https://images.unsplash.com/photo-1610945265078-38584e12a878?w=500&q=80" alt="Phone" class="w-full h-full object-cover" />
+              <img src="https://images.unsplash.com/photo-1610945265078-38584e12a878?w=500&q=80" alt="Phone"
+                class="w-full h-full object-cover" />
               <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-25%</div>
             </div>
             <div class="flex-1 flex flex-col justify-center">
@@ -162,20 +181,16 @@
             </div>
             <p class="text-gray-500 text-sm">Được nhiều người lựa chọn</p>
           </div>
-          <button @click="$router.push('/customer/products')" class="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
-            Xem tất cả <ArrowRightIcon class="w-4 h-4" />
+          <button @click="$router.push('/customer/products')"
+            class="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1">
+            Xem tất cả
+            <ArrowRightIcon class="w-4 h-4" />
           </button>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <ProductCard
-            v-for="product in featuredProducts"
-            :key="product.id"
-            :product="product"
-            :is-in-wishlist="isInWishlist(product.id)"
-            @add-to-cart="addToCart"
-            @toggle-wishlist="toggleWishlist"
-          />
+          <ProductCard v-for="product in featuredProducts" :key="product.id" :product="product"
+            :is-in-wishlist="isInWishlist(product.id)" @add-to-cart="addToCart" @toggle-wishlist="toggleWishlist" />
         </div>
       </div>
 
@@ -186,7 +201,8 @@
           <GiftIcon class="w-10 h-10 mb-4 text-green-100" />
           <h3 class="text-2xl font-bold mb-2">Ưu đãi độc quyền</h3>
           <p class="text-green-100 mb-6">Nhận voucher 500.000đ cho đơn hàng đầu tiên</p>
-          <button class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+          <button
+            class="bg-white text-green-600 px-6 py-2 rounded-lg font-semibold hover:bg-green-50 transition-colors">
             Nhận ngay
           </button>
         </div>
@@ -196,7 +212,8 @@
           <TruckIcon class="w-10 h-10 mb-4 text-orange-100" />
           <h3 class="text-2xl font-bold mb-2">Miễn phí vận chuyển</h3>
           <p class="text-orange-100 mb-6">Cho tất cả đơn hàng trên 500.000đ</p>
-          <button class="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+          <button
+            class="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
             Mua sắm ngay
           </button>
         </div>
@@ -277,53 +294,53 @@ const handleFilter = (filters: any) => {
 // Initialize products
 const initializeProducts = () => {
   const products = [
-  {
-    id: 'p1',
-    name: 'iPhone 15 Pro Max',
-    price: 29990000,
-    category: 'Điện thoại',
-    image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80',
-    rating: 5,
-    reviewCount: 128,
-    description: 'Titan tự nhiên, chip A17 Pro mạnh mẽ nhất.',
-    inStock: true,
-    badge: 'New'
-  },
-  {
-    id: 'p2',
-    name: 'MacBook Pro 14"',
-    price: 52990000,
-    category: 'Laptop',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=500&q=80',
-    rating: 5,
-    reviewCount: 85,
-    description: 'Chip M3 Pro, màn hình Liquid Retina XDR.',
-    inStock: true,
-    badge: 'Best Seller'
-  },
-  {
-    id: 'p3',
-    name: 'AirPods Pro (Gen 2)',
-    price: 5990000,
-    category: 'Phụ kiện',
-    image: 'https://images.unsplash.com/photo-1603351154351-5cf99bc32f2d?w=500&q=80',
-    rating: 4.8,
-    reviewCount: 342,
-    description: 'Chống ồn chủ động gấp 2 lần, USB-C.',
-    inStock: true
-  },
-  {
-    id: 'p4',
-    name: 'Samsung Galaxy Tab S9',
-    price: 18990000,
-    category: 'Tablet',
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80',
-    rating: 4.7,
-    reviewCount: 56,
-    description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.',
-    inStock: true
-  },
-];
+    {
+      id: 'p1',
+      name: 'iPhone 15 Pro Max',
+      price: 29990000,
+      category: 'Điện thoại',
+      image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80',
+      rating: 5,
+      reviewCount: 128,
+      description: 'Titan tự nhiên, chip A17 Pro mạnh mẽ nhất.',
+      inStock: true,
+      badge: 'New'
+    },
+    {
+      id: 'p2',
+      name: 'MacBook Pro 14"',
+      price: 52990000,
+      category: 'Laptop',
+      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=500&q=80',
+      rating: 5,
+      reviewCount: 85,
+      description: 'Chip M3 Pro, màn hình Liquid Retina XDR.',
+      inStock: true,
+      badge: 'Best Seller'
+    },
+    {
+      id: 'p3',
+      name: 'AirPods Pro (Gen 2)',
+      price: 5990000,
+      category: 'Phụ kiện',
+      image: 'https://images.unsplash.com/photo-1603351154351-5cf99bc32f2d?w=500&q=80',
+      rating: 4.8,
+      reviewCount: 342,
+      description: 'Chống ồn chủ động gấp 2 lần, USB-C.',
+      inStock: true
+    },
+    {
+      id: 'p4',
+      name: 'Samsung Galaxy Tab S9',
+      price: 18990000,
+      category: 'Tablet',
+      image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80',
+      rating: 4.7,
+      reviewCount: 56,
+      description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.',
+      inStock: true
+    },
+  ];
   allProducts.value = [...products];
   featuredProducts.value = [...products];
 };
@@ -417,6 +434,7 @@ onUnmounted(() => {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

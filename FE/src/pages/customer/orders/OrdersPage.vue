@@ -151,7 +151,7 @@
           <div>
             <p class="text-sm text-gray-700">
               Showing page <span class="font-medium">{{ currentPage }}</span> of <span class="font-medium">{{ totalPages
-                }}</span>
+              }}</span>
             </p>
           </div>
           <div>
@@ -230,14 +230,11 @@ const fetchOrders = async () => {
       status: statusFilter.value
     });
 
-    if (response.data.success) {
-      // Assuming response.data.content is the list if it's a Page object
-      // But based on common API structure, it might be response.data.data or response.data.content
-      // Let's assume PaginationResponse structure: { content: [], totalPages: ... }
+    if (response.data && response.data.status === 'OK') {
       const pageData = response.data.data;
-      // Check if content exists, otherwise use data if it's a list
-      orders.value = (pageData as any).content || [];
-      totalPages.value = (pageData as any).totalPages || 0;
+      // PageableObject structure usually has 'data' for the list
+      orders.value = pageData.data || (pageData as any).content || [];
+      totalPages.value = pageData.totalPages || 0;
     }
   } catch (error) {
     console.error('Error fetching orders:', error);

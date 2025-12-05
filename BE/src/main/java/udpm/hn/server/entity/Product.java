@@ -44,9 +44,7 @@ public class Product extends PrimaryEntity implements Serializable {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
-    private EntityStatus status = EntityStatus.ACTIVE;
+
 
     @Enumerated(EnumType.STRING)
     @Column(length = EntityProperties.LENGTH_CODE)
@@ -57,4 +55,8 @@ public class Product extends PrimaryEntity implements Serializable {
 
     @OneToMany(mappedBy = "product")
     private List<QuoteItem> quoteItems = new ArrayList<>();
+
+    public Product() {
+        this.setStatus(EntityStatus.ACTIVE);
+    }
 }

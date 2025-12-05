@@ -12,7 +12,7 @@ import udpm.hn.server.core.admin.order.dto.request.OrderFilterRequest;
 import udpm.hn.server.core.admin.order.dto.response.OrderResponse;
 import udpm.hn.server.core.admin.order.repository.OrderManageRepository;
 import udpm.hn.server.core.admin.order.repository.OrderSpecification;
-import udpm.hn.server.core.admin.order.service.OrderService;
+import udpm.hn.server.core.admin.order.service.OrderADService;
 import udpm.hn.server.entity.Order;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
+public class OrderADServiceImpl implements OrderADService {
 
     private final OrderManageRepository orderRepository;
     private final ModelMapper modelMapper;

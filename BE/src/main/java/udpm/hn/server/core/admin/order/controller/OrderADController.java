@@ -8,16 +8,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.core.admin.order.dto.request.OrderFilterRequest;
 import udpm.hn.server.core.admin.order.dto.response.OrderResponse;
-import udpm.hn.server.core.admin.order.service.OrderService;
+import udpm.hn.server.core.admin.order.service.OrderADService;
 import udpm.hn.server.entity.Order;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 
 @RestController
 @RequestMapping(MappingConstants.API_ADMIN_ORDER)
 @RequiredArgsConstructor
-public class OrderController {
+public class OrderADController {
 
-    private final OrderService orderService;
+    private final OrderADService orderService;
 
     @GetMapping("/get-all-orders")
     public ResponseEntity<Page<OrderResponse>> getAllOrders(

@@ -29,7 +29,7 @@ public class ProductListResponse {
         this.price = product.getPrice();
         this.category = product.getCategory() != null ? product.getCategory().getName() : null;
         this.stockQuantity = product.getStockQuantity();
-        this.status = product.getStatus().name();
+        this.status = product.getStatus() != null ? product.getStatus().name() : "ACTIVE";
         this.description = product.getShortDescription();
         
         // Handle image from ProductDetail if available
