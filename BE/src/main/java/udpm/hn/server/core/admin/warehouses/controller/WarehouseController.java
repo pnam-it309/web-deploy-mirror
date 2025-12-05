@@ -1,4 +1,4 @@
-package udpm.hn.server.core.admin.warehouses.Controller;
+package udpm.hn.server.core.admin.warehouses.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

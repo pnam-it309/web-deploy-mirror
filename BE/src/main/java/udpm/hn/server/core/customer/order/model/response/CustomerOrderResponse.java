@@ -12,5 +12,6 @@ public interface CustomerOrderResponse {
     String getOrderStatus();
     String getPaymentStatus();
     LocalDate getEstimatedDeliveryDate();
-    Integer getItemsCount();
+    Long getItemsCount();
+    String getCustomerAddress();
 }

@@ -8,7 +8,7 @@ import {
 
 // Layouts
 const AuthLayout = () => import('@/layouts/AuthLayout.vue')
-const AdminLayout = () => import('@/layouts/AdminLayout.vue')
+const AdminLayout = () => import('@/layouts/AdminSidebar.vue')
 const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
 
 // Public pages
@@ -35,9 +35,8 @@ const AdminCategories = () => import('@/pages/admin/categories/CategoryPage.vue'
 const AdminCategoryCreateModal = () => import('@/pages/admin/categories/CategoryCreateModal.vue')
 
 // -- Customer Pages --
-const AdminCustomerList = () => import('@/pages/admin/customers/CustomerList.vue')
-const AdminCustomerCreate = () => import('@/pages/admin/customers/CustomerCreate.vue')
-const AdminCustomerDetail = () => import('@/pages/admin/customers/CustomerDetail.vue')
+const AdminCustomer = () => import('@/pages/admin/manage_customer/ManageCustomerPage.vue')
+const AdminCustomerCreate = () => import('@/pages/admin/manage_customer/ManageCustomerCreate.vue')
 
 // -- Brand Pages --
 const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
@@ -48,15 +47,8 @@ const CustomerDashboard = () => import('@/pages/customer/dashboard_cus/Dashboard
 const CustomerOrders = () => import('@/pages/customer/orders/OrdersPage.vue')
 
 // Guards
-const requireAuth = (
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized,
-  next: NavigationGuardNext
-) => next()
-const requireRole =
-  (roles: string[]) =>
-  (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) =>
-    next()
+const requireAuth = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => next()
+const requireRole = (roles: string[]) => (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => next()
 
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/selection' },
@@ -96,7 +88,7 @@ const routes: RouteRecordRaw[] = [
           // Lưu ý: Các route con này chỉ hoạt động nếu ProductPage có <router-view>
           // Hiện tại chúng ta dùng Modal state nội bộ, nhưng giữ lại route để mở rộng sau này
           { path: 'new', name: 'admin-products-new', component: AdminProductCreateModal },
-          { path: ':id', name: 'admin-products-detail', component: AdminProductDetailModal },
+          { path: ':id', name: 'admin-products-detail', component: AdminProductDetailModal }
         ],
       },
       {
@@ -104,9 +96,7 @@ const routes: RouteRecordRaw[] = [
         name: 'admin-categories',
         component: AdminCategories,
         meta: { title: 'Quản lý danh mục', apiEndpoint: '/api/v1/admin/categories' },
-        children: [
-          { path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal },
-        ],
+        children: [{ path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal }],
       },
       {
         path: 'brand',
@@ -125,20 +115,14 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'customers',
         name: 'admin-customers',
-        component: AdminCustomerList,
-        meta: { title: 'Quản lý khách hàng', apiEndpoint: '/api/v1/admin/customers' },
+        component: AdminCustomer,
+        meta: { title: 'Quản lý khách hàng', apiEndpoint: '/api/v1/admin/customers' }
       },
       {
         path: 'customers/new',
         name: 'admin-customers-new',
         component: AdminCustomerCreate,
-        meta: { title: 'Thêm khách hàng' },
-      },
-      {
-        path: 'customers/:id',
-        name: 'admin-customers-detail',
-        component: AdminCustomerDetail,
-        meta: { title: 'Chi tiết khách hàng' },
+        meta: { title: 'Thêm khách hàng' }
       },
       {
         path: 'settings',
@@ -156,36 +140,11 @@ const routes: RouteRecordRaw[] = [
     component: CustomerLayout,
     beforeEnter: requireRole(['customer', 'user']),
     children: [
-      {
-        path: 'dashboard',
-        name: 'customer-dashboard',
-        component: CustomerDashboard,
-        meta: { title: 'My Dashboard' },
-      },
-      {
-        path: 'orders',
-        name: 'customer-orders',
-        component: CustomerOrders,
-        meta: { title: 'My Orders' },
-      },
-      {
-        path: 'products',
-        name: 'customer-products',
-        component: ProductList,
-        meta: { title: 'Sản phẩm' },
-      },
-      {
-        path: 'products/:id',
-        name: 'customer-product-detail',
-        component: ProductDetailPage,
-        meta: { title: 'Chi tiết sản phẩm' },
-      },
-      {
-        path: 'wishlist',
-        name: 'customer-wishlist',
-        component: WishlistPage,
-        meta: { title: 'Sản phẩm yêu thích' },
-      },
+      { path: 'dashboard', name: 'customer-dashboard', component: CustomerDashboard, meta: { title: 'My Dashboard' } },
+      { path: 'orders', name: 'customer-orders', component: CustomerOrders, meta: { title: 'My Orders' } },
+      { path: 'products', name: 'customer-products', component: ProductList, meta: { title: 'Sản phẩm' } },
+      { path: 'products/:id', name: 'customer-product-detail', component: ProductDetailPage, meta: { title: 'Chi tiết sản phẩm' } },
+      { path: 'wishlist', name: 'customer-wishlist', component: WishlistPage, meta: { title: 'Sản phẩm yêu thích' } },
       { path: ':catchAll(.*)*', redirect: '/customer/dashboard' },
     ],
   },
@@ -196,9 +155,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior() {
-    return { top: 0, behavior: 'smooth' }
-  },
+  scrollBehavior() { return { top: 0, behavior: 'smooth' } },
 })
 
 router.beforeEach((to, from, next) => {

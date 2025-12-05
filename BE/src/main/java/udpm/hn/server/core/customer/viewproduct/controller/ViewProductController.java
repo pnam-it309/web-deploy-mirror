@@ -1,4 +1,4 @@
-package udpm.hn.server.core.customer.ViewProduct.Controller;
+package udpm.hn.server.core.customer.ViewProduct.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import udpm.hn.server.core.customer.ViewProduct.Service.ViewProductService;
+import udpm.hn.server.core.customer.ViewProduct.service.ViewProductService;
 import udpm.hn.server.entity.Product;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 
