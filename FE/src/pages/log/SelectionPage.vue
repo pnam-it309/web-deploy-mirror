@@ -196,7 +196,12 @@ const processOAuthCallback = async () => {
 
     // Exchange the authorization code for tokens
     console.log('🔄 Đang trao đổi mã xác thực...')
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
+
+    // Determine backend URL dynamically
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    const backendUrl = isLocal ? import.meta.env.VITE_API_BASE_URL : 'https://web-deploy-mirror.onrender.com'
+
+    const response = await fetch(`${backendUrl}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
