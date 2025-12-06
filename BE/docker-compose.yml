@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    container_name: backend-app
+    ports:
+      - "9999:9999"
+    environment:
+      # Override database URL to point to the docker container 'mysqldb'
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/catalog_web?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+
+      # Redis config
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # App config
+      SERVER_PORT: 9999
+    depends_on:
+      - mysqldb
+      - redis
+    networks:
+      - app-network
+    restart: always
+
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqldb
+    ports:
+      - "3307:3306" # Mapped to 3307 on host to avoid conflict with local MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: catalog_web
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+
+  redis:
+    image: redis:alpine
+    container_name: redis-cache
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
