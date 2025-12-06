@@ -635,7 +635,7 @@ export default defineComponent({
       increaseQuantity, decreaseQuantity, validateQuantity, selectVariant, isVariantAvailable,
       openLightbox, closeLightbox, toggleWishlist, addToCart, buyNow,
       openReviewForm, closeReviewForm, submitReview,
-      showOrderModal, orderForm, buyNow, closeOrderModal, submitOrder
+      showOrderModal, orderForm, closeOrderModal, submitOrder
     };
   }
 });
