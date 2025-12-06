@@ -39,7 +39,7 @@
             <h3 class="text-xl font-semibold text-gray-900 mb-2">Khách hàng</h3>
             <p class="text-gray-600 text-sm">Đăng nhập bằng Gmail để tiếp tục</p>
             <div class="mt-4 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google"
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"
                 class="h-6 w-6 mr-2">
               <span class="text-sm text-gray-700">Đăng nhập với Google</span>
             </div>
