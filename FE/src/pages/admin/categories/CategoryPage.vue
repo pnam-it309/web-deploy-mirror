@@ -6,20 +6,16 @@
     </div>
 
     <!-- ERROR -->
-    <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-5 shadow-sm flex items-center rounded-lg">
+    <div v-if="error"
+      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-5 shadow-sm flex items-center rounded-lg">
       <span class="font-bold mr-1">Lỗi!</span> {{ error }}
     </div>
     <ButtonCustom color="coffee" @click="openCreateModal" class="shadow-md hover:shadow-lg transition-all">
-        <template #default>+ Thêm danh mục</template>
+      <template #default>+ Thêm danh mục</template>
     </ButtonCustom>
     <!-- TABLE CUSTOM -->
-    <TableCustom
-      :data="filteredCategories"
-      :columns="columns"
-      :loading="isLoading"
-      :total="categories.length"
-      :pageSize="10"
-    >
+    <TableCustom :data="filteredCategories" :columns="columns" :loading="isLoading" :total="categories.length"
+      :pageSize="10">
       <!-- 1. Index -->
       <template #index="{ index }">
         <span class="text-gray-500 dark:text-gray-400 font-mono">{{ index + 1 }}</span>
@@ -32,7 +28,8 @@
 
       <!-- 3. Slug -->
       <template #slug="{ record }">
-        <span class="text-xs font-mono text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-white/10 px-2 py-1 rounded border border-gray-100 dark:border-white/10">
+        <span
+          class="text-xs font-mono text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-white/10 px-2 py-1 rounded border border-gray-100 dark:border-white/10">
           {{ record.slug }}
         </span>
       </template>
@@ -46,7 +43,8 @@
 
       <!-- 5. Parent -->
       <template #parentId="{ record }">
-        <span v-if="record.parentId" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e6dfc0]/40 text-[#5a483e] border border-[#e6dfc0] dark:bg-brand-coffee/20 dark:text-brand-sage dark:border-brand-coffee/30">
+        <span v-if="record.parentId"
+          class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e6dfc0]/40 text-[#5a483e] border border-[#e6dfc0] dark:bg-brand-coffee/20 dark:text-brand-sage dark:border-brand-coffee/30">
           <span class="mr-1 opacity-60">↳</span> {{ getParentName(record.parentId) }}
         </span>
         <span v-else class="text-gray-400 dark:text-gray-600 text-xs italic">Gốc</span>
@@ -62,13 +60,17 @@
     </TableCustom>
 
     <!-- MODALS -->
-    <CategoryCreateModal v-if="showModal" :edit-item="editingCategory" :loading="isLoading" @close="closeModal" @saved="handleSaved" />
-    
+    <CategoryCreateModal v-if="showModal" :edit-item="editingCategory" :loading="isLoading" @close="closeModal"
+      @saved="handleSaved" />
+
     <ModalCustom :show="showDeleteConfirm" @close="cancelDelete" size="sm">
       <template #title>Xác nhận xoá</template>
       <template #default>
-        <p class="text-gray-700 dark:text-gray-300">Bạn có chắc chắn muốn xoá danh mục <strong class="text-[#6c584c] dark:text-brand-cream">{{ categoryToDelete?.name }}</strong>?</p>
-        <p class="text-sm text-red-500 dark:text-red-400 mt-3 bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-100 dark:border-red-800/50">⚠️ Hành động này sẽ chuyển trạng thái sang <strong>Ngừng hoạt động</strong>.</p>
+        <p class="text-gray-700 dark:text-gray-300">Bạn có chắc chắn muốn xoá danh mục <strong
+            class="text-[#6c584c] dark:text-brand-cream">{{ categoryToDelete?.name }}</strong>?</p>
+        <p
+          class="text-sm text-red-500 dark:text-red-400 mt-3 bg-red-50 dark:bg-red-900/20 p-3 rounded-md border border-red-100 dark:border-red-800/50">
+          ⚠️ Hành động này sẽ chuyển trạng thái sang <strong>Ngừng hoạt động</strong>.</p>
       </template>
       <template #footer>
         <ButtonCustom color="cream" @click="cancelDelete">Huỷ bỏ</ButtonCustom>
@@ -82,7 +84,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useCategoryStore } from '@/stores/category.store';
-import Categoryfilter from './CategoryFilter.vue'
+import Categoryfilter from './Categoryfilter.vue'
 import CategoryCreateModal from './CategoryCreateModal.vue'
 import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue'
 import ModalCustom from '@/components/custom/Modal/ModalCustom.vue'
@@ -128,7 +130,7 @@ const handleSaved = async (payload: any) => {
     if (payload.id) await categoryStore.updateCategory(payload.id, payload);
     else await categoryStore.createCategory(payload);
     closeModal();
-  } catch(err) { console.error('Lỗi:', err); }
+  } catch (err) { console.error('Lỗi:', err); }
 }
 
 const showDeleteConfirm = ref(false);
