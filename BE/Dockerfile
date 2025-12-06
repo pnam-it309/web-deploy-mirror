@@ -9,7 +9,7 @@ COPY . .
 RUN gradle bootJar -x test --no-daemon
 
 # Stage 2: Create the runtime image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copy the built JAR from the builder stage
