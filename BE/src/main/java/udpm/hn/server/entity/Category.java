@@ -1,6 +1,7 @@
 package udpm.hn.server.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import udpm.hn.server.entity.base.PrimaryEntity;
@@ -24,6 +25,7 @@ public class Category extends PrimaryEntity implements Serializable {
     @Column(length = EntityProperties.LENGTH_DESCRIPTION)
     private String description;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
@@ -31,6 +33,7 @@ public class Category extends PrimaryEntity implements Serializable {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Category> children = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private List<Product> products = new ArrayList<>();
 }

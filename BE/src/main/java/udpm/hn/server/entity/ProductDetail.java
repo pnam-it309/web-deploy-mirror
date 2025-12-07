@@ -1,5 +1,6 @@
 package udpm.hn.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,6 +20,7 @@ import java.util.List;
 @Entity
 @Table(name = "product_details")
 public class ProductDetail extends PrimaryEntity implements Serializable {
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
