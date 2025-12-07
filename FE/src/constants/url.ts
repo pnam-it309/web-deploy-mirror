@@ -5,7 +5,7 @@ export const { VITE_BASE_URL_CLIENT } = import.meta.env || {}
 
 // DOMAIN
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-export const DOMAIN_BACKEND = isLocal ? VITE_BASE_URL_SERVER : 'https://web-deploy-mirror.onrender.com'
+export const DOMAIN_BACKEND = isLocal ? (VITE_BASE_URL_SERVER || 'http://localhost:9999') : (VITE_BASE_URL_SERVER || 'https://web-deploy-mirror.onrender.com')
 export const DOMAIN_FRONTEND = `${VITE_BASE_URL_CLIENT}` as string
 export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
 

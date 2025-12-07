@@ -19,8 +19,10 @@ services:
       # App config
       SERVER_PORT: 9999
     depends_on:
-      - mysqldb
-      - redis
+      mysqldb:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - app-network
     restart: always
@@ -39,6 +41,10 @@ services:
       - app-network
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   redis:
     image: redis:alpine
