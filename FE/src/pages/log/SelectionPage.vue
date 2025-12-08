@@ -198,8 +198,8 @@ const processOAuthCallback = async () => {
     console.log('🔄 Đang trao đổi mã xác thực...')
 
     // Determine backend URL dynamically
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    const backendUrl = isLocal ? import.meta.env.VITE_API_BASE_URL : 'https://web-deploy-mirror.onrender.com'
+    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
+    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999')
 
     const response = await fetch(`${backendUrl}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
       method: 'POST',
