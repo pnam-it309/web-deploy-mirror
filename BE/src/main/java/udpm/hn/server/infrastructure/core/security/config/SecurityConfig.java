@@ -99,6 +99,7 @@ public class SecurityConfig {
                 "/*/*.js",
                 "/auth/**",
                 "/oauth2/**",
+                "/login/oauth2/code/**", // Allow callback path explicitely
                 appendWildcard(MappingConstants.API_AUTH_PREFIX)
             ).permitAll()
         );
