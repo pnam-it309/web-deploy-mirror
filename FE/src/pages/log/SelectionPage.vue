@@ -50,7 +50,7 @@
 
     <!-- Debug Info Footer -->
     <div class="mt-8 text-center text-xs text-gray-400">
-      <p>System Version: 1.0.5 (Production Force)</p>
+      <p>System Version: 1.0.6 (HARDCODED PROD)</p>
       <p>Detected Host: {{ currentHostname }}</p>
     </div>
   </div>
@@ -318,10 +318,11 @@ const handleRedirectLoginADMIN = async () => {
     // Determine backend URL dynamically
     const hostname = window.location.hostname
     // Default to PRODUCTION unless explicitly localhost
+    // FORCE PRODUCTION URL FOR DEBUGGING
     let backendUrl = 'https://web-deploy-mirror.onrender.com'
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      backendUrl = 'http://localhost:9999'
-    }
+    // if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    //   backendUrl = 'http://localhost:9999'
+    // }
     console.log('[AUTH] Current Hostname:', hostname)
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
@@ -365,10 +366,11 @@ const handleCustomerLogin = () => {
     // Determine backend URL dynamically
     const hostname = window.location.hostname
     // Default to PRODUCTION unless explicitly localhost
+    // FORCE PRODUCTION URL FOR DEBUGGING
     let backendUrl = 'https://web-deploy-mirror.onrender.com'
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      backendUrl = 'http://localhost:9999'
-    }
+    // if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    //   backendUrl = 'http://localhost:9999'
+    // }
     console.log('[AUTH] Current Hostname:', hostname)
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
