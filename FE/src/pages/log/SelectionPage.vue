@@ -50,11 +50,8 @@
 
     <!-- Debug Info Footer -->
     <div class="mt-8 text-center text-xs text-gray-400">
-      <p>System Version: 1.0.8 (DELAYED REDIRECT)</p>
+      <p>System Version: 1.0.9 (STABLE)</p>
       <p>Detected Host: {{ currentHostname }}</p>
-      <h2 id="debug-url-display"
-        class="text-red-500 font-bold mt-2 break-all p-2 bg-yellow-100 rounded border border-yellow-300">WAITING
-        INTERACTION...</h2>
     </div>
   </div>
 </template>
@@ -328,7 +325,7 @@ const handleRedirectLoginADMIN = async () => {
     // }
 
     // START DEBUG ALERT
-    alert(`DEBUG: Admin Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
+    // alert(`DEBUG: Admin Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
     // END DEBUG ALERT
 
     console.log('[AUTH] Current Hostname:', hostname)
@@ -379,10 +376,6 @@ const handleCustomerLogin = () => {
     // if (hostname === 'localhost' || hostname === '127.0.0.1') {
     //   backendUrl = 'http://localhost:9999'
     // }
-    // START DEBUG ALERT
-    alert(`DEBUG: Customer Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
-    // END DEBUG ALERT
-
     console.log('[AUTH] Current Hostname:', hostname)
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
@@ -392,23 +385,10 @@ const handleCustomerLogin = () => {
     const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
     const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.CUSTOMER}&redirect_uri=${redirectUri}`
 
-    // SHOW ON SCREEN
-    const debugEl = document.getElementById('debug-url-display');
-    if (debugEl) debugEl.innerText = 'LAST URL: ' + oauthUrl;
+    console.log('[AUTH] Redirecting to:', oauthUrl)
 
-    console.log('[AUTH] Redirecting to:', oauthUrl);
-
-    // Add delay to let user see the debug info
-    let countdown = 3;
-    const interval = setInterval(() => {
-      if (debugEl) debugEl.innerText = `Redirecting in ${countdown}s... URL: ${oauthUrl}`;
-      countdown--;
-      if (countdown < 0) {
-        clearInterval(interval);
-        // Redirect to Google OAuth for customer login
-        window.location.href = oauthUrl;
-      }
-    }, 1000);
+    // Redirect to Google OAuth for customer login
+    window.location.href = oauthUrl
   } catch (error) {
     console.error('Error during customer login:', error)
     toast.error('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.')
