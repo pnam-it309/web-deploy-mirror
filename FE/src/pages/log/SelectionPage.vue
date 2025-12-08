@@ -308,9 +308,14 @@ const handleRedirectLoginADMIN = async () => {
     error.value = null
 
     // Determine backend URL dynamically
-    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
-    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : 'http://localhost:9999'
-    console.log('[AUTH] Detected backend URL:', backendUrl)
+    const hostname = window.location.hostname
+    // Default to PRODUCTION unless explicitly localhost
+    let backendUrl = 'https://web-deploy-mirror.onrender.com'
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      backendUrl = 'http://localhost:9999'
+    }
+    console.log('[AUTH] Current Hostname:', hostname)
+    console.log('[AUTH] Selected Backend URL:', backendUrl)
 
     // Set the correct cookie name 'screen' with value 'ADMIN'
     console.log('[AUTH] Setting ADMIN role cookie...')
@@ -350,9 +355,14 @@ const handleRedirectLoginADMIN = async () => {
 const handleCustomerLogin = () => {
   try {
     // Determine backend URL dynamically
-    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
-    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : 'http://localhost:9999'
-    console.log('[AUTH] Detected backend URL:', backendUrl)
+    const hostname = window.location.hostname
+    // Default to PRODUCTION unless explicitly localhost
+    let backendUrl = 'https://web-deploy-mirror.onrender.com'
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      backendUrl = 'http://localhost:9999'
+    }
+    console.log('[AUTH] Current Hostname:', hostname)
+    console.log('[AUTH] Selected Backend URL:', backendUrl)
 
     // Set role to CUSTOMER before redirecting to Google OAuth
     setRoleCookie(ROLES.CUSTOMER)
