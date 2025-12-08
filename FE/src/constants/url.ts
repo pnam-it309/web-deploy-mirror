@@ -4,11 +4,12 @@ import { ROLES } from './roles'
 export const VITE_BASE_URL_SERVER = import.meta.env.VITE_BASE_URL_SERVER
 export const VITE_BASE_URL_CLIENT = import.meta.env.VITE_BASE_URL_CLIENT
 
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 
-export const DOMAIN_BACKEND = isLocal 
-  ? 'http://localhost:9999' 
-  : 'https://web-deploy-mirror.onrender.com'
+const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
+
+export const DOMAIN_BACKEND = isProduction 
+  ? 'https://web-deploy-mirror.onrender.com' 
+  : 'http://localhost:9999'
 
 export const DOMAIN_FRONTEND = `${VITE_BASE_URL_CLIENT}` as string
 export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
