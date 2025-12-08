@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { URL_OAUTH2_GOOGLE_ADMIN, URL_OAUTH2_GOOGLE_CUSTOMER } from '@/constants/url'
+
 import { ROLES } from '@/constants/roles'
 import { toast } from 'vue3-toastify'
 import { cookieStorageAction } from '@/utils/storage'
@@ -239,23 +239,7 @@ const processOAuthCallback = async () => {
   }
 }
 
-// Handle customer login with Google
-const handleCustomerLogin = () => {
-  try {
-    // Set role to CUSTOMER before redirecting to Google OAuth
-    setRoleCookie(ROLES.CUSTOMER)
 
-    // Call the function to get the OAuth URL
-    const oauthUrl = URL_OAUTH2_GOOGLE_CUSTOMER()
-    console.log('[AUTH] Redirecting to:', oauthUrl)
-
-    // Redirect to Google OAuth for customer login
-    window.location.href = oauthUrl
-  } catch (error) {
-    console.error('Error during customer login:', error)
-    toast.error('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.')
-  }
-}
 
 // Set role cookie with expiration (1 hour) and debug logging
 const setRoleCookie = (role: string) => {
@@ -323,6 +307,11 @@ const handleRedirectLoginADMIN = async () => {
     loading.value = true
     error.value = null
 
+    // Determine backend URL dynamically
+    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
+    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : 'http://localhost:9999'
+    console.log('[AUTH] Detected backend URL:', backendUrl)
+
     // Set the correct cookie name 'screen' with value 'ADMIN'
     console.log('[AUTH] Setting ADMIN role cookie...')
     setRoleCookie('ADMIN')
@@ -345,12 +334,39 @@ const handleRedirectLoginADMIN = async () => {
       throw new Error(errorMsg)
     }
 
-    console.log('[AUTH] Redirecting to Google OAuth2 for ADMIN...')
-    window.location.href = URL_OAUTH2_GOOGLE_ADMIN()
+    const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
+    const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.ADMIN}&redirect_uri=${redirectUri}`
+
+    console.log('[AUTH] Redirecting to Google OAuth2 for ADMIN:', oauthUrl)
+    window.location.href = oauthUrl
   } catch (error) {
     console.error('[AUTH] Error in admin login redirect:', error)
     toast.error('Có lỗi xảy ra khi chuyển hướng đến Google. Vui lòng thử lại.')
     loading.value = false
+  }
+}
+
+// Handle customer login with Google
+const handleCustomerLogin = () => {
+  try {
+    // Determine backend URL dynamically
+    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
+    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : 'http://localhost:9999'
+    console.log('[AUTH] Detected backend URL:', backendUrl)
+
+    // Set role to CUSTOMER before redirecting to Google OAuth
+    setRoleCookie(ROLES.CUSTOMER)
+
+    const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
+    const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.CUSTOMER}&redirect_uri=${redirectUri}`
+
+    console.log('[AUTH] Redirecting to:', oauthUrl)
+
+    // Redirect to Google OAuth for customer login
+    window.location.href = oauthUrl
+  } catch (error) {
+    console.error('Error during customer login:', error)
+    toast.error('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.')
   }
 }
 
