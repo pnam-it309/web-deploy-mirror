@@ -50,8 +50,11 @@
 
     <!-- Debug Info Footer -->
     <div class="mt-8 text-center text-xs text-gray-400">
-      <p>System Version: 1.0.7 (ALERT DEBUG MODE)</p>
+      <p>System Version: 1.0.8 (DELAYED REDIRECT)</p>
       <p>Detected Host: {{ currentHostname }}</p>
+      <h2 id="debug-url-display"
+        class="text-red-500 font-bold mt-2 break-all p-2 bg-yellow-100 rounded border border-yellow-300">WAITING
+        INTERACTION...</h2>
     </div>
   </div>
 </template>
@@ -393,10 +396,19 @@ const handleCustomerLogin = () => {
     const debugEl = document.getElementById('debug-url-display');
     if (debugEl) debugEl.innerText = 'LAST URL: ' + oauthUrl;
 
-    console.log('[AUTH] Redirecting to:', oauthUrl)
+    console.log('[AUTH] Redirecting to:', oauthUrl);
 
-    // Redirect to Google OAuth for customer login
-    window.location.href = oauthUrl
+    // Add delay to let user see the debug info
+    let countdown = 3;
+    const interval = setInterval(() => {
+      if (debugEl) debugEl.innerText = `Redirecting in ${countdown}s... URL: ${oauthUrl}`;
+      countdown--;
+      if (countdown < 0) {
+        clearInterval(interval);
+        // Redirect to Google OAuth for customer login
+        window.location.href = oauthUrl;
+      }
+    }, 1000);
   } catch (error) {
     console.error('Error during customer login:', error)
     toast.error('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.')
