@@ -376,6 +376,10 @@ const handleCustomerLogin = () => {
     // if (hostname === 'localhost' || hostname === '127.0.0.1') {
     //   backendUrl = 'http://localhost:9999'
     // }
+    // START DEBUG ALERT
+    alert(`DEBUG: Customer Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
+    // END DEBUG ALERT
+
     console.log('[AUTH] Current Hostname:', hostname)
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
@@ -384,6 +388,10 @@ const handleCustomerLogin = () => {
 
     const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
     const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.CUSTOMER}&redirect_uri=${redirectUri}`
+
+    // SHOW ON SCREEN
+    const debugEl = document.getElementById('debug-url-display');
+    if (debugEl) debugEl.innerText = 'LAST URL: ' + oauthUrl;
 
     console.log('[AUTH] Redirecting to:', oauthUrl)
 
