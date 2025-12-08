@@ -134,7 +134,7 @@ public class SecurityConfig {
         // OAuth2 configuration
         http.oauth2Login(oauth2 -> oauth2
             .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
-            .redirectionEndpoint(r -> r.baseUri("/oauth2/callback/**"))
+            .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
             .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
             .authorizationEndpoint(a -> a.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
             .successHandler(oAuth2AuthenticationSuccessHandler)
