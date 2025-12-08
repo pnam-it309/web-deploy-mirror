@@ -4,12 +4,15 @@ import { ROLES } from './roles'
 export const VITE_BASE_URL_SERVER = import.meta.env.VITE_BASE_URL_SERVER
 export const VITE_BASE_URL_CLIENT = import.meta.env.VITE_BASE_URL_CLIENT
 
+const getBackendUrl = () => {
+  const hostname = window.location.hostname
+  if (hostname.includes('vercel.app') || hostname.includes('onrender.com')) {
+    return 'https://web-deploy-mirror.onrender.com'
+  }
+  return 'http://localhost:9999'
+}
 
-const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
-
-export const DOMAIN_BACKEND = isProduction 
-  ? 'https://web-deploy-mirror.onrender.com' 
-  : 'http://localhost:9999'
+export const DOMAIN_BACKEND = getBackendUrl()
 
 export const DOMAIN_FRONTEND = `${VITE_BASE_URL_CLIENT}` as string
 export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
@@ -21,13 +24,13 @@ export const SCREEN_ROLE_CUSTOMER = ROLES.CUSTOMER
 // ✅ URL login Google cho ADMIN
 export const URL_OAUTH2_GOOGLE_ADMIN = (): string => {
   const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
-  return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
+  return `${getBackendUrl()}/oauth2/authorization/google?state=${SCREEN_ROLE_ADMIN}&redirect_uri=${redirectUri}`
 }
 
 // ✅ URL login Google cho CUSTOMER
 export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
   const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
-  return `${DOMAIN_BACKEND}/oauth2/authorization/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
+  return `${getBackendUrl()}/oauth2/authorization/google?state=${SCREEN_ROLE_CUSTOMER}&redirect_uri=${redirectUri}`
 }
 
 // Use proxy in development, direct URL in production
