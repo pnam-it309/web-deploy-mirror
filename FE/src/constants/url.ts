@@ -1,11 +1,14 @@
 import { ROLES } from './roles'
 
-export const { VITE_BASE_URL_SERVER } = import.meta.env || {}
-export const { VITE_BASE_URL_CLIENT } = import.meta.env || {}
-
 // DOMAIN
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-export const DOMAIN_BACKEND = isLocal ? (VITE_BASE_URL_SERVER || 'http://localhost:9999') : (VITE_BASE_URL_SERVER || 'https://web-deploy-mirror.onrender.com')
+export const VITE_BASE_URL_SERVER = import.meta.env.VITE_BASE_URL_SERVER
+export const VITE_BASE_URL_CLIENT = import.meta.env.VITE_BASE_URL_CLIENT
+
+const isProduction = import.meta.env.PROD
+export const DOMAIN_BACKEND = isProduction 
+  ? (VITE_BASE_URL_SERVER || 'https://web-deploy-mirror.onrender.com') 
+  : (VITE_BASE_URL_SERVER || 'http://localhost:9999')
+
 export const DOMAIN_FRONTEND = `${VITE_BASE_URL_CLIENT}` as string
 export const URL_FRONTEND = `${DOMAIN_FRONTEND}/redirect`
 
