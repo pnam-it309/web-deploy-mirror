@@ -28,7 +28,7 @@ export const URL_OAUTH2_GOOGLE_CUSTOMER = (): string => {
 // Use proxy in development, direct URL in production
 // Use proxy in development, direct URL in production
 // Khi dùng axios instance đã có baseURL='/api/v1', ta không cần prefix '/api/v1' ở đây nữa
-export const API_URL = '' 
+export const API_URL = import.meta.env.VITE_API_BASE_URL || '' 
 
 // AUTH API
 export const PREFIX_API_AUTH = `/auth` as string
