@@ -47,12 +47,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Debug Info Footer -->
+    <div class="mt-8 text-center text-xs text-gray-400">
+      <p>System Version: 1.0.5 (Production Force)</p>
+      <p>Detected Host: {{ currentHostname }}</p>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+const currentHostname = ref(window.location.hostname)
 
 import { ROLES } from '@/constants/roles'
 import { toast } from 'vue3-toastify'
