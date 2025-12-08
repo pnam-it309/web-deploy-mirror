@@ -50,7 +50,7 @@
 
     <!-- Debug Info Footer -->
     <div class="mt-8 text-center text-xs text-gray-400">
-      <p>System Version: 1.0.6 (HARDCODED PROD)</p>
+      <p>System Version: 1.0.7 (ALERT DEBUG MODE)</p>
       <p>Detected Host: {{ currentHostname }}</p>
     </div>
   </div>
@@ -323,6 +323,11 @@ const handleRedirectLoginADMIN = async () => {
     // if (hostname === 'localhost' || hostname === '127.0.0.1') {
     //   backendUrl = 'http://localhost:9999'
     // }
+
+    // START DEBUG ALERT
+    alert(`DEBUG: Admin Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
+    // END DEBUG ALERT
+
     console.log('[AUTH] Current Hostname:', hostname)
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
@@ -393,7 +398,11 @@ const handleCustomerLogin = () => {
 
 
 // Mounted lifecycle
+// Mounted lifecycle
 onMounted(async () => {
+  // DEBUG ALERT - DELETE LATER
+  // alert(`DEBUG: System Version 1.0.7 LOADED\nCurrent Hostname: ${window.location.hostname}`)
+
   console.log('[AUTH] LoginSelection mounted - checking for cookie-based errors...')
   console.log('[AUTH] Current cookies:', document.cookie)
   console.log('[AUTH] Current route query:', route.query)
