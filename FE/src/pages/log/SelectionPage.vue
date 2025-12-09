@@ -205,9 +205,8 @@ const processOAuthCallback = async () => {
     // Exchange the authorization code for tokens
     console.log('🔄 Đang trao đổi mã xác thực...')
 
-    // Determine backend URL dynamically
-    const isProduction = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('onrender.com')
-    const backendUrl = isProduction ? 'https://web-deploy-mirror.onrender.com' : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999')
+    // Use environment variable for backend URL
+    const backendUrl = import.meta.env.VITE_API_BASE_URL
 
     const response = await fetch(`${backendUrl}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
       method: 'POST',
@@ -315,20 +314,7 @@ const handleRedirectLoginADMIN = async () => {
     loading.value = true
     error.value = null
 
-    // Determine backend URL dynamically
-    const hostname = window.location.hostname
-    // Default to PRODUCTION unless explicitly localhost
-    // FORCE PRODUCTION URL FOR DEBUGGING
-    let backendUrl = 'https://web-deploy-mirror.onrender.com'
-    // if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    //   backendUrl = 'http://localhost:9999'
-    // }
-
-    // START DEBUG ALERT
-    // alert(`DEBUG: Admin Login\nBackend: ${backendUrl}\nHostname: ${hostname}`);
-    // END DEBUG ALERT
-
-    console.log('[AUTH] Current Hostname:', hostname)
+    const backendUrl = import.meta.env.VITE_API_BASE_URL
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
     // Set the correct cookie name 'screen' with value 'ADMIN'
@@ -354,7 +340,7 @@ const handleRedirectLoginADMIN = async () => {
     }
 
     const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
-    const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.ADMIN}&redirect_uri=${redirectUri}`
+    const oauthUrl = `${backendUrl}/oauth2/authorization/google?screen=${ROLES.ADMIN}&state=${ROLES.ADMIN}&redirect_uri=${redirectUri}`
 
     console.log('[AUTH] Redirecting to Google OAuth2 for ADMIN:', oauthUrl)
     window.location.href = oauthUrl
@@ -368,22 +354,14 @@ const handleRedirectLoginADMIN = async () => {
 // Handle customer login with Google
 const handleCustomerLogin = () => {
   try {
-    // Determine backend URL dynamically
-    const hostname = window.location.hostname
-    // Default to PRODUCTION unless explicitly localhost
-    // FORCE PRODUCTION URL FOR DEBUGGING
-    let backendUrl = 'https://web-deploy-mirror.onrender.com'
-    // if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    //   backendUrl = 'http://localhost:9999'
-    // }
-    console.log('[AUTH] Current Hostname:', hostname)
+    const backendUrl = import.meta.env.VITE_API_BASE_URL
     console.log('[AUTH] Selected Backend URL:', backendUrl)
 
     // Set role to CUSTOMER before redirecting to Google OAuth
     setRoleCookie(ROLES.CUSTOMER)
 
     const redirectUri = encodeURIComponent(`${window.location.origin}/selection`)
-    const oauthUrl = `${backendUrl}/oauth2/authorization/google?state=${ROLES.CUSTOMER}&redirect_uri=${redirectUri}`
+    const oauthUrl = `${backendUrl}/oauth2/authorization/google?screen=${ROLES.CUSTOMER}&state=${ROLES.CUSTOMER}&redirect_uri=${redirectUri}`
 
     console.log('[AUTH] Redirecting to:', oauthUrl)
 
