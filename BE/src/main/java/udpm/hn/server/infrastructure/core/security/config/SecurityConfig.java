@@ -28,6 +28,7 @@ import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import udpm.hn.server.infrastructure.core.constant.MappingConstants;
 import udpm.hn.server.infrastructure.core.security.filter.TokenAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import static udpm.hn.server.utils.Helper.appendWildcard;
 
@@ -48,6 +49,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
     private final GlobalVariables globalVariables;
+    private final CorsConfigurationSource corsConfigurationSource;
     private TokenAuthenticationFilter tokenAuthenticationFilter;
 
 
@@ -78,7 +80,7 @@ public class SecurityConfig {
 
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
