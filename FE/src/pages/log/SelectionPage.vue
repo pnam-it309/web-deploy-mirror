@@ -207,8 +207,9 @@ const processOAuthCallback = async () => {
 
     // Use environment variable for backend URL
     const backendUrl = import.meta.env.VITE_API_BASE_URL
+    const redirectUri = window.location.origin + '/selection'
 
-    const response = await fetch(`${backendUrl}/api/auth/oauth2/callback/google?code=${code}&state=${state || ''}`, {
+    const response = await fetch(`${backendUrl}/auth/oauth2/callback/google?code=${code}&state=${state || ''}&redirectUri=${encodeURIComponent(redirectUri)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

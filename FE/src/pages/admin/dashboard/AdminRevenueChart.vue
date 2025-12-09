@@ -7,12 +7,8 @@
         <h3 class="text-lg font-medium leading-6 text-gray-900">Doanh thu theo tháng</h3>
         <p class="text-sm text-gray-500 mb-4">Biểu đồ doanh thu trong năm 2024</p>
         <div class="h-64">
-          <LineChart 
-            v-if="chartData && chartData.labels && chartData.labels.length > 0"
-            :data="chartData"
-            :options="chartOptions"
-            :key="'line-chart' + chartDataKey"
-          />
+          <LineChart v-if="chartData && chartData.labels && chartData.labels.length > 0" :data="chartData"
+            :options="chartOptions" :key="'line-chart' + chartDataKey" />
         </div>
       </div>
 
@@ -21,12 +17,8 @@
         <h3 class="text-lg font-medium leading-6 text-gray-900">Phân bổ theo danh mục</h3>
         <p class="text-sm text-gray-500 mb-4">Tỷ lệ doanh thu theo từng danh mục sản phẩm</p>
         <div class="h-64">
-          <PieChart 
-            v-if="pieData && pieData.labels && pieData.labels.length > 0"
-            :data="pieData"
-            :options="pieOptions"
-            :key="'pie-chart' + chartDataKey"
-          />
+          <PieChart v-if="pieData && pieData.labels && pieData.labels.length > 0" :data="pieData" :options="pieOptions"
+            :key="'pie-chart' + chartDataKey" />
         </div>
       </div>
     </div>
@@ -39,12 +31,8 @@
           <h3 class="text-lg font-medium text-gray-900">So sánh doanh thu theo năm</h3>
         </div>
         <div class="h-80">
-          <BarChart 
-            v-if="barChartData && barChartData.labels && barChartData.labels.length > 0"
-            :data="barChartData"
-            :options="barChartOptions"
-            :key="'bar-chart' + chartDataKey"
-          />
+          <BarChart v-if="barChartData && barChartData.labels && barChartData.labels.length > 0" :data="barChartData"
+            :options="barChartOptions" :key="'bar-chart' + chartDataKey" />
         </div>
       </div>
 
@@ -54,7 +42,8 @@
           <h3 class="text-lg font-medium text-gray-900">Hiệu suất theo thương hiệu</h3>
         </div>
         <div class="space-y-4">
-          <div v-for="brand in brandPerformance" :key="brand.name" class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+          <div v-for="brand in brandPerformance" :key="brand.name"
+            class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
             <div class="flex items-center space-x-3">
               <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                 <span class="text-sm font-medium text-gray-700">{{ brand.name.charAt(0) }}</span>
@@ -89,7 +78,8 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from 'chart.js';
 
 // Register ChartJS components
@@ -102,7 +92,8 @@ ChartJS.register(
   PointElement,
   LineElement,
   ArcElement,
-  BarElement
+  BarElement,
+  Filler
 );
 
 // Chart data key for forcing re-render
@@ -133,7 +124,7 @@ const initChartData = () => {
       pointHoverBorderWidth: 2
     }]
   };
-  
+
   // Force update the chart data
   chartData.value = JSON.parse(JSON.stringify(chartData.value));
 };
@@ -170,7 +161,7 @@ const barChartOptions = ref({
     y: {
       beginAtZero: true,
       ticks: {
-        callback: function(value: any) {
+        callback: function (value: any) {
           return value + ' tr';
         }
       }
@@ -189,8 +180,8 @@ const brandPerformance = ref([
 
 // Format currency
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('vi-VN', { 
-    style: 'currency', 
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
     currency: 'VND',
     maximumFractionDigits: 0
   }).format(value);
@@ -199,13 +190,13 @@ const formatCurrency = (value: number) => {
 onMounted(async () => {
   // Initialize chart data
   initChartData();
-  
+
   // Small delay to ensure DOM is ready
   await nextTick();
-  
+
   // Force update charts
   updateCharts();
-  
+
   // Force another update after a short delay to ensure everything is rendered
   setTimeout(updateCharts, 100);
 });
@@ -220,7 +211,7 @@ const chartOptions = ref({
     },
     tooltip: {
       callbacks: {
-        label: function(context: any) {
+        label: function (context: any) {
           return `${context.parsed.y} triệu VNĐ`;
         }
       }
@@ -230,7 +221,7 @@ const chartOptions = ref({
     y: {
       beginAtZero: true,
       ticks: {
-        callback: function(value: any) {
+        callback: function (value: any) {
           return value + ' tr';
         }
       }
@@ -266,7 +257,7 @@ const pieOptions = ref({
     },
     tooltip: {
       callbacks: {
-        label: function(context: any) {
+        label: function (context: any) {
           const label = context.label || '';
           const value = context.raw || 0;
           const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);

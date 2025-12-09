@@ -19,7 +19,7 @@
             <div class="space-y-2">
                 <label class="block text-sm font-medium text-gray-700">Khoảng thời gian</label>
                 <DatePicker v-model.range="dateRange" :max-date="new Date()"
-                    :attributes="[{ highlight: { color: 'blue', fillMode: 'light' } }]" is-range class="w-full">
+                    :attributes="[{ highlight: { color: 'blue', fillMode: 'light' } }]" class="w-full">
                     <template v-slot="{ inputValue, inputEvents }">
                         <div class="flex space-x-2">
                             <input :value="inputValue.start" v-on="inputEvents.start"
