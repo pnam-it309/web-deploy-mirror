@@ -4,15 +4,16 @@ public final class MappingConstants {
     public static final String API_AUTH_PREFIX = "/auth";
 
     // Các tiền tố GỐC của ứng dụng
-    public static final String ADMIN = "/api/v1/admin";
-    public static final String CUSTOMER = "/api/v1/customer";
-    public static final String PUBLIC = "/api/v1/public";
+    public static final String ADMIN = "/admin";
+    public static final String CUSTOMER = "/customer";
+    public static final String PUBLIC = "/public";
 
     public static final String API_ADMIN_PREFIX = ADMIN;
     // Đã sửa: Chỉ còn là /customer
     public static final String API_CUSTOMER_PREFIX = CUSTOMER;
 
     //ADMIN
+    public static final String API_ADMIN_DASHBOARD = API_ADMIN_PREFIX + "/dashboard";
     public static final String API_ADMIN_IMPORT = API_ADMIN_PREFIX + "/import_data";
     public static final String API_ADMIN_PRODUCT = API_ADMIN_PREFIX + "/products";
     public static final String API_ADMIN_ORDER = API_ADMIN_PREFIX + "/orders";

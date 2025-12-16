@@ -1,708 +1,248 @@
 <template>
-  <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-      <div class="mt-4 flex space-x-3 md:mt-0">
-        <AdminDashFil @filter="handleFilter" @export="handleExport" />
+  <div class="p-6 min-h-screen bg-[#f8f9fa] dark:bg-brand-dark-200 transition-colors duration-300">
+    
+    <!-- HEADER -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 relative z-20">
+      <div>
+        <!-- Tiêu đề: Nâu đậm (Light) -> Kem sáng (Dark) để nổi bật trên nền tối -->
+        <h1 class="text-2xl font-bold text-brand-mocha dark:text-brand-cream tracking-tight">Dashboard Tổng quan</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-300 font-medium">Chào mừng trở lại, Admin!</p>
+      </div>
+      
+      <!-- Group Nút Hành Động -->
+      <div class="flex gap-2">
+        <ButtonCustom color="coffee" @click="$router.push('/admin/products/new')">
+           <span class="mr-1">+</span> Sản phẩm
+        </ButtonCustom>
+        <ButtonCustom color="olive" @click="$router.push('/admin/orders')">
+           Xem đơn hàng
+        </ButtonCustom>
       </div>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      <div v-for="stat in stats" :key="stat.name" class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 p-3 rounded-full" :class="getIconBgColor(stat.name)">
-              <component :is="stat.icon" class="h-6 w-6 text-white" aria-hidden="true" />
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">
-                  {{ stat.name }}
-                </dt>
-                <dd class="flex items-baseline">
-                  <div class="text-2xl font-semibold text-gray-900">
-                    {{ stat.value }}
-                  </div>
-                  <div
-                    :class="[stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600', 'ml-2 flex items-baseline text-sm font-semibold']">
-                    {{ stat.change }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-        <div class="bg-gray-50 px-5 py-3">
-          <div class="text-sm">
-            <a :href="stat.href" class="font-medium text-indigo-700 hover:text-indigo-900">
-              View all
-            </a>
-          </div>
-        </div>
-      </div>
+    <!-- FILTER: Bộ lọc thống kê -->
+    <div class="mb-6 relative z-30">
+      <AdminDashFil @filter="handleFilter" @export="handleExport" />
     </div>
 
-    <!-- Quick Actions -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <div class="p-6">
-        <h2 class="text-lg font-medium text-gray-900">Quick Actions</h2>
-        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <button v-for="(action, actionIdx) in quickActions" :key="actionIdx" @click="action.action"
-            class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-            <div class="flex-shrink-0">
-              <component :is="action.icon" class="h-6 w-6 text-gray-400" aria-hidden="true" />
+    <!-- LOADING STATE -->
+    <div v-if="isLoading" class="p-12 text-center relative z-0">
+       <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-brand-olive rounded-full"></div>
+       <p class="mt-2 text-brand-coffee dark:text-brand-sage">Đang tải dữ liệu thống kê...</p>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div v-else class="relative z-0">
+      
+      <!-- 1. STATS CARDS: Thẻ thống kê tổng quan -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        
+        <!-- Doanh thu (Viền trái Xanh lá - Olive) -->
+        <CardCustom class="!p-0 border-l-4 border-l-[#adc178]">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+               <p class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide">Tổng doanh thu</p>
+               <p class="text-2xl font-bold text-brand-mocha dark:text-brand-cream mt-1">{{ formatCurrency(stats.totalRevenue) }}</p>
+               <div :class="['text-xs font-medium mt-1 flex items-center', stats.revenueChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400']">
+                  <span>{{ stats.revenueChange >= 0 ? '↑' : '↓' }} {{ Math.abs(stats.revenueChange) }}%</span>
+                  <span class="text-gray-400 dark:text-gray-400 font-normal ml-1">tháng này</span>
+               </div>
             </div>
-            <div class="min-w-0 flex-1">
-              <div class="focus:outline-none">
-                <span class="absolute inset-0" aria-hidden="true" />
-                <p class="text-sm font-medium text-gray-900">{{ action.title }}</p>
-                <p class="truncate text-sm text-gray-500">{{ action.description }}</p>
+            <div class="p-3 rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+               <CurrencyDollarIcon class="w-6 h-6" />
+            </div>
+          </div>
+        </CardCustom>
+
+        <!-- Đơn hàng (Viền trái Nâu - Coffee) -->
+        <CardCustom class="!p-0 border-l-4 border-l-[#a98467]">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+               <p class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide">Đơn hàng</p>
+               <p class="text-2xl font-bold text-brand-mocha dark:text-brand-cream mt-1">{{ stats.totalOrders }}</p>
+               <div :class="['text-xs font-medium mt-1 flex items-center', stats.ordersChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400']">
+                  <span>{{ stats.ordersChange >= 0 ? '↑' : '↓' }} {{ Math.abs(stats.ordersChange) }}%</span>
+               </div>
+            </div>
+            <div class="p-3 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+               <ShoppingBagIcon class="w-6 h-6" />
+            </div>
+          </div>
+        </CardCustom>
+
+        <!-- Khách hàng (Viền trái Nâu đậm - Mocha) -->
+        <CardCustom class="!p-0 border-l-4 border-l-[#6c584c]">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+               <p class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide">Khách hàng</p>
+               <p class="text-2xl font-bold text-brand-mocha dark:text-brand-cream mt-1">{{ stats.totalCustomers }}</p>
+               <div :class="['text-xs font-medium mt-1 flex items-center', stats.customersChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400']">
+                  <span>{{ stats.customersChange >= 0 ? '↑' : '↓' }} {{ Math.abs(stats.customersChange) }}%</span>
+               </div>
+            </div>
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+               <UsersIcon class="w-6 h-6" />
+            </div>
+          </div>
+        </CardCustom>
+
+        <!-- Sản phẩm (Viền trái Xanh nhạt - Sage) -->
+        <CardCustom class="!p-0 border-l-4 border-l-[#dde5b6]">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+               <p class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide">Sản phẩm</p>
+               <p class="text-2xl font-bold text-brand-mocha dark:text-brand-cream mt-1">{{ stats.totalProducts }}</p>
+               <div :class="['text-xs font-medium mt-1 flex items-center', stats.productsChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400']">
+                  <span>{{ stats.productsChange >= 0 ? '↑' : '↓' }} {{ Math.abs(stats.productsChange) }}%</span>
+               </div>
+            </div>
+            <div class="p-3 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+               <CubeIcon class="w-6 h-6" />
+            </div>
+          </div>
+        </CardCustom>
+      </div>
+
+      <!-- 2. CHARTS: Biểu đồ doanh thu -->
+      <div class="mb-6 relative z-0">
+         <AdminRevenueChart />
+      </div>
+
+      <!-- 3. TABLES: Đơn hàng mới & Sắp hết hàng -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-0">
+          
+          <!-- BẢNG ĐƠN HÀNG GẦN ĐÂY -->
+          <CardCustom>
+              <div class="p-4 border-b border-[#e6dfc0] dark:border-brand-dark-50 flex justify-between items-center bg-gray-50/50 dark:bg-brand-dark-300/30">
+                 <h3 class="font-bold text-lg text-brand-mocha dark:text-brand-cream">Đơn hàng mới</h3>
+                 <ButtonCustom color="cream-soft" size="small" @click="$router.push('/admin/orders')">Xem tất cả</ButtonCustom>
               </div>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
+              
+              <table class="w-full text-left">
+                <thead class="bg-[#f7f9ef] dark:bg-brand-dark-300 text-xs uppercase text-gray-500 dark:text-gray-300 font-bold tracking-wider">
+                  <tr>
+                    <th class="px-4 py-3">Mã đơn</th>
+                    <th class="px-4 py-3">Khách</th>
+                    <th class="px-4 py-3 text-right">Tổng tiền</th>
+                    <th class="px-4 py-3 text-center">TT</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#f0ead2] dark:divide-brand-dark-50">
+                  <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-[#f0ead2]/20 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 font-mono text-blue-600 dark:text-blue-400 text-sm font-medium">{{ order.orderCode }}</td>
+                    <td class="px-4 py-3 text-sm text-brand-mocha dark:text-brand-cream font-medium">{{ order.customerName }}</td>
+                    <td class="px-4 py-3 text-sm text-right font-bold text-brand-mocha dark:text-brand-cream">{{ formatCurrency(order.totalAmount) }}</td>
+                    <td class="px-4 py-3 text-center">
+                      <!-- Badge trạng thái nhỏ gọn -->
+                      <span :class="['px-2 py-0.5 rounded text-[10px] font-bold uppercase border', getStatusClass(order.orderStatus)]">
+                        {{ order.orderStatus }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr v-if="!recentOrders || recentOrders.length === 0">
+                    <td colspan="4" class="p-8 text-center text-sm text-gray-500 dark:text-gray-400 italic">Không có đơn hàng mới</td>
+                  </tr>
+                </tbody>
+              </table>
+          </CardCustom>
 
-    <!-- Revenue Charts -->
-    <AdminRevenueChart />
-
-    <!-- Recent Orders -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <div class="px-6 py-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">Recent Orders</h3>
-        <div class="mt-3 sm:mt-0 sm:ml-4">
-          <button type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            View all
-          </button>
-        </div>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Customer</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Items</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status</th>
-              <th scope="col" class="relative px-6 py-3">
-                <span class="sr-only">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="order in recentOrders" :key="order.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {{ order.id }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ order.customer }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ order.date }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ order.items }} items
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ order.amount }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  :class="getStatusBadgeClass(order.status)">
-                  {{ getStatusText(order.status) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <a href="#" class="text-indigo-600 hover:text-indigo-900">View</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Low Stock Products -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-      <div class="px-6 py-5 border-b border-gray-200 sm:flex sm:items-center sm:justify-between">
-        <h3 class="text-lg font-medium leading-6 text-gray-900">Low Stock Products</h3>
-        <div class="mt-3 sm:mt-0 sm:ml-4">
-          <button type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            View all
-          </button>
-        </div>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Product</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Price</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stock</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status</th>
-              <th scope="col" class="relative px-6 py-3">
-                <span class="sr-only">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="product in lowStockProducts" :key="product.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md flex items-center justify-center">
-                    <CubeIcon class="h-6 w-6 text-gray-500" />
-                  </div>
-                  <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">{{ product.name }}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ product.sku }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ product.category }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ product.price }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ product.stock }} in stock
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                  :class="getStockStatusClass(product.stock)">
-                  {{ getStockStatusText(product.stock) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
-                <button class="text-indigo-600 hover:text-indigo-900">Restock</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- Import Products Modal -->
-    <div v-if="showImportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
-      @click="closeImportModal">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>
-        <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Import Products</h3>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Upload CSV/Excel File
-            </label>
-            <input ref="fileInput" type="file" accept=".csv,.xlsx,.xls" @change="handleFileSelect"
-              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-          </div>
-
-          <div v-if="importFile" class="mb-4">
-            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-md">
-              <span class="text-sm text-gray-700">{{ importFile.name }}</span>
-              <button @click="removeFile" class="text-red-500 hover:text-red-700">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <label class="flex items-center">
-              <input v-model="importOptions.hasHeader" type="checkbox"
-                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
-              <span class="ml-2 text-sm text-gray-700">File has header row</span>
-            </label>
-          </div>
-
-          <div class="flex justify-end space-x-3">
-            <ButtonDefault @click="closeImportModal" :label="'Cancel'"
-              :customClasses="'bg-gray-300 hover:bg-gray-400 text-gray-800'" />
-            <ButtonDefault @click="importProducts" :label="'Import'"
-              :customClasses="'bg-blue-600 hover:bg-blue-700 text-white'" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Import Results Modal -->
-    <div v-if="showImportResults" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Import Results</h3>
-
-          <div v-if="importResults" class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Successful:</span>
-              <span class="text-sm font-medium text-green-600">{{ importResults.successCount }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Failed:</span>
-              <span class="text-sm font-medium text-red-600">{{ importResults.errorCount }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-700">Total:</span>
-              <span class="text-sm font-medium text-gray-900">{{ importResults.totalCount }}</span>
-            </div>
-
-            <div v-if="importResults.errors && importResults.errors.length > 0" class="mt-4">
-              <h4 class="text-sm font-medium text-red-600 mb-2">Errors:</h4>
-              <div class="max-h-32 overflow-y-auto bg-red-50 p-3 rounded-md">
-                <div v-for="(error, index) in importResults.errors.slice(0, 5)" :key="index"
-                  class="text-xs text-red-700 mb-1">
-                  Row {{ error.row }}: {{ error.message }}
-                </div>
-                <div v-if="importResults.errors.length > 5" class="text-xs text-red-600">
-                  ... and {{ importResults.errors.length - 5 }} more errors
-                </div>
+          <!-- BẢNG SẮP HẾT HÀNG (< 100) -->
+          <CardCustom>
+              <div class="p-4 border-b border-[#e6dfc0] dark:border-brand-dark-50 flex justify-between items-center bg-red-50/30 dark:bg-red-900/10">
+                 <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                    <h3 class="font-bold text-lg text-red-700 dark:text-red-400">Sắp hết hàng</h3>
+                 </div>
+                 <ButtonCustom color="cream-soft" size="small" @click="$router.push('/admin/products')">Nhập kho</ButtonCustom>
               </div>
-            </div>
-          </div>
-
-          <div class="flex justify-end mt-6">
-            <ButtonDefault @click="closeImportResults" :label="'Close'"
-              :customClasses="'bg-indigo-600 hover:bg-indigo-700 text-white'" />
-          </div>
-        </div>
+              
+              <table class="w-full text-left">
+                <thead class="bg-red-50 dark:bg-red-900/20 text-xs uppercase text-red-600 dark:text-red-300 font-bold tracking-wider">
+                  <tr>
+                    <th class="px-4 py-3">Sản phẩm</th>
+                    <th class="px-4 py-3 text-center">Tồn kho</th>
+                    <th class="px-4 py-3 text-center">Giá</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#f0ead2] dark:divide-brand-dark-50">
+                  <tr v-for="prod in lowStockProducts" :key="prod.id" class="hover:bg-red-50/30 dark:hover:bg-red-900/10 transition-colors">
+                    <td class="px-4 py-3 text-sm font-medium text-brand-mocha dark:text-brand-cream max-w-[200px] truncate" :title="prod.name">
+                      {{ prod.name }}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <!-- Badge đỏ đậm cảnh báo -->
+                      <span class="px-2.5 py-0.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 rounded-full text-xs font-bold border border-red-200 dark:border-red-800">
+                        {{ prod.stockQuantity }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-center text-gray-500 dark:text-gray-400">
+                      {{ formatCurrency(prod.price) }}
+                    </td>
+                  </tr>
+                  <tr v-if="!lowStockProducts || lowStockProducts.length === 0">
+                    <td colspan="3" class="p-8 text-center text-sm text-green-600 dark:text-green-400 italic font-medium">
+                      Kho hàng ổn định 
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+          </CardCustom>
       </div>
+
     </div>
+    
+    <!-- TOAST THÔNG BÁO -->
+    <ToastCustom :show="toast.show" :message="toast.message" :type="toast.type" />
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useDashboardStore } from '@/stores/dashboard.store';
+import { CurrencyDollarIcon, ShoppingBagIcon, UsersIcon, CubeIcon } from '@heroicons/vue/24/outline';
 import AdminDashFil from './AdminDashFil.vue';
 import AdminRevenueChart from './AdminRevenueChart.vue';
-import ButtonDefault from '@/components/custom/Button/ButtonDefault.vue'
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ExclamationCircleIcon,
-  ShoppingBagIcon,
-  CurrencyDollarIcon,
-  UsersIcon,
-  CubeIcon,
-  DocumentTextIcon
-} from '@heroicons/vue/24/outline'
+import ButtonCustom from '@/components/custom/Button/ButtonDefault.vue';
+import CardCustom from '@/components/custom/Card/CardCustom.vue';
+import ToastCustom from '@/components/custom/Toast/ToastCustom.vue'; 
 
-const router = useRouter()
+const dashboardStore = useDashboardStore();
+// Đảm bảo lấy đúng state từ store
+const { stats, recentOrders, lowStockProducts, isLoading } = storeToRefs(dashboardStore);
 
-// Import modal state
-const showImportModal = ref(false)
-const importFile = ref<File | null>(null)
-const importOptions = ref({
-  hasHeader: true
-})
+// Toast Logic
+const toast = ref({ show: false, message: '', type: 'success' as 'success' | 'error' });
+// (Có thể mở rộng để dùng toast global sau này)
 
-// Import results state
-const showImportResults = ref(false)
-const importResults = ref<{
-  successCount: number
-  errorCount: number
-  totalCount: number
-  errors: any[] | null
-} | null>(null)
+onMounted(() => { 
+  dashboardStore.fetchDashboardData(); 
+});
 
-// Quick actions
-const quickActions = [
-  {
-    title: 'Add Product',
-    description: 'Create a new product',
-    icon: CubeIcon,
-    action: () => router.push('/admin/products/new')
-  },
-  {
-    title: 'Process Orders',
-    description: 'Manage pending orders',
-    icon: DocumentTextIcon,
-    action: () => router.push('/admin/orders?status=pending')
-  },
-  {
-    title: 'View Inventory',
-    description: 'Check stock levels',
-    icon: ShoppingBagIcon,
-    action: () => router.push('/admin/inventory')
-  },
-  {
-    title: 'Generate Report',
-    description: 'Download sales reports',
-    icon: DocumentTextIcon,
-    action: () => console.log('Generate Report')
-  }
-]
-
-// Mock data - replace with actual API calls
-const stats = ref([
-  {
-    name: 'Total Products',
-    value: '1,234',
-    change: '+12%',
-    changeType: 'increase',
-    icon: CubeIcon,
-    href: '/admin/products'
-  },
-  {
-    name: 'Total Orders',
-    value: '89',
-    change: '+5%',
-    changeType: 'increase',
-    icon: ShoppingBagIcon,
-    href: '/admin/orders'
-  },
-  {
-    name: 'Revenue',
-    value: '$12,345',
-    change: '+8.2%',
-    changeType: 'increase',
-    icon: CurrencyDollarIcon,
-    href: '/admin/reports/sales'
-  },
-  {
-    name: 'New Customers',
-    value: '34',
-    change: '-2.1%',
-    changeType: 'decrease',
-    icon: UsersIcon,
-    href: '/admin/customers'
-  }
-])
-
-const recentOrders = ref([
-  {
-    id: '#ORD-001',
-    customer: 'Nguyễn Văn A',
-    date: '2023-06-15',
-    amount: '1,200,000',
-    status: 'completed',
-    items: 3
-  },
-  {
-    id: '#ORD-002',
-    customer: 'Trần Thị B',
-    date: '2023-06-14',
-    amount: '850,000',
-    status: 'processing',
-    items: 2
-  },
-  {
-    id: '#ORD-003',
-    customer: 'Lê Văn C',
-    date: '2023-06-14',
-    amount: '2,300,000',
-    status: 'pending',
-    items: 5
-  },
-  {
-    id: '#ORD-004',
-    customer: 'Phạm Thị D',
-    date: '2023-06-13',
-    amount: '450,000',
-    status: 'completed',
-    items: 1
-  },
-  {
-    id: '#ORD-005',
-    customer: 'Hoàng Văn E',
-    date: '2023-06-13',
-    amount: '1,750,000',
-    status: 'cancelled',
-    items: 4
-  },
-])
-
-const lowStockProducts = ref([
-  {
-    id: 1,
-    name: 'Áo thun nam cổ tròn',
-    sku: 'ATN-001',
-    stock: 2,
-    status: 'critical',
-    price: '250,000',
-    category: 'Áo thun'
-  },
-  {
-    id: 2,
-    name: 'Quần jean nữ ống loe',
-    sku: 'QJN-045',
-    stock: 5,
-    status: 'warning',
-    price: '450,000',
-    category: 'Quần'
-  },
-  {
-    id: 3,
-    name: 'Giày thể thao đế đôi',
-    sku: 'GTD-112',
-    stock: 1,
-    status: 'critical',
-    price: '1,200,000',
-    category: 'Giày dép'
-  },
-  {
-    id: 4,
-    name: 'Túi xách nữ thời trang',
-    sku: 'TXN-078',
-    stock: 3,
-    status: 'warning',
-    price: '350,000',
-    category: 'Phụ kiện'
-  },
-  {
-    id: 5,
-    name: 'Ví da nam cao cấp',
-    sku: 'VDN-056',
-    stock: 4,
-    status: 'warning',
-    price: '280,000',
-    category: 'Phụ kiện'
-  },
-])
-
-// Import modal functions
-const openImportModal = () => {
-  showImportModal.value = true
-}
-
-const closeImportModal = () => {
-  showImportModal.value = false
-  importFile.value = null
-  importOptions.value.hasHeader = true
-}
-
-const closeImportResults = () => {
-  showImportResults.value = false
-  importResults.value = null
-}
-
-const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    importFile.value = file
-  }
-}
-
-const removeFile = () => {
-  importFile.value = null
-  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
-  if (fileInput) {
-    fileInput.value = ''
-  }
-}
-
-const importProducts = async () => {
-  if (!importFile.value) {
-    alert('Please select a file to import')
-    return
-  }
-
-  try {
-    const formData = new FormData()
-    formData.append('file', importFile.value)
-    formData.append('hasHeader', importOptions.value.hasHeader.toString())
-    formData.append('headerRow', '0')
-    formData.append('dataStartRow', '1')
-
-    const response = await fetch('/api/v1/admin/import_data/products/excel', {
-      method: 'POST',
-      body: formData
-    })
-
-    if (response.ok) {
-      const result = await response.json()
-      importResults.value = {
-        successCount: result.data?.successCount || 0,
-        errorCount: result.data?.errorCount || 0,
-        totalCount: result.data?.totalCount || 0,
-        errors: result.data?.errors || null
-      }
-      showImportModal.value = false
-      showImportResults.value = true
-
-      // Refresh dashboard data if import was successful
-      if (importResults.value.successCount > 0) {
-        console.log('Import successful, refreshing dashboard...')
-      }
-    } else {
-      throw new Error(`Import failed: ${response.statusText}`)
-    }
-  } catch (error) {
-    console.error('Import error:', error)
-    alert('Import failed. Please check your file and try again.')
-  }
-}
-
-const getStatusBadgeClass = (status) => {
-  const statusClasses = {
-    completed: 'bg-green-50 text-green-700 ring-green-600/20',
-    processing: 'bg-blue-50 text-blue-700 ring-blue-600/20',
-    pending: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
-    cancelled: 'bg-red-50 text-red-700 ring-red-600/10',
-    critical: 'bg-red-50 text-red-700 ring-red-600/10',
-    warning: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20'
-  }
-  return statusClasses[status] || 'bg-gray-50 text-gray-700 ring-gray-600/20'
-}
-
-const getStockStatusClass = (stock) => {
-  if (stock <= 2) return 'bg-red-50 text-red-700 ring-1 ring-red-600/10'
-  if (stock <= 5) return 'bg-yellow-50 text-yellow-700 ring-1 ring-yellow-600/20'
-  return 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20'
-}
-
-const getStockStatusText = (stock) => {
-  if (stock <= 2) return 'Nguy cấp'
-  if (stock <= 5) return 'Cảnh báo'
-  return 'Bình thường'
-}
-
-const getStatusText = (status) => {
-  const statusText = {
-    completed: 'Hoàn thành',
-    processing: 'Đang xử lý',
-    pending: 'Chờ xử lý',
-    cancelled: 'Đã hủy',
-    in_stock: 'Còn hàng',
-    low: 'Sắp hết',
-    critical: 'Nguy cấp',
-    warning: 'Cảnh báo',
-  }
-  return statusText[status] || status
-}
-
-// Download product template function
-const downloadProductTemplate = () => {
-  try {
-    // Create sample data for template
-    const sampleData = [
-      {
-        sku: 'SP001',
-        name: 'Sản phẩm mẫu 1',
-        slug: 'san-pham-mau-1',
-        shortDescription: 'Mô tả ngắn sản phẩm mẫu 1',
-        price: 100000,
-        stockQuantity: 50,
-        brand: 'Thương hiệu A',
-        category: 'Danh mục A',
-        status: 'ACTIVE',
-        unit: 'CAI',
-        longDescription: 'Mô tả dài chi tiết về sản phẩm mẫu 1 với đầy đủ thông tin về tính năng, công dụng và hướng dẫn sử dụng.',
-        specification: '{"color": "Đỏ", "size": "Lớn", "material": "Nhựa"}',
-        packaging: 'Hộp carton 10x15x20cm',
-        weight: 1.5,
-        dimensions: '10x15x20',
-        images: 'image1.jpg,image2.jpg,image3.jpg'
-      },
-      {
-        sku: 'SP002',
-        name: 'Sản phẩm mẫu 2',
-        slug: 'san-pham-mau-2',
-        shortDescription: 'Mô tả ngắn sản phẩm mẫu 2',
-        price: 200000,
-        stockQuantity: 30,
-        brand: 'Thương hiệu B',
-        category: 'Danh mục B',
-        status: 'ACTIVE',
-        unit: 'HOP',
-        longDescription: 'Mô tả dài chi tiết về sản phẩm mẫu 2 với đầy đủ thông tin về tính năng, công dụng và hướng dẫn sử dụng.',
-        specification: '{"color": "Xanh", "size": "Trung bình", "material": "Kim loại"}',
-        packaging: 'Thùng giấy 20x25x30cm',
-        weight: 2.8,
-        dimensions: '20x25x30',
-        images: 'image4.jpg,image5.jpg'
-      }
-    ];
-
-    // Create CSV content
-    const headers = [
-      'sku', 'name', 'slug', 'shortDescription', 'price', 'stockQuantity',
-      'brand', 'category', 'status', 'unit', 'longDescription', 'specification',
-      'packaging', 'weight', 'dimensions', 'images'
-    ];
-
-    const csvContent = [
-      headers.join(','),
-      ...sampleData.map(row =>
-        headers.map(header => {
-          const value = row[header as keyof typeof row];
-          // Handle special cases
-          if (header === 'specification' && typeof value === 'object') {
-            return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
-          }
-          if (typeof value === 'string' && value.includes(',')) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value || '';
-        }).join(',')
-      )
-    ].join('\n');
-
-    // Create and download file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'product_template.csv');
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    console.log('Product template downloaded successfully');
-  } catch (error) {
-    console.error('Error downloading template:', error);
-  }
+const handleFilter = (filters: any) => {
+  dashboardStore.fetchDashboardData(filters);
 };
 
-const handleFilter = (filters) => {
-  // Handle filter changes
-  console.log('Filters:', filters);
+const handleExport = (filters: any) => {
+  console.log('Export requested:', filters);
+  // Logic export excel sẽ thêm sau
 };
 
-const handleExport = (filters) => {
-  console.log('Exporting with filters:', filters);
-  // Handle export logic here
-}
+// Helper Format tiền
+const formatCurrency = (value: number) => {
+  if (value === undefined || value === null) return '0 ₫';
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+};
 
-const getIconBgColor = (statName: string) => {
-  switch (statName) {
-    case 'Total Products':
-      return 'bg-indigo-500';
-    case 'Total Orders':
-      return 'bg-green-500';
-    case 'Revenue':
-      return 'bg-blue-500';
-    case 'New Customers':
-      return 'bg-purple-500';
-    default:
-      return 'bg-gray-500';
+// Helper class trạng thái đơn hàng
+const getStatusClass = (status: string) => {
+  switch(status) {
+    case 'PENDING': return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+    case 'CONFIRMED': return 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+    case 'SHIPPED': return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800';
+    case 'DELIVERED': return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+    case 'CANCELLED': return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+    default: return 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
   }
-}
+};
 </script>
