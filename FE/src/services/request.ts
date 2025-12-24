@@ -67,8 +67,8 @@ request.interceptors.response.use(
       window.location.pathname !== ROUTES_CONSTANTS.LOGIN.path
       
     ) {
-      window.location.href = ROUTES_CONSTANTS.FORBIDDEN.path
-      console.log("lỗi ",error.response)
+      // window.location.href = ROUTES_CONSTANTS.FORBIDDEN.path
+      console.log("lỗi 403 Forbidden", error.response)
     }
 
     return Promise.reject(error)

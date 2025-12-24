@@ -18,6 +18,7 @@ import udpm.hn.server.entity.Product;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,8 +37,11 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0);
 
+        Long startMillis = startOfMonth.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        Long endMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
         // Tính toán các chỉ số (Logic đơn giản cho demo)
-        BigDecimal revenue = orderRepository.sumTotalAmountByDateRange(startOfMonth, now);
+        BigDecimal revenue = orderRepository.sumTotalAmountByDateRange(startMillis, endMillis);
         long orders = orderRepository.count();
         long products = productRepository.count();
         long customers = customerRepository.count();
@@ -58,7 +62,8 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     @Transactional(readOnly = true)
     public RevenueChartResponse getChartData(String year) {
-        // Mock data cho biểu đồ (Vì query group by month trong JPA khá phức tạp để viết nhanh)
+        // Mock data cho biểu đồ (Vì query group by month trong JPA khá phức tạp để viết
+        // nhanh)
         List<String> labels = List.of("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12");
         List<BigDecimal> revenue = new ArrayList<>();
         List<Long> orders = new ArrayList<>();

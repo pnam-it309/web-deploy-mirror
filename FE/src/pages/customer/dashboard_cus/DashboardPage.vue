@@ -46,7 +46,7 @@
             <ArrowRightIcon class="w-5 h-5 text-blue-200 group-hover:text-white transition-colors" />
           </div>
           <div>
-            <div class="text-4xl font-bold mb-1">0</div>
+            <div class="text-4xl font-bold mb-1">{{ orderCount }}</div>
             <div class="text-blue-100 text-sm font-medium">Đơn hàng của bạn</div>
           </div>
         </div>
@@ -83,7 +83,7 @@
             <ArrowRightIcon class="w-5 h-5 text-pink-200 group-hover:text-white transition-colors" />
           </div>
           <div>
-            <div class="text-4xl font-bold mb-1">5</div>
+            <div class="text-4xl font-bold mb-1">{{ offerCount }}</div>
             <div class="text-pink-100 text-sm font-medium">Ưu đãi có sẵn</div>
           </div>
         </div>
@@ -243,109 +243,23 @@ import {
 } from '@heroicons/vue/24/outline';
 import ProductCard from '@/pages/customer/products/ProductCard.vue';
 import type { Product } from '@/types/product';
+import { getFeaturedProducts, getDashboardCategories, getDashboardStats } from '@/services/api/customer/dashboard.api';
+import { toast } from 'vue3-toastify';
 
 const router = useRouter();
 
 // --- State ---
 const wishlistCount = ref(0);
+const orderCount = ref(0);
+const offerCount = ref(5);
 const timeLeft = ref('12:45:30');
 const wishlistIds = ref<string[]>([]);
+const categories = ref<any[]>([]);
 
-// Categories Data
-const categories = [
-  { id: 'Laptop', name: 'Laptop', count: '125', icon: ComputerDesktopIcon, color: 'bg-blue-500' },
-  { id: 'Phone', name: 'Điện thoại', count: '89', icon: DevicePhoneMobileIcon, color: 'bg-purple-500' },
-  { id: 'Tablet', name: 'Tablet', count: '56', icon: DeviceTabletIcon, color: 'bg-green-500' },
-  { id: 'Accessories', name: 'Phụ kiện', count: '234', icon: SpeakerWaveIcon, color: 'bg-orange-500' },
-];
-
-// Featured Products Mock Data
-// Store original products to reset filters
+// Featured Products State
 const allProducts = ref<Product[]>([]);
 const featuredProducts = ref<Product[]>([]);
-
-// Handle filter changes from DashCusFil component
-const handleFilter = (filters: any) => {
-  let filtered = [...allProducts.value];
-
-  // Filter by categories
-  if (filters.categories && filters.categories.length > 0) {
-    filtered = filtered.filter(product =>
-      filters.categories.includes(product.category.toLowerCase())
-    );
-  }
-
-  // Filter by price range
-  if (filters.minPrice) {
-    filtered = filtered.filter(product => product.price >= filters.minPrice);
-  }
-  if (filters.maxPrice) {
-    filtered = filtered.filter(product => product.price <= filters.maxPrice);
-  }
-
-  // Filter by stock status
-  if (filters.inStockOnly) {
-    filtered = filtered.filter(product => product.inStock);
-  }
-
-  featuredProducts.value = filtered;
-};
-
-// Initialize products
-const initializeProducts = () => {
-  const products = [
-    {
-      id: 'p1',
-      name: 'iPhone 15 Pro Max',
-      price: 29990000,
-      category: 'Điện thoại',
-      image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500&q=80',
-      rating: 5,
-      reviewCount: 128,
-      description: 'Titan tự nhiên, chip A17 Pro mạnh mẽ nhất.',
-      inStock: true,
-      badge: 'New'
-    },
-    {
-      id: 'p2',
-      name: 'MacBook Pro 14"',
-      price: 52990000,
-      category: 'Laptop',
-      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=500&q=80',
-      rating: 5,
-      reviewCount: 85,
-      description: 'Chip M3 Pro, màn hình Liquid Retina XDR.',
-      inStock: true,
-      badge: 'Best Seller'
-    },
-    {
-      id: 'p3',
-      name: 'AirPods Pro (Gen 2)',
-      price: 5990000,
-      category: 'Phụ kiện',
-      image: 'https://images.unsplash.com/photo-1603351154351-5cf99bc32f2d?w=500&q=80',
-      rating: 4.8,
-      reviewCount: 342,
-      description: 'Chống ồn chủ động gấp 2 lần, USB-C.',
-      inStock: true
-    },
-    {
-      id: 'p4',
-      name: 'Samsung Galaxy Tab S9',
-      price: 18990000,
-      category: 'Tablet',
-      image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&q=80',
-      rating: 4.7,
-      reviewCount: 56,
-      description: 'Màn hình Dynamic AMOLED 2X, kháng nước IP68.',
-      inStock: true
-    },
-  ];
-  allProducts.value = [...products];
-  featuredProducts.value = [...products];
-};
-
-// --- Methods ---
+const isLoading = ref(false);
 
 const updateWishlistCount = () => {
   const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -354,14 +268,11 @@ const updateWishlistCount = () => {
 };
 
 const filterByCategory = (categoryId: string) => {
-  // Map category IDs to what ProductList expects or just pass as query
-  // For demo purposes, we'll just pass the name as search or category
-  // Assuming ProductList handles 'categories' query param
   router.push({ path: '/customer/products', query: { categories: categoryId } });
 };
 
 const addToCart = (product: Product) => {
-  alert(`Đã thêm "${product.name}" vào Yêu cầu đặt hàng!`);
+  toast.success(`Đã thêm "${product.name}" vào Yêu cầu đặt hàng!`);
 };
 
 const toggleWishlist = (product: Product) => {
@@ -376,9 +287,11 @@ const toggleWishlist = (product: Product) => {
       image: product.image
     });
     wishlistIds.value.push(product.id);
+    toast.success('Đã thêm vào danh sách yêu thích');
   } else {
     wishlist.splice(index, 1);
-    wishlistIds.value = wishlistIds.value.filter(id => id !== product.id);
+    wishlistIds.value = wishlistIds.value.filter((id) => id !== product.id);
+    toast.info('Đã xóa khỏi danh sách yêu thích');
   }
 
   localStorage.setItem('wishlist', JSON.stringify(wishlist));
@@ -390,10 +303,75 @@ const isInWishlist = (id: string | number) => {
   return wishlistIds.value.includes(String(id));
 };
 
+// --- API Calls ---
+
+// Map categories icons based on name (simple heuristic)
+const getCategoryIcon = (name: string) => {
+  const n = name.toLowerCase();
+  if (n.includes('laptop') || n.includes('máy tính')) return ComputerDesktopIcon;
+  if (n.includes('điện thoại') || n.includes('phone')) return DevicePhoneMobileIcon;
+  if (n.includes('tablet') || n.includes('máy tính bảng')) return DeviceTabletIcon;
+  if (n.includes('phụ kiện') || n.includes('accessory')) return SpeakerWaveIcon;
+  return CubeIcon;
+};
+
+const getCategoryColor = (index: number) => {
+  const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500', 'bg-pink-500', 'bg-teal-500'];
+  return colors[index % colors.length];
+};
+
+const fetchDashboardData = async () => {
+  isLoading.value = true;
+  try {
+    // 1. Fetch Stats
+    const statsRes = await getDashboardStats();
+    if (statsRes && statsRes.data) {
+      orderCount.value = statsRes.data.orderCount || 0;
+      offerCount.value = statsRes.data.offerCount || 5;
+    }
+
+    // 2. Fetch Categories
+    const catRes = await getDashboardCategories();
+    if (catRes && catRes.data) {
+      categories.value = catRes.data.map((c: any, index: number) => ({
+        id: c.id,
+        name: c.name,
+        count: c.productCount || 0,
+        icon: getCategoryIcon(c.name),
+        color: getCategoryColor(index)
+      }));
+    }
+
+    // 3. Fetch Featured Products
+    const prodRes = await getFeaturedProducts();
+    if (prodRes && prodRes.data) {
+      const products = prodRes.data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        category: p.categoryName,
+        image: p.imageUrl || 'https://placehold.co/300', // Fallback image
+        rating: p.rating || 5,
+        reviewCount: 0, // Mock for now
+        description: p.shortDescription || '',
+        inStock: true, // Mock
+        badge: p.badge || 'New'
+      }));
+      allProducts.value = products;
+      featuredProducts.value = products;
+    }
+
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    toast.error('Không thể tải dữ liệu trang chủ');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 // Countdown Timer Logic
 let timerInterval: any;
 const startTimer = () => {
-  // Set a deadline 12 hours from now for demo
   const deadline = new Date();
   deadline.setHours(deadline.getHours() + 12);
 
@@ -419,7 +397,7 @@ const startTimer = () => {
 onMounted(() => {
   updateWishlistCount();
   startTimer();
-  initializeProducts();
+  fetchDashboardData();
   window.addEventListener('wishlist-updated', updateWishlistCount);
 });
 

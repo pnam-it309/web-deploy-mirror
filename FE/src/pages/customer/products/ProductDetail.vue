@@ -412,7 +412,7 @@ export default defineComponent({
             originalPrice: data.originalPrice, // if avail
             images: data.images && data.images.length > 0
               ? data.images
-              : (data.image ? [data.image] : ['https://via.placeholder.com/800']),
+              : (data.image ? [data.image] : ['https://placehold.co/800']),
             rating: data.rating || 0,
             reviewCount: data.reviewCount || 0,
             inStock: (data.inventory || 0) > 0,

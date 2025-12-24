@@ -2,48 +2,11 @@
   <div class="product-list-page bg-gray-50 min-h-screen py-8">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-      <div class="page-header bg-white shadow-sm p-6 rounded-lg mb-8 text-center">
-        <h1>Sản phẩm của chúng tôi</h1>
-      </div>
+      <CategorySlider :categories="categories" @select="handleCategorySelect" />
 
       <div class="product-container flex flex-col lg:flex-row gap-6">
         <div class="product-grid-container lg:flex-1">
-          <div
-            class="toolbar bg-white shadow-sm p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center mb-6">
 
-            <div class="flex-1 w-full sm:w-auto mb-4 sm:mb-0 sm:mr-4 max-w-md">
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                    fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clip-rule="evenodd" />
-                  </svg>
-                </div>
-                <input v-model="searchQuery" @input="applyFilters" type="text"
-                  class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Search products by name...">
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between w-full sm:w-auto">
-              <div v-if="!isLoading" class="results-count text-sm text-gray-600 mr-4 whitespace-nowrap">
-                Showing **{{ paginatedProducts.length }}** of **{{ totalProductsCount }}** results
-              </div>
-              <div class="sort-options flex items-center gap-2">
-                <label class="text-sm text-gray-600">Sort by:</label>
-                <select v-model="sortBy" @change="applyFilters"
-                  class="p-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="featured">Featured</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name-asc">Name: A to Z</option>
-                  <option value="name-desc">Name: Z to A</option>
-                </select>
-              </div>
-            </div>
-          </div>
           <div v-if="isLoading" class="loading p-12 bg-white rounded-lg shadow-sm text-center">
             <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg"
               fill="none" viewBox="0 0 24 24">
@@ -83,6 +46,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Part 3: Banner & Before You Buy -->
+  <PromoBanner />
+  <BeforeYouBuy />
+
+  <!-- Part 4: Product Comparison -->
+  <ProductComparison />
+
 </template>
 
 <script lang="ts">
@@ -90,10 +61,15 @@ import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 // Giả định component ProductCard.vue đã tồn tại
 import ProductCard from './ProductCard.vue';
+import CategorySlider from '@/components/custom/CategorySlider.vue';
 // Giả định thư viện Axios đã được cài đặt
 import request from '@/services/request';
 import { API_CUSTOMER_PRODUCTS, API_CUSTOMER_WISHLIST } from '@/constants/url';
+import { getDashboardCategories } from '@/services/api/customer/dashboard.api';
 import { toast } from 'vue3-toastify';
+import PromoBanner from '@/components/custom/PromoBanner.vue';
+import BeforeYouBuy from '@/components/custom/BeforeYouBuy.vue';
+import ProductComparison from '@/components/custom/ProductComparison.vue';
 
 // --- CONFIGURATION ---
 const ITEMS_PER_PAGE = 8; // Số sản phẩm trên mỗi trang
@@ -101,7 +77,11 @@ const ITEMS_PER_PAGE = 8; // Số sản phẩm trên mỗi trang
 export default defineComponent({
   name: 'ProductList',
   components: {
-    ProductCard
+    ProductCard,
+    CategorySlider,
+    PromoBanner,
+    BeforeYouBuy,
+    ProductComparison
   },
   setup() {
     const route = useRoute();
@@ -126,7 +106,7 @@ export default defineComponent({
     // products giờ là nơi lưu trữ dữ liệu từ API
     const products = ref<Product[]>([]);
     const totalProductsCount = ref(0);
-    const categories = ref<{ id: string, name: string, count: number }[]>([]); // Sẽ fetch từ API nếu cần
+    const categories = ref<any[]>([]); // Sẽ fetch từ API nếu cần
 
     const selectedCategories = ref<string[]>([]);
     const priceRange = ref({ min: 0, max: 500 });
@@ -323,6 +303,27 @@ export default defineComponent({
 
       // Tải dữ liệu ban đầu
       fetchProducts();
+      fetchCategories();
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const res = await getDashboardCategories();
+        if (res && res.data) {
+          categories.value = res.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            // Map other properties if needed by slider, currently slider just needs name and id
+          }));
+        }
+      } catch (e) {
+        console.error("Failed to fetch categories", e);
+      }
+    };
+
+    const handleCategorySelect = (categoryName: string) => {
+      selectedCategories.value = [categoryName];
+      applyFilters();
     };
 
     // --- Lifecycle hooks ---
@@ -366,7 +367,8 @@ export default defineComponent({
       resetFilters,
       addToCart,
       toggleWishlist,
-      isInWishlist
+      isInWishlist,
+      handleCategorySelect
     };
   }
 });

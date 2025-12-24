@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final StaffAuthRepository staffAuthRepository;
     private final RoleAuthRepository roleAuthRepository;
-
+    private final udpm.hn.server.repository.CustomerRepository customerRepository;
 
     @Override
     @Transactional
@@ -32,16 +32,21 @@ public class CustomUserDetailsService implements UserDetailsService {
             throws UsernameNotFoundException {
         System.out.println("EMAIL: " + email);
 
-        log.info("Đã chạy vào tronguser detail servie:{}",email);
+        log.info("Đã chạy vào tronguser detail servie:{}", email);
 
         Optional<Admin> exitStaff = staffAuthRepository.findByEmailAndStatus(email, EntityStatus.ACTIVE);
 
-        if(exitStaff.isPresent()) {
+        if (exitStaff.isPresent()) {
             Admin adminPre = exitStaff.get();
             List<String> roles = roleAuthRepository.findRoleByAdminId(adminPre.getId());
             return staffAuthRepository.findById(adminPre.getId())
-                    .map(staff -> UserPrincipal.create(staff,roles))
+                    .map(staff -> UserPrincipal.create(staff, roles))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with id : " + adminPre.getId()));
+        }
+
+        Optional<udpm.hn.server.entity.Customer> customer = customerRepository.findByEmail(email);
+        if (customer.isPresent()) {
+            return UserPrincipal.create(customer.get(), List.of("CUSTOMER"));
         }
 
         throw new UsernameNotFoundException("User not found with email: " + email);

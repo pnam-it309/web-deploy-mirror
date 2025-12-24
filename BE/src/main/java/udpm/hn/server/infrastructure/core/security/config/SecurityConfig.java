@@ -34,119 +34,124 @@ import static udpm.hn.server.utils.Helper.appendWildcard;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true
-)
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
-    private final TokenProvider tokenProvider;
-    private final CustomUserDetailsService customUserDetailsService;
-    private final GlobalVariables globalVariables;
-    private final CorsConfigurationSource corsConfigurationSource;
-    private TokenAuthenticationFilter tokenAuthenticationFilter;
+        private final CustomOAuth2UserService customOAuth2UserService;
+        private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+        private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+        private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+        private final TokenProvider tokenProvider;
+        private final CustomUserDetailsService customUserDetailsService;
+        private final GlobalVariables globalVariables;
+        private final CorsConfigurationSource corsConfigurationSource;
+        private TokenAuthenticationFilter tokenAuthenticationFilter;
 
+        @Bean
+        public TokenAuthenticationFilter tokenAuthenticationFilter() {
+                return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService, globalVariables);
+        }
 
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider,customUserDetailsService,globalVariables);
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean(BeanIds.AUTHENTICATION_MANAGER)
+        public AuthenticationManager authenticationManager(
+                        UserDetailsService userDetailsService,
+                        PasswordEncoder passwordEncoder) {
+                DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+                provider.setPasswordEncoder(passwordEncoder);
+                provider.setUserDetailsService(userDetailsService);
+                return new ProviderManager(provider);
+        }
 
-    @Bean(BeanIds.AUTHENTICATION_MANAGER)
-    public AuthenticationManager authenticationManager(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder
-    ) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailsService);
-        return new ProviderManager(provider);
-    }
+        @Bean
+        protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                log.info("Initializing security filter chain");
 
-    @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("Initializing security filter chain");
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
+                // Public endpoints
+                http.authorizeHttpRequests(auth -> auth
+                                .requestMatchers(
+                                                "/",
+                                                "/error",
+                                                "/favicon.ico",
+                                                "/*/*.png",
+                                                "/*/*.gif",
+                                                "/*/*.svg",
+                                                "/*/*.jpg",
+                                                "/*/*.html",
+                                                "/*/*.css",
+                                                "/*/*.js",
+                                                "/auth/**",
+                                                "/oauth2/**",
+                                                "/login/oauth2/code/**", // Allow callback path explicitely
+                                                appendWildcard(MappingConstants.API_AUTH_PREFIX))
+                                .permitAll());
 
-        // Public endpoints
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/",
-                "/error",
-                "/favicon.ico",
-                "/*/*.png",
-                "/*/*.gif",
-                "/*/*.svg",
-                "/*/*.jpg",
-                "/*/*.html",
-                "/*/*.css",
-                "/*/*.js",
-                "/auth/**",
-                "/oauth2/**",
-                "/login/oauth2/code/**", // Allow callback path explicitely
-                appendWildcard(MappingConstants.API_AUTH_PREFIX)
-            ).permitAll()
-        );
+                // Public API endpoints
+                http.authorizeHttpRequests(auth -> auth
+                                .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_CATEGORIES)).permitAll()
+                                .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_PRODUCTS)).permitAll()
+                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_ORDER)).permitAll()
+                                .requestMatchers(MappingConstants.API_CUSTOMER_ORDER).permitAll() // Explicit match
+                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_VIEW_PRODUCT))
+                                .permitAll());
 
-        // Public API endpoints
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_CATEGORIES)).permitAll()
-            .requestMatchers(appendWildcard(MappingConstants.API_PUBLIC_PRODUCTS)).permitAll()
-            .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_ORDER)).permitAll()
-        );
+                // Customer API endpoints
+                http.authorizeHttpRequests(auth -> auth
+                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
+                                .hasAnyAuthority("CUSTOMER", "ADMIN") // Luật chung cho /customer/**
+                );
 
-        // Customer API endpoints
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_VIEW_PRODUCT)).hasAuthority("CUSTOMER") // Khớp /customer/view_products/**
-                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX)).hasAuthority("CUSTOMER") // Luật chung cho /customer/**
-        );
+                // Admin API endpoints
+                http.authorizeHttpRequests(auth -> auth
+                                // KHÔNG CÒN HARD-CODE
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_BRAND)).hasAuthority("ADMIN") // Khớp
+                                                                                                                         // /admin/brands/**
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY))
+                                .hasAuthority("ADMIN") // Khớp
+                                                       // /admin/categories/**
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PRODUCT))
+                                .hasAuthority("ADMIN") // Khớp
+                                                       // /admin/products/**
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_ORDER)).hasAuthority("ADMIN") // ...
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_WAREHOUSE))
+                                .hasAuthority("ADMIN") // ...
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CUSTOMER))
+                                .hasAuthority("ADMIN") // ...
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_IMPORT))
+                                .hasAuthority("ADMIN") // ...
+                                // Luật chung cho /admin/**
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
+                                .hasAuthority("ADMIN"));
 
-        // Admin API endpoints
-        http.authorizeHttpRequests(auth -> auth
-                // KHÔNG CÒN HARD-CODE
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_BRAND)).hasAuthority("ADMIN") // Khớp /admin/brands/**
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CATEGORY)).hasAuthority("ADMIN") // Khớp /admin/categories/**
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PRODUCT)).hasAuthority("ADMIN") // Khớp /admin/products/**
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_ORDER)).hasAuthority("ADMIN") // ...
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_WAREHOUSE)).hasAuthority("ADMIN") // ...
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_CUSTOMER)).hasAuthority("ADMIN") // ...
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_IMPORT)).hasAuthority("ADMIN") // ...
-                // Luật chung cho /admin/**
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX)).hasAuthority("ADMIN")
-        );
+                // OAuth2 configuration
+                http.oauth2Login(oauth2 -> oauth2
+                                .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
+                                .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
+                                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                                .authorizationEndpoint(
+                                                a -> a.authorizationRequestRepository(
+                                                                httpCookieOAuth2AuthorizationRequestRepository))
+                                .successHandler(oAuth2AuthenticationSuccessHandler)
+                                .failureHandler(oAuth2AuthenticationFailureHandler));
 
-        // OAuth2 configuration
-        http.oauth2Login(oauth2 -> oauth2
-            .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
-            .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
-            .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-            .authorizationEndpoint(a -> a.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-            .successHandler(oAuth2AuthenticationSuccessHandler)
-            .failureHandler(oAuth2AuthenticationFailureHandler)
-        );
+                // Add token authentication filter
+                http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        // Add token authentication filter
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+                return http.build();
+        }
 
 }

@@ -65,7 +65,7 @@ export default defineComponent({
               id: p.id,
               name: p.name,
               price: p.price,
-              image: p.image || 'https://via.placeholder.com/300'
+              image: p.image || 'https://placehold.co/300'
             }));
           } else {
             console.error('Wishlist data is not an array:', data);

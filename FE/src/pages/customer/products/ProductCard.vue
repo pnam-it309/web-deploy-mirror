@@ -45,25 +45,12 @@
         {{ product.description }}
       </p>
 
-      <div class="flex justify-between items-center pt-2 border-t border-gray-100">
-
-        <Button variant="secondary" size="xs" class="flex-1 max-w-[45%] mr-1 text-xs py-1"
+      <div class="flex justify-end items-center pt-2 border-t border-gray-100">
+        <Button size="icon" class="h-8 w-8 rounded-full"
           :class="product.inStock ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300'"
           :disabled="!product.inStock" @click.stop="$emit('add-to-cart', product)">
-          Yêu cầu
+          <ShoppingCartIcon class="h-4 w-4" />
         </Button>
-
-        <Button variant="outline" size="xs"
-          class="flex-1 max-w-[45%] text-indigo-600 border-indigo-600 hover:bg-indigo-50 hover:border-indigo-700 text-xs py-1"
-          @click.stop="$router.push({ name: 'customer-product-detail', params: { id: product.id } })">
-          View Details
-        </Button>
-
-        <span class="inline-flex items-center text-xs ml-2 pl-2 whitespace-nowrap"
-          :class="product.inStock ? 'text-green-600' : 'text-red-600'">
-          <span class="w-2 h-2 rounded-full mr-1" :class="product.inStock ? 'bg-green-500' : 'bg-red-500'"></span>
-          {{ product.inStock ? 'In Stock' : 'Out of Stock' }}
-        </span>
       </div>
     </div>
   </div>

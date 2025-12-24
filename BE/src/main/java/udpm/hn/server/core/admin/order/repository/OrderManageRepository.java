@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Repository
 public interface OrderManageRepository extends OrderRepository, JpaSpecificationExecutor<Order> {
     boolean existsByOrderCode(String orderCode);
+
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.createdDate BETWEEN :start AND :end AND o.orderStatus != 'CANCELLED'")
-    BigDecimal sumTotalAmountByDateRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    BigDecimal sumTotalAmountByDateRange(@Param("start") Long start, @Param("end") Long end);
 
     // Lấy danh sách đơn hàng mới nhất
     @Query("SELECT o FROM Order o ORDER BY o.createdDate DESC")

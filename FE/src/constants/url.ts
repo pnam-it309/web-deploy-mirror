@@ -66,7 +66,7 @@ export const API_ADMIN_REPORT = `${PREFIX_API_ADMIN}/reports` as string
 export const API_ADMIN_ANALYTICS = `${PREFIX_API_ADMIN}/analytics` as string
 
 // CUSTOMER API
-export const PREFIX_API_CUSTOMER = '/api/v1/customer' as string
+export const PREFIX_API_CUSTOMER = '/customer' as string
 export const API_CUSTOMER_PROFILE = `${PREFIX_API_CUSTOMER}/profile` as string
 export const API_CUSTOMER_ORDERS = `${PREFIX_API_CUSTOMER}/order` as string
 export const API_CUSTOMER_CART = `${PREFIX_API_CUSTOMER}/cart` as string
@@ -76,6 +76,6 @@ export const API_CUSTOMER_PRODUCTS = `${PREFIX_API_CUSTOMER}/view_products` as s
 export const API_CUSTOMER_WISHLIST = `${PREFIX_API_CUSTOMER}/wishlist` as string
 
 // PUBLIC API
-export const PREFIX_API_PUBLIC = '/api/v1/public' as string
+export const PREFIX_API_PUBLIC = '/public' as string
 export const API_PUBLIC_PRODUCTS = `${PREFIX_API_PUBLIC}/view_products` as string
 export const API_PUBLIC_CATEGORIES = `${PREFIX_API_PUBLIC}/categories` as string

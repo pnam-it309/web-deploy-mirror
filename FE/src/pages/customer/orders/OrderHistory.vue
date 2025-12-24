@@ -18,7 +18,7 @@
               <option value="all">All time</option>
             </select>
           </div>
-          
+
           <div class="filter-group">
             <label for="status">Status:</label>
             <select id="status" v-model="filters.status" @change="applyFilters">
@@ -31,14 +31,9 @@
               <option value="refunded">Refunded</option>
             </select>
           </div>
-          
+
           <div class="search-box">
-            <input 
-              type="text" 
-              v-model="filters.search" 
-              placeholder="Search by order #"
-              @keyup.enter="applyFilters"
-            >
+            <input type="text" v-model="filters.search" placeholder="Search by order #" @keyup.enter="applyFilters">
             <button @click="applyFilters">
               <span class="search-icon">🔍</span>
             </button>
@@ -71,7 +66,7 @@
                 {{ formatStatus(order.status) }}
               </div>
             </div>
-            
+
             <div class="order-details">
               <div class="order-items">
                 <div v-for="(item, index) in order.items" :key="index" class="order-item">
@@ -90,7 +85,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="order-summary">
                 <div class="summary-row">
                   <span>Subtotal ({{ order.itemCount }} items)</span>
@@ -110,81 +105,50 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="order-actions">
-              <router-link 
-                :to="`/account/orders/${order.id}`" 
-                class="btn btn-outline"
-              >
+              <router-link :to="`/account/orders/${order.id}`" class="btn btn-outline">
                 View Details
               </router-link>
-              <button 
-                v-if="canReorder(order.status)"
-                @click="reorder(order)" 
-                class="btn btn-outline"
-              >
+              <button v-if="canReorder(order.status)" @click="reorder(order)" class="btn btn-outline">
                 Reorder
               </button>
-              <button 
-                v-if="canTrack(order.status)"
-                @click="trackOrder(order)" 
-                class="btn btn-outline"
-              >
+              <button v-if="canTrack(order.status)" @click="trackOrder(order)" class="btn btn-outline">
                 Track Order
               </button>
-              <button 
-                v-if="canCancel(order.status)"
-                @click="cancelOrder(order)" 
-                class="btn btn-outline"
-              >
+              <button v-if="canCancel(order.status)" @click="cancelOrder(order)" class="btn btn-outline">
                 Cancel Order
               </button>
-              <button 
-                v-if="canReturn(order.status)"
-                @click="initiateReturn(order)" 
-                class="btn btn-outline"
-              >
+              <button v-if="canReturn(order.status)" @click="initiateReturn(order)" class="btn btn-outline">
                 Return Items
               </button>
             </div>
           </div>
-          
+
           <!-- Pagination -->
           <div v-if="totalPages > 1" class="pagination">
-            <button 
-              :disabled="currentPage === 1"
-              @click="changePage(currentPage - 1)"
-              class="pagination-button"
-            >
+            <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)" class="pagination-button">
               &larr; Previous
             </button>
-            
+
             <div class="page-numbers">
-              <button 
-                v-for="page in visiblePageNumbers" 
-                :key="page"
-                @click="changePage(page)"
-                :class="{ active: currentPage === page }"
-                class="page-number"
-              >
+              <button v-for="page in visiblePageNumbers" :key="page" @click="changePage(page)"
+                :class="{ active: currentPage === page }" class="page-number">
                 {{ page }}
               </button>
-              
+
               <span v-if="showEllipsisAfter" class="ellipsis">...</span>
             </div>
-            
-            <button 
-              :disabled="currentPage === totalPages"
-              @click="changePage(currentPage + 1)"
-              class="pagination-button"
-            >
+
+            <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)"
+              class="pagination-button">
               Next &rarr;
             </button>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Cancel Order Modal -->
     <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
       <div class="modal">
@@ -204,27 +168,20 @@
               <option value="ordered_by_mistake">Ordered by mistake</option>
               <option value="other">Other (please specify)</option>
             </select>
-            <textarea 
-              v-if="cancellationReason === 'other'" 
-              v-model="customReason" 
-              placeholder="Please specify the reason..."
-              rows="3"
-            ></textarea>
+            <textarea v-if="cancellationReason === 'other'" v-model="customReason"
+              placeholder="Please specify the reason..." rows="3"></textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button @click="closeCancelModal" class="btn btn-outline">Go Back</button>
-          <button 
-            @click="confirmCancelOrder" 
-            :disabled="!cancellationReason || (cancellationReason === 'other' && !customReason)"
-            class="btn btn-danger"
-          >
+          <button @click="confirmCancelOrder"
+            :disabled="!cancellationReason || (cancellationReason === 'other' && !customReason)" class="btn btn-danger">
             {{ isCancelling ? 'Cancelling...' : 'Confirm Cancellation' }}
           </button>
         </div>
       </div>
     </div>
-    
+
     <!-- Return Modal -->
     <div v-if="showReturnModal" class="modal-overlay" @click.self="closeReturnModal">
       <div class="modal">
@@ -234,16 +191,11 @@
         </div>
         <div class="modal-body">
           <p>Select the items you would like to return:</p>
-          
+
           <div v-if="selectedOrder" class="return-items">
             <div v-for="item in selectedOrder.items" :key="item.id" class="return-item">
               <div class="return-item-select">
-                <input 
-                  type="checkbox" 
-                  :id="`return-${item.id}`" 
-                  v-model="selectedReturnItems[item.id]"
-                  :value="item"
-                >
+                <input type="checkbox" :id="`return-${item.id}`" v-model="selectedReturnItems[item.id]" :value="item">
               </div>
               <div class="return-item-image">
                 <img :src="item.image" :alt="item.name">
@@ -254,18 +206,14 @@
                 <div class="quantity-selector">
                   <label>Quantity:</label>
                   <select v-model="returnQuantities[item.id]" :disabled="!selectedReturnItems[item.id]">
-                    <option 
-                      v-for="n in item.quantity" 
-                      :key="n" 
-                      :value="n"
-                    >
+                    <option v-for="n in item.quantity" :key="n" :value="n">
                       {{ n }}
                     </option>
                   </select>
                 </div>
               </div>
             </div>
-            
+
             <div class="return-reason">
               <label>Reason for return:</label>
               <select v-model="returnReason">
@@ -277,33 +225,19 @@
                 <option value="better_price">Found better price elsewhere</option>
                 <option value="other">Other (please specify)</option>
               </select>
-              <textarea 
-                v-if="returnReason === 'other'" 
-                v-model="customReturnReason" 
-                placeholder="Please specify the reason..."
-                rows="3"
-              ></textarea>
+              <textarea v-if="returnReason === 'other'" v-model="customReturnReason"
+                placeholder="Please specify the reason..." rows="3"></textarea>
             </div>
-            
+
             <div class="refund-method">
               <label>Refund method:</label>
               <div class="refund-options">
                 <label class="radio-option">
-                  <input 
-                    type="radio" 
-                    v-model="refundMethod" 
-                    value="original" 
-                    name="refund-method"
-                  >
+                  <input type="radio" v-model="refundMethod" value="original" name="refund-method">
                   <span>Original payment method</span>
                 </label>
                 <label class="radio-option">
-                  <input 
-                    type="radio" 
-                    v-model="refundMethod" 
-                    value="store_credit" 
-                    name="refund-method"
-                  >
+                  <input type="radio" v-model="refundMethod" value="store_credit" name="refund-method">
                   <span>Store credit (5% bonus)</span>
                 </label>
               </div>
@@ -312,11 +246,9 @@
         </div>
         <div class="modal-footer">
           <button @click="closeReturnModal" class="btn btn-outline">Cancel</button>
-          <button 
-            @click="submitReturn" 
+          <button @click="submitReturn"
             :disabled="!hasSelectedItems || !returnReason || (returnReason === 'other' && !customReturnReason)"
-            class="btn btn-primary"
-          >
+            class="btn btn-primary">
             {{ isSubmittingReturn ? 'Processing...' : 'Submit Return Request' }}
           </button>
         </div>
@@ -370,21 +302,21 @@ export default defineComponent({
   name: 'OrderHistory',
   setup() {
     const router = useRouter();
-    
+
     // State
     const isLoading = ref(true);
     const orders = ref<Order[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = 5;
     const totalOrders = ref(0);
-    
+
     // Filters
     const filters = ref({
       timeRange: '30',
       status: 'all',
       search: ''
     });
-    
+
     // Modal state
     const showCancelModal = ref(false);
     const showReturnModal = ref(false);
@@ -398,39 +330,39 @@ export default defineComponent({
     const customReturnReason = ref('');
     const refundMethod = ref('original');
     const isSubmittingReturn = ref(false);
-    
+
     // Computed
     const totalPages = computed(() => Math.ceil(totalOrders.value / itemsPerPage));
-    
+
     const visiblePageNumbers = computed(() => {
       const maxVisiblePages = 5;
       const half = Math.floor(maxVisiblePages / 2);
       let start = Math.max(1, currentPage.value - half);
       const end = Math.min(totalPages.value, start + maxVisiblePages - 1);
-      
+
       if (end - start + 1 < maxVisiblePages) {
         start = Math.max(1, end - maxVisiblePages + 1);
       }
-      
+
       return Array.from({ length: end - start + 1 }, (_, i) => start + i);
     });
-    
+
     const showEllipsisAfter = computed(() => {
-      return visiblePageNumbers.value.length > 0 && 
-             visiblePageNumbers.value[visiblePageNumbers.value.length - 1] < totalPages.value;
+      return visiblePageNumbers.value.length > 0 &&
+        visiblePageNumbers.value[visiblePageNumbers.value.length - 1] < totalPages.value;
     });
-    
+
     const hasSelectedItems = computed(() => {
       return Object.values(selectedReturnItems.value).some(selected => selected);
     });
-    
+
     // Methods
     const fetchOrders = async () => {
       try {
         isLoading.value = true;
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Mock data - in a real app, this would be an API call
         const mockOrders: Order[] = [
           {
@@ -444,7 +376,7 @@ export default defineComponent({
                 name: 'Wireless Noise-Cancelling Headphones',
                 price: 249.99,
                 quantity: 1,
-                image: 'https://via.placeholder.com/100x100?text=Headphones',
+                image: 'https://placehold.co/100x100?text=Headphones',
                 variant: { Color: 'Black' },
                 inStock: true,
                 availableQuantity: 10
@@ -454,7 +386,7 @@ export default defineComponent({
                 name: 'USB-C Charging Cable',
                 price: 19.99,
                 quantity: 2,
-                image: 'https://via.placeholder.com/100x100?text=Cable',
+                image: 'https://placehold.co/100x100?text=Cable',
                 inStock: true,
                 availableQuantity: 50
               }
@@ -487,7 +419,7 @@ export default defineComponent({
                 name: 'Smartphone 13 Pro',
                 price: 999.99,
                 quantity: 1,
-                image: 'https://via.placeholder.com/100x100?text=Smartphone',
+                image: 'https://placehold.co/100x100?text=Smartphone',
                 variant: { Color: 'Midnight', Storage: '256GB' },
                 inStock: true,
                 availableQuantity: 5
@@ -521,7 +453,7 @@ export default defineComponent({
                 name: 'Wireless Earbuds',
                 price: 129.99,
                 quantity: 1,
-                image: 'https://via.placeholder.com/100x100?text=Earbuds',
+                image: 'https://placehold.co/100x100?text=Earbuds',
                 variant: { Color: 'White' },
                 inStock: true,
                 availableQuantity: 20
@@ -545,40 +477,40 @@ export default defineComponent({
             estimatedDelivery: '2025-09-20'
           }
         ];
-        
+
         // Apply filters (simulated)
         let filteredOrders = [...mockOrders];
-        
+
         if (filters.value.status !== 'all') {
           filteredOrders = filteredOrders.filter(order => order.status === filters.value.status);
         }
-        
+
         if (filters.value.search) {
           const searchTerm = filters.value.search.toLowerCase();
-          filteredOrders = filteredOrders.filter(order => 
+          filteredOrders = filteredOrders.filter(order =>
             order.orderNumber.toLowerCase().includes(searchTerm)
           );
         }
-        
+
         // Apply time range filter
         const now = new Date();
         const daysAgo = parseInt(filters.value.timeRange);
-        
+
         if (filters.value.timeRange !== 'all') {
           const cutoffDate = new Date(now);
           cutoffDate.setDate(now.getDate() - daysAgo);
-          
+
           filteredOrders = filteredOrders.filter(order => {
             const orderDate = new Date(order.orderDate);
             return orderDate >= cutoffDate;
           });
         }
-        
+
         // Sort by date (newest first)
-        filteredOrders.sort((a, b) => 
+        filteredOrders.sort((a, b) =>
           new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
         );
-        
+
         totalOrders.value = filteredOrders.length;
         orders.value = filteredOrders;
       } catch (error) {
@@ -588,12 +520,12 @@ export default defineComponent({
         isLoading.value = false;
       }
     };
-    
+
     const applyFilters = () => {
       currentPage.value = 1; // Reset to first page when filters change
       fetchOrders();
     };
-    
+
     const changePage = (page: number) => {
       if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
@@ -602,18 +534,18 @@ export default defineComponent({
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
-    
+
     const formatDate = (dateString: string | Date) => {
-      const options: Intl.DateTimeFormatOptions = { 
-        year: 'numeric', 
-        month: 'long', 
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       };
       return new Date(dateString).toLocaleDateString('en-US', options);
     };
-    
+
     const formatPrice = (price: number) => {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -621,7 +553,7 @@ export default defineComponent({
         minimumFractionDigits: 2
       }).format(price);
     };
-    
+
     const formatStatus = (status: OrderStatus) => {
       const statusMap: Record<OrderStatus, string> = {
         pending: 'Pending',
@@ -633,62 +565,62 @@ export default defineComponent({
       };
       return statusMap[status] || status;
     };
-    
+
     const getStatusClass = (status: OrderStatus) => {
       return `status-${status}`;
     };
-    
+
     const canReorder = (status: OrderStatus) => {
       return ['delivered', 'cancelled', 'refunded'].includes(status);
     };
-    
+
     const canTrack = (status: OrderStatus) => {
       return ['shipped', 'delivered'].includes(status);
     };
-    
+
     const canCancel = (status: OrderStatus) => {
       return ['pending', 'processing'].includes(status);
     };
-    
+
     const canReturn = (status: OrderStatus) => {
       // Typically, you can return items within 30 days of delivery
       return status === 'delivered';
     };
-    
+
     const reorder = (order: Order) => {
       // In a real app, this would add all items to the cart
       console.log('Reordering items:', order.items);
       // For demo purposes, we'll just navigate to the cart
       router.push('/cart');
     };
-    
+
     const trackOrder = (order: Order) => {
       // In a real app, this would open a tracking page or modal
       console.log('Tracking order:', order.trackingNumber);
       router.push(`/tracking/${order.id}`);
     };
-    
+
     const cancelOrder = (order: Order) => {
       selectedOrder.value = order;
       cancellationReason.value = '';
       customReason.value = '';
       showCancelModal.value = true;
     };
-    
+
     const confirmCancelOrder = async () => {
       if (!selectedOrder.value || !cancellationReason.value) return;
-      
+
       try {
         isCancelling.value = true;
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Update the order status in the local state
         const orderIndex = orders.value.findIndex(o => o.id === selectedOrder.value?.id);
         if (orderIndex !== -1) {
           orders.value[orderIndex].status = 'cancelled';
         }
-        
+
         closeCancelModal();
         // In a real app, show a success message
       } catch (error) {
@@ -698,7 +630,7 @@ export default defineComponent({
         isCancelling.value = false;
       }
     };
-    
+
     const initiateReturn = (order: Order) => {
       selectedOrder.value = order;
       selectedReturnItems.value = {};
@@ -706,22 +638,22 @@ export default defineComponent({
       returnReason.value = '';
       customReturnReason.value = '';
       refundMethod.value = 'original';
-      
+
       // Initialize return quantities
       order.items.forEach(item => {
         selectedReturnItems.value[item.id] = false;
         returnQuantities.value[item.id] = 1;
       });
-      
+
       showReturnModal.value = true;
     };
-    
+
     const submitReturn = async () => {
       if (!selectedOrder.value || !hasSelectedItems.value || !returnReason.value) return;
-      
+
       try {
         isSubmittingReturn.value = true;
-        
+
         // Get selected items and quantities
         const returnItems = Object.entries(selectedReturnItems.value)
           .filter(([_, selected]) => selected)
@@ -734,10 +666,10 @@ export default defineComponent({
               price: item?.price || 0
             };
           });
-        
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
         // In a real app, you would submit the return request to your backend
         console.log('Submitting return request:', {
           orderId: selectedOrder.value.id,
@@ -745,7 +677,7 @@ export default defineComponent({
           reason: returnReason.value === 'other' ? customReturnReason.value : returnReason.value,
           refundMethod: refundMethod.value
         });
-        
+
         // Close the modal and show success message
         closeReturnModal();
         // In a real app, show a success message and update the UI
@@ -756,22 +688,22 @@ export default defineComponent({
         isSubmittingReturn.value = false;
       }
     };
-    
+
     const closeCancelModal = () => {
       showCancelModal.value = false;
       selectedOrder.value = null;
     };
-    
+
     const closeReturnModal = () => {
       showReturnModal.value = false;
       selectedOrder.value = null;
     };
-    
+
     // Lifecycle hooks
     onMounted(() => {
       fetchOrders();
     });
-    
+
     return {
       // State
       isLoading,
@@ -794,7 +726,7 @@ export default defineComponent({
       refundMethod,
       isSubmittingReturn,
       hasSelectedItems,
-      
+
       // Methods
       applyFilters,
       changePage,
@@ -1273,8 +1205,13 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Empty State */
@@ -1331,8 +1268,15 @@ export default defineComponent({
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -1524,29 +1468,29 @@ export default defineComponent({
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .filter-group {
     width: 100%;
   }
-  
+
   .filter-group select {
     flex: 1;
   }
-  
+
   .search-box {
     width: 100%;
     max-width: 100%;
   }
-  
+
   .order-details {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .order-summary {
     width: 100%;
   }
-  
+
   .order-actions {
     justify-content: flex-start;
   }
@@ -1556,27 +1500,27 @@ export default defineComponent({
   .page-header h1 {
     font-size: 1.8rem;
   }
-  
+
   .order-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .order-status {
     align-self: flex-start;
   }
-  
+
   .pagination {
     flex-direction: column;
     gap: 15px;
   }
-  
+
   .page-numbers {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .modal {
     margin: 20px;
   }
@@ -1586,23 +1530,23 @@ export default defineComponent({
   .order-item {
     flex-direction: column;
   }
-  
+
   .item-image {
     margin-bottom: 10px;
   }
-  
+
   .order-actions {
     flex-direction: column;
   }
-  
+
   .order-actions .btn {
     width: 100%;
   }
-  
+
   .modal-footer {
     flex-direction: column;
   }
-  
+
   .modal-footer .btn {
     width: 100%;
   }
