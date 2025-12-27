@@ -10,7 +10,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.*;
 import java.util.List;
@@ -37,7 +36,7 @@ public class FileProcessingService {
     public String storeFile(MultipartFile file, String... subDirectories) {
         // Normalize file name
         String originalFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        
+
         try {
             // Check if the file's name contains invalid characters
             if (originalFileName.contains("..")) {
@@ -47,21 +46,21 @@ public class FileProcessingService {
             // Generate a unique filename
             String fileExtension = FilenameUtils.getExtension(originalFileName);
             String fileName = String.format("%s.%s", UUID.randomUUID(), fileExtension);
-            
+
             // Create target directory if subdirectories are provided
             Path targetLocation = this.fileStorageLocation;
             if (subDirectories != null && subDirectories.length > 0) {
                 targetLocation = Paths.get(this.fileStorageLocation.toString(), subDirectories);
                 Files.createDirectories(targetLocation);
             }
-            
+
             // Copy file to the target location
             Path targetPath = targetLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-            
+
             // Return the path relative to the storage location
             return this.fileStorageLocation.relativize(targetPath).toString();
-            
+
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + originalFileName + ". Please try again!", ex);
         }
@@ -71,7 +70,7 @@ public class FileProcessingService {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
-            
+
             if (resource.exists()) {
                 return resource;
             } else {

@@ -1,44 +1,33 @@
 export const ROUTES_CONSTANTS = {
   // Authentication
-  LOGIN: {
-    path: '/login',
-    name: 'login',
-  },
+  // Authentication
+  // LOGIN: {
+  //   path: '/login',
+  //   name: 'login',
+  // },
+  // SELECTION: {
+  //   path: '/selection',
+  //   name: 'selection',
+  // },
+  // AUTH: {
+  //   path: '/auth',
+  //   name: 'auth',
+  //   children: {
+  //     CALLBACK: { path: 'callback', name: 'auth-callback' },
+  //     LOGOUT: { path: 'logout', name: 'auth-logout' },
+  //   },
+  // },
 
   // Admin
   ADMIN: {
     path: '/admin',
     name: 'admin',
     children: {
-      // Dashboard
       DASHBOARD: { path: 'dashboard', name: 'admin-dashboard' },
-      //import
-      IMPORT: { path: 'import', name: 'import_data' },
-
-      // Product Management
-      PRODUCTS: { path: 'products', name: 'admin-products' },
-      PRODUCT_CREATE: { path: 'products/create', name: 'admin-product-create' },
-      PRODUCT_EDIT: { path: 'products/:id/edit', name: 'admin-product-edit' },
-
-      // Category Management
-      CATEGORIES: { path: 'categories', name: 'admin-categories' },
-
-      // Order Management
-      ORDERS: { path: 'orders', name: 'admin-orders' },
-      ORDER_DETAIL: { path: 'orders/:id', name: 'admin-order-detail' },
-
-      // Customer Management
-      CUSTOMERS: { path: 'customers', name: 'admin-customers' },
-      CUSTOMER_DETAIL: { path: 'customers/:id', name: 'admin-customer-detail' },
-
-      // Staff Management
-      STAFF: { path: 'staff', name: 'admin-staff' },
-      STAFF_CREATE: { path: 'staff/create', name: 'admin-staff-create' },
-      STAFF_EDIT: { path: 'staff/:id/edit', name: 'admin-staff-edit' },
-
-      // Settings & Profile
-      SETTINGS: { path: 'settings', name: 'admin-settings' },
-      PROFILE: { path: 'profile', name: 'admin-profile' },
+      APPS: { path: 'apps', name: 'admin-apps' },
+      DOMAINS: { path: 'domains', name: 'admin-domains' },
+      TECHNOLOGIES: { path: 'technologies', name: 'admin-technologies' },
+      FEATURES: { path: 'features', name: 'admin-features' },
     },
   },
 
@@ -47,22 +36,11 @@ export const ROUTES_CONSTANTS = {
     path: '/',
     name: 'customer',
     children: {
-      // Main Pages
-      HOME: { path: '', name: 'customer-home' },
-      PRODUCTS: { path: 'products', name: 'customer-products' },
-      PRODUCT_DETAIL: { path: 'products/:id', name: 'customer-product-detail' },
-
-      // User Account
-      CART: { path: 'cart', name: 'customer-cart' },
-      ORDERS: { path: 'orders', name: 'customer-orders' },
-      ORDER_DETAIL: { path: 'orders/:id', name: 'customer-order-detail' },
-      PROFILE: { path: 'profile', name: 'customer-profile' },
-      ADDRESSES: { path: 'addresses', name: 'customer-addresses' },
-
-      // Help & Support
-      CONTACT: { path: 'contact', name: 'customer-contact' },
-      FAQ: { path: 'faq', name: 'customer-faq' },
-      ABOUT: { path: 'about', name: 'customer-about' },
+      HOME: { path: '', name: 'home' },
+      APPS: { path: 'apps', name: 'client-app-list' },
+      APP_DETAIL: { path: 'apps/:id', name: 'client-app-detail' },
+      DOMAINS: { path: 'domains', name: 'client-domain-list' },
+      TECHNOLOGIES: { path: 'technologies', name: 'client-technology-list' },
     },
   },
 

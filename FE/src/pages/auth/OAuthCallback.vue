@@ -2,7 +2,9 @@
   <div style="display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center;">
     <div>
       <div style="margin-bottom: 20px;">
-        <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1890ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        <div
+          style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1890ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;">
+        </div>
       </div>
       <h2>Đang xử lý đăng nhập...</h2>
       <p>Vui lòng đợi trong khi chúng tôi xác thực thông tin của bạn.</p>
@@ -16,8 +18,13 @@
 
   <style>
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </template>
@@ -28,6 +35,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { localStorageAction } from '@/utils/storage'
 import { USER_INFO_STORAGE_KEY, ACCESS_TOKEN_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from '@/constants/storagekey'
+import { ROUTES_CONSTANTS } from '@/constants/path'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -42,7 +50,7 @@ onMounted(async () => {
     if (error) {
       console.error('OAuth error:', error)
       alert(`OAuth error: ${error}`)
-      router.push('/selection')
+      router.push({ name: ROUTES_CONSTANTS.SELECTION.name })
       return
     }
 
@@ -157,6 +165,6 @@ onMounted(async () => {
 })
 
 const goToAdmin = () => {
-  router.push('/admin')
+  router.push({ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name })
 }
 </script>

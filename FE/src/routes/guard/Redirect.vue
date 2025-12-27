@@ -1,9 +1,9 @@
 <template>
   <div class="redirect-container">
     <p class="redirect-message">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      <span v-if="loading">Đang xử lý đăng nhập...</span>
-      <span v-else-if="error" class="error-message">{{ error }}</span>
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    <span v-if="loading">Đang xử lý đăng nhập...</span>
+    <span v-else-if="error" class="error-message">{{ error }}</span>
     </p>
   </div>
 </template>
@@ -14,10 +14,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { ROUTES_CONSTANTS } from '@/constants/path'
 import { ROLES } from '@/constants/roles'
 import { useAuthStore } from '@/stores/auth'
-import { 
-  ACCESS_TOKEN_STORAGE_KEY, 
-  REFRESH_TOKEN_STORAGE_KEY, 
-  USER_INFO_STORAGE_KEY 
+import {
+  ACCESS_TOKEN_STORAGE_KEY,
+  REFRESH_TOKEN_STORAGE_KEY,
+  USER_INFO_STORAGE_KEY
 } from '@/constants/storagekey'
 import { localStorageAction } from '@/utils/storage'
 import { toast } from 'vue3-toastify'
@@ -34,9 +34,9 @@ const processOAuthCallback = async () => {
   try {
     console.log('🔍 Bắt đầu xử lý OAuth callback')
     console.log('📋 Route query:', route.query)
-    
+
     const { state } = route.query
-    
+
     if (!state) {
       throw new Error('Thiếu thông tin xác thực. Vui lòng thử lại.')
     }
@@ -47,9 +47,9 @@ const processOAuthCallback = async () => {
       // Decode the state parameter
       const decodedState = JSON.parse(decodeURIComponent(atob(state as string)))
       console.log('🔓 Decoded state:', decodedState)
-      
+
       const { accessToken, refreshToken } = decodedState
-      
+
       if (!accessToken) {
         throw new Error('Không tìm thấy access token')
       }
@@ -81,7 +81,7 @@ const processOAuthCallback = async () => {
         localStorageAction.set(REFRESH_TOKEN_STORAGE_KEY, refreshToken)
       }
       localStorageAction.set(USER_INFO_STORAGE_KEY, user)
-      
+
       // Update auth store
       authStore.user = user
       authStore.accessToken = accessToken
@@ -94,17 +94,17 @@ const processOAuthCallback = async () => {
 
       // Redirect based on role
       await redirectBasedOnRole(user.roleScreen)
-      
+
     } catch (parseError) {
       console.error('❌ Lỗi parse state:', parseError)
       throw new Error('Dữ liệu xác thực không hợp lệ')
     }
-    
+
   } catch (err) {
     console.error('❌ Lỗi xử lý đăng nhập:', err)
     error.value = err instanceof Error ? err.message : 'Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.'
     toast.error('Đăng nhập thất bại. Vui lòng thử lại.')
-    
+
     // Redirect to login after showing error
     setTimeout(() => {
       router.push({ name: ROUTES_CONSTANTS.LOGIN.name })
@@ -116,16 +116,16 @@ const processOAuthCallback = async () => {
 
 const redirectBasedOnRole = (roleScreen: string) => {
   return new Promise<void>((resolve) => {
-    let redirectTo = { name: 'selection' }
-    
+    let redirectTo = { name: ROUTES_CONSTANTS.SELECTION.name }
+
     if (roleScreen === ROLES.ADMIN) {
-      redirectTo = { name: 'admin-dashboard' }
+      redirectTo = { name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }
       console.log('🎯 Redirect to ADMIN dashboard')
     } else if (roleScreen === ROLES.CUSTOMER) {
-      redirectTo = { name: 'customer-dashboard' }
+      redirectTo = { name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }
       console.log('🎯 Redirect to CUSTOMER dashboard')
     }
-    
+
     // Thêm delay để đảm bảo store được cập nhật
     setTimeout(() => {
       console.log('🔄 Thực hiện redirect đến:', redirectTo)
@@ -137,7 +137,7 @@ const redirectBasedOnRole = (roleScreen: string) => {
         .catch(err => {
           console.error('❌ Navigation error:', err)
           // Fallback to selection page
-          router.push({ name: 'selection' })
+          router.push({ name: ROUTES_CONSTANTS.SELECTION.name })
           resolve()
         })
     }, 1000)

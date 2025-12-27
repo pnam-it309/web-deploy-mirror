@@ -6,5 +6,4 @@ import udpm.hn.server.entity.Brand;
 
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, String> {
-    boolean existsByCode(String code);
 }

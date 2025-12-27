@@ -1,17 +1,10 @@
 package udpm.hn.server.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import udpm.hn.server.core.customer.order.model.request.OrderRequest;
+import org.springframework.stereotype.Repository;
 import udpm.hn.server.entity.Customer;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
 
-import java.util.Optional;
-
+@Repository
 public interface CustomerRepository extends JpaRepository<Customer, String> {
-
-    Optional<Customer> findByEmail(String email);
+    java.util.Optional<Customer> findByEmail(String email);
 }

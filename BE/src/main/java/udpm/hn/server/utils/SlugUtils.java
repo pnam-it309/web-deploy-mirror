@@ -1,6 +1,5 @@
 package udpm.hn.server.utils;
 
-import org.apache.commons.lang3.StringUtils;
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -23,14 +22,14 @@ public class SlugUtils {
         String noWhitespace = WHITESPACE.matcher(input).replaceAll("-");
         String normalized = Normalizer.normalize(noWhitespace, Normalizer.Form.NFD);
         String slug = NON_LATIN.matcher(normalized).replaceAll("");
-        
+
         // Convert to lowercase and trim dashes
         slug = slug.toLowerCase(Locale.ENGLISH);
         slug = EDGES_DASHES.matcher(slug).replaceAll("");
-        
+
         // Remove consecutive dashes
         slug = slug.replaceAll("-{2,}", "-");
-        
+
         return slug;
     }
 }
