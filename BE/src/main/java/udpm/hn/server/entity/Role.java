@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import udpm.hn.server.entity.base.PrimaryEntity;
-import udpm.hn.server.infrastructure.core.constant.EntityProperties;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
+
+import udpm.hn.server.infrastructure.constant.EntityProperties;
 
 import java.io.Serializable;
 
@@ -15,16 +15,9 @@ import java.io.Serializable;
 @Table(name = "roles")
 public class Role extends PrimaryEntity implements Serializable {
 
-    @Column(length = EntityProperties.LENGTH_CODE, nullable = false, unique = true)
-    private String code;
-
-    @Column(length = EntityProperties.LENGTH_NAME, nullable = false)
+    @Column(nullable = false, length = EntityProperties.LENGTH_CODE)
     private String name;
 
-    @Column(length = EntityProperties.LENGTH_DESCRIPTION)
+    @Column(length = EntityProperties.LENGTH_NAME)
     private String description;
-
-    @Enumerated(EnumType.ORDINAL)
-    @Column(nullable = false)
-    private EntityStatus status = EntityStatus.ACTIVE;
 }

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Compiled class file
 *.class
 
@@ -54,4 +54,6 @@ coverage
 *.sw?
 
 *.tsbuildinfo
->>>>>>> 6f4f9ac (chinh sua admin layout)
+
+.env
+.env.production

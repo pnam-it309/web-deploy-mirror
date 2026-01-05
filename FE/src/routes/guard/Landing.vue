@@ -10,6 +10,7 @@ import { getExpireTime } from '@/utils/token.helper'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
+import { ROUTES_CONSTANTS } from '@/constants/path'
 
 const router = useRouter()
 
@@ -19,7 +20,7 @@ onMounted(() => {
   console.log('Landing mounted, accessToken:', accessToken)
   if (!accessToken) {
     console.log('No accessToken, redirecting to login')
-    router.push({ name: 'login' })
+    router.push({ name: ROUTES_CONSTANTS.LOGIN.name })
     return
   }
 
@@ -30,13 +31,13 @@ onMounted(() => {
 
   if (dayjs().isAfter(expire)) {
     console.log('Token expired, redirecting to login')
-    router.push({ name: 'login' })
+    router.push({ name: ROUTES_CONSTANTS.LOGIN.name })
     return
   }
 
   // Nếu đã xác thực, chuyển hướng vào trang chính (ví dụ: admin)
   setTimeout(() => {
-    router.push({ path: '/admin' }) // hoặc route nào bạn muốn
+    router.push({ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }) // hoặc route nào bạn muốn
   }, 300)
 })
 </script>

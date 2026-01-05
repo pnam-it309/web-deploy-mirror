@@ -7,9 +7,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
-import udpm.hn.server.infrastructure.core.constant.EntityProperties;
-import udpm.hn.server.infrastructure.core.constant.EntityStatus;
-import udpm.hn.server.infrastructure.processing.listener.CreatePrimaryEntityListener;
+import udpm.hn.server.infrastructure.constant.EntityProperties;
+import udpm.hn.server.infrastructure.constant.EntityStatus;
+import udpm.hn.server.infrastructure.CreatePrimaryEntityListener;
 
 /**
  * Lớp cơ sở cho tất cả các entity trong hệ thống

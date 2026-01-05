@@ -1,7 +1,7 @@
 package udpm.hn.server.core.common.base;
 
 import lombok.*;
-import udpm.hn.server.infrastructure.core.constant.PaginationConstant;
+import udpm.hn.server.infrastructure.constant.PaginationConstant;
 
 @Getter
 @Setter

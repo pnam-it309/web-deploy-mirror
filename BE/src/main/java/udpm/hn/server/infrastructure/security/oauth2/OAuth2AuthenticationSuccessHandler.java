@@ -1,0 +1,105 @@
+package udpm.hn.server.infrastructure.security.oauth2;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import udpm.hn.server.infrastructure.constant.CookieConstant;
+import udpm.hn.server.infrastructure.constant.OAuth2Constant;
+import udpm.hn.server.infrastructure.security.response.TokenUriResponse;
+import udpm.hn.server.infrastructure.security.service.RefreshTokenService;
+import udpm.hn.server.infrastructure.security.service.TokenProvider;
+import udpm.hn.server.utils.CookieUtils;
+
+import java.io.IOException;
+import java.util.Optional;
+
+@Component
+@Slf4j
+public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    @Setter(onMethod_ = @Autowired)
+    private TokenProvider tokenProvider;
+
+    @Setter(onMethod_ = @Autowired)
+    private RefreshTokenService refreshTokenService;
+
+    @Setter(onMethod_ = @Autowired)
+    private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+
+    @Value("${frontend.url}")
+    private String DEFAULT_TARGET_URL_TUTOR_CLIENT;
+
+    @Override
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) throws IOException {
+
+        log.info("Đã chạy vào success khi đăng nhập thành công");
+
+        String targetUrl = determineTargetUrl(request, response, authentication);
+        if (response.isCommitted()) {
+            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            return;
+        }
+        clearAuthenticationAttributes(request, response);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+    protected String determineTargetUrl(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) {
+        try {
+            Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
+                    .map(Cookie::getValue);
+
+            String targetUrl;
+            if (redirectUri.isPresent() && !redirectUri.get().isEmpty()) {
+                targetUrl = redirectUri.get();
+                log.info("Found redirect URI from cookie: " + targetUrl);
+            } else {
+                // Fallback to default target URL if redirect URI cookie is not found
+                targetUrl = getDefaultTargetUrl();
+                log.warn("Redirect URI cookie not found, using default target URL: " + targetUrl);
+            }
+
+            // Generate tokens for the authenticated user
+            String token = tokenProvider.createToken(authentication);
+            String refreshToken = refreshTokenService.createRefreshToken(authentication).getRefreshToken();
+
+            // Create state parameter with tokens
+            String stateToken = TokenUriResponse.getState(token, refreshToken);
+            return targetUrl + "?state=" + stateToken;
+        } catch (Exception e) {
+            log.error("Error determining target URL: " + e.getMessage(), e);
+            return buildErrorUri(request, response, "Error determining redirect URL");
+        }
+    }
+
+    protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
+        super.clearAuthenticationAttributes(request);
+        httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+    }
+
+    private String buildErrorUri(HttpServletRequest request, HttpServletResponse response, String message) {
+        Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
+                .map(Cookie::getValue);
+        if (message.equalsIgnoreCase(CookieConstant.ACCOUNT_NOT_EXIST)) {
+            CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
+        } else if (message.equalsIgnoreCase(CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION)) {
+            CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION);
+        }
+        return redirectUri.orElse(DEFAULT_TARGET_URL_TUTOR_CLIENT);
+    }
+
+}

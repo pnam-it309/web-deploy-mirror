@@ -6,7 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import udpm.hn.server.core.common.base.PageableRequest;
 import udpm.hn.server.core.common.base.ResponseObject;
-import udpm.hn.server.infrastructure.core.constant.PaginationConstant;
+import udpm.hn.server.infrastructure.constant.PaginationConstant;
 
 import java.text.Normalizer;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class Helper {
 
     public static Pageable createPageable(PageableRequest request, String defaultSortBy) {
         return PageRequest.of(
-                request.getPage() -1,
+                request.getPage() - 1,
                 request.getSize() == 0 ? PaginationConstant.DEFAULT_SIZE : request.getSize(),
                 Sort.by(
                         (Sort.Direction.fromString(
@@ -157,7 +157,7 @@ public class Helper {
         String normalizedString = Normalizer.normalize(replacedString, Normalizer.Form.NFD);
         String withoutAccentString = normalizedString.replaceAll("\\p{M}", "").trim();
 
-   // Thay thế tất cả khoảng trắng liên tiếp bằng dấu gạch dưới
+        // Thay thế tất cả khoảng trắng liên tiếp bằng dấu gạch dưới
         return withoutAccentString.replaceAll("\\s+", "_");
     }
 
