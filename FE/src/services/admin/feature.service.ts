@@ -1,32 +1,28 @@
-import apiClient from '@/services/api/api'
-import { PREFIX_API_ADMIN } from '@/constants/url'
+import apiClient from '@/services/api/api';
 
-export interface Feature {
-    id: string
-    name: string
-    description: string
-    imagePreview: string
-    sortOrder: number
-    appId?: string
-    appName?: string
-}
+const BASE_URL = '/admin/features';
 
-export const getFeatures = async (): Promise<Feature[]> => {
-    const response = await apiClient.get(`${PREFIX_API_ADMIN}/features`)
-    return response.data.data
-}
+export const FeatureService = {
+  getAll: async () => {
+    const response = await apiClient.get(BASE_URL); 
+    return response.data;
+  },
+  getByAppId: async (appId: string) => {
+    const response = await apiClient.get(`${BASE_URL}/by-app/${appId}`);
+    return response.data;
+  },
 
-export const createFeature = async (payload: any): Promise<boolean> => {
-    const response = await apiClient.post(`${PREFIX_API_ADMIN}/features`, payload)
-    return response.data.data
-}
+  create: async (data: any) => {
+    const response = await apiClient.post(BASE_URL, data);
+    return response.data;
+  },
 
-export const updateFeature = async (id: string, payload: any): Promise<boolean> => {
-    const response = await apiClient.put(`${PREFIX_API_ADMIN}/features/${id}`, payload)
-    return response.data.data
-}
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`${BASE_URL}/${id}`, data);
+    return response.data;
+  },
 
-export const deleteFeature = async (id: string): Promise<boolean> => {
-    const response = await apiClient.delete(`${PREFIX_API_ADMIN}/features/${id}`)
-    return response.data.data
-}
+  deleteFeature: async (id: string) => {
+    await apiClient.delete(`${BASE_URL}/${id}`);
+  }
+};

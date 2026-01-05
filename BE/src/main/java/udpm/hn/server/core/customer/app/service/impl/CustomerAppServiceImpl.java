@@ -119,7 +119,6 @@ public class CustomerAppServiceImpl implements CustomerAppService {
         response.setId(app.getId());
         response.setName(app.getName());
         response.setSku(app.getSku());
-        response.setPrice(app.getPrice());
         response.setShortDescription(app.getShortDescription());
         response.setThumbnail(app.getThumbnail());
         response.setViewCount(app.getViewCount());
@@ -129,9 +128,6 @@ public class CustomerAppServiceImpl implements CustomerAppService {
             response.setDomainName(app.getDomain().getName());
         }
 
-        if (app.getBrand() != null) {
-            response.setBrandName(app.getBrand().getName());
-        }
 
         if (app.getTechnologies() != null) {
             response.setTechnologyNames(

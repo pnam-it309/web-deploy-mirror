@@ -1,11 +1,8 @@
+
 import axios from 'axios';
-// 1. IMPORT "TÚI" VÀ "TÊN" MÀ BẠN DÙNG (Từ file storage/storagekey)
 import { localStorageAction } from '@/utils/storage';
 import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
-
-// 2. TẠO AXIOS CLIENT TRUNG TÂM
 const apiClient = axios.create({
-  // baseURL này sẽ được Proxy (vite.config.ts) "bắt" lấy
   baseURL: '/api/v1', 
   headers: {
     'Content-Type': 'application/json',

@@ -1,24 +1,4 @@
 export const ROUTES_CONSTANTS = {
-  // Authentication
-  // Authentication
-  // LOGIN: {
-  //   path: '/login',
-  //   name: 'login',
-  // },
-  // SELECTION: {
-  //   path: '/selection',
-  //   name: 'selection',
-  // },
-  // AUTH: {
-  //   path: '/auth',
-  //   name: 'auth',
-  //   children: {
-  //     CALLBACK: { path: 'callback', name: 'auth-callback' },
-  //     LOGOUT: { path: 'logout', name: 'auth-logout' },
-  //   },
-  // },
-
-  // Admin
   ADMIN: {
     path: '/admin',
     name: 'admin',

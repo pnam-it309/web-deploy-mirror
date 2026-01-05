@@ -24,6 +24,9 @@ public class Domain extends PrimaryEntity implements Serializable {
     @Column(length = EntityProperties.LENGTH_PICTURE)
     private String icon;
 
+    @Column(name = "color")
+    private String color;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Domain parent;

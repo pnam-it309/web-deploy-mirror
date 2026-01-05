@@ -19,19 +19,11 @@ public class App extends PrimaryEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "domain_id", nullable = false)
     private Domain domain;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
-
     @Column(nullable = false, length = EntityProperties.LENGTH_NAME)
     private String name;
 
     @Column(length = EntityProperties.LENGTH_CODE)
     private String sku;
-
-    @Column(precision = 18, scale = 2)
-    private BigDecimal price;
 
     @Column(name = "short_description", length = EntityProperties.LENGTH_DESCRIPTION)
     private String shortDescription;

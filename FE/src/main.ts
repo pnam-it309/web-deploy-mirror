@@ -1,13 +1,13 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
-import router from './routes/router'
+import router from './router/index'
 import { useAuthStore } from './stores/auth'
 import websocketPlugin from '@/services/socket/configsocket/websocketPlugin'
 import './theme/index.css'
 import Toast from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-
+import 'boxicons/css/boxicons.min.css'
 const initApp = async () => {
   const app = createApp(App)
   const pinia = createPinia()

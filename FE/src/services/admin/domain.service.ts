@@ -1,32 +1,28 @@
-import apiClient from '@/services/api/api'
-import { PREFIX_API_ADMIN } from '@/constants/url'
+import apiClient from '@/services/api/api';
+import type { Domain } from '@/types/admin.types';
 
-export interface Domain {
-    id: string
-    name: string
-    description: string
-    icon: string
-    slug: string
-    parentId?: string
-    sortOrder: number
-}
+const BASE_URL = '/admin/domains';
 
-export const getDomains = async (): Promise<Domain[]> => {
-    const response = await apiClient.get(`${PREFIX_API_ADMIN}/domains`)
-    return response.data.data
-}
+export const DomainService = {
+  getAll: async () => {
+    const response = await apiClient.get<Domain[]>(BASE_URL, { params: { unpaged: true } });
+    return response.data;
+  },
+  getPage: async (params: any) => {
+    const response = await apiClient.get(BASE_URL, { params });
+    return response.data;
+  },
 
-export const createDomain = async (payload: any): Promise<boolean> => {
-    const response = await apiClient.post(`${PREFIX_API_ADMIN}/domains`, payload)
-    return response.data.data
-}
+  create: async (data: any) => {
+    const response = await apiClient.post(BASE_URL, data);
+    return response.data;
+  },
 
-export const updateDomain = async (id: string, payload: any): Promise<boolean> => {
-    const response = await apiClient.put(`${PREFIX_API_ADMIN}/domains/${id}`, payload)
-    return response.data.data
-}
-
-export const deleteDomain = async (id: string): Promise<boolean> => {
-    const response = await apiClient.delete(`${PREFIX_API_ADMIN}/domains/${id}`)
-    return response.data.data
-}
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`${BASE_URL}/${id}`, data);
+    return response.data;
+  },
+  deleteDomain: async (id: string) => {
+    await apiClient.delete(`${BASE_URL}/${id}`);
+  }
+};

@@ -1,28 +1,29 @@
-import apiClient from '@/services/api/api'
-import { PREFIX_API_ADMIN } from '@/constants/url'
+import apiClient from '@/services/api/api';
+import type { Technology } from '@/types/admin.types';
 
-export interface Technology {
-    id: string
-    name: string
-    icon: string
-}
+const BASE_URL = '/admin/technologies';
 
-export const getTechnologies = async (): Promise<Technology[]> => {
-    const response = await apiClient.get(`${PREFIX_API_ADMIN}/technologies`)
-    return response.data.data
-}
+export const TechnologyService = {
+  getAll: async () => {
+    const response = await apiClient.get<Technology[]>(BASE_URL, { params: { unpaged: true } });
+    return response.data;
+  },
 
-export const createTechnology = async (payload: any): Promise<boolean> => {
-    const response = await apiClient.post(`${PREFIX_API_ADMIN}/technologies`, payload)
-    return response.data.data
-}
+  getPage: async (params: any) => {
+    const response = await apiClient.get(BASE_URL, { params });
+    return response.data;
+  },
 
-export const updateTechnology = async (id: string, payload: any): Promise<boolean> => {
-    const response = await apiClient.put(`${PREFIX_API_ADMIN}/technologies/${id}`, payload)
-    return response.data.data
-}
+  create: async (data: any) => {
+    const response = await apiClient.post(BASE_URL, data);
+    return response.data;
+  },
 
-export const deleteTechnology = async (id: string): Promise<boolean> => {
-    const response = await apiClient.delete(`${PREFIX_API_ADMIN}/technologies/${id}`)
-    return response.data.data
-}
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`${BASE_URL}/${id}`, data);
+    return response.data;
+  },
+  deleteTechnology: async (id: string) => {
+    await apiClient.delete(`${BASE_URL}/${id}`);
+  }
+};

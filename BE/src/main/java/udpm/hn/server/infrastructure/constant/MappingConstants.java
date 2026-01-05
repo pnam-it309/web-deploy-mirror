@@ -10,7 +10,7 @@ public final class MappingConstants {
     public static final String API_ADMIN_PREFIX = ADMIN;
     public static final String API_CUSTOMER_PREFIX = CUSTOMER;
 
-    // admin
+    // --- ADMIN MODULES ---
     public static final String API_ADMIN_DOMAIN = API_ADMIN_PREFIX + "/domains";
     public static final String API_ADMIN_APP = API_ADMIN_PREFIX + "/apps";
     public static final String API_ADMIN_FEATURE = API_ADMIN_PREFIX + "/features";
