@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import udpm.hn.server.infrastructure.core.security.service.TokenProvider;
+import udpm.hn.server.infrastructure.security.service.TokenProvider;
 
 @Component
 public class UserContextHelper {

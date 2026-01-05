@@ -17,3 +17,6 @@ export const TYPE_ROOM_QUIZ: string = 'TYPE_ROOM_QUIZ'
 
 export const COOKIE_1_HOURS: number = 3600
 export const COOKIE_2_HOURS: number = 7200
+
+export const SCREEN_COOKIE_NAME: string = 'screen'
+export const ROLE_ADMIN: string = 'ADMIN'

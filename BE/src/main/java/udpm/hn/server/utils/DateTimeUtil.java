@@ -4,10 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 public class DateTimeUtil {
 
@@ -38,7 +36,8 @@ public class DateTimeUtil {
         if (dateString.matches("\\d{13}")) {
             try {
                 return Long.parseLong(dateString);
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
 
         if (dateString.matches("\\d+")) {
@@ -46,27 +45,27 @@ public class DateTimeUtil {
                 int excelSerial = Integer.parseInt(dateString);
                 LocalDate excelDate = LocalDate.of(1900, 1, 1).plusDays(excelSerial - 2);
                 return excelDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         // Nếu là định dạng chuỗi ngày thông thường
-        String[] formats = {"dd/MM/yyyy", "yyyy-MM-dd", "dd-MM-yyyy"};
+        String[] formats = { "dd/MM/yyyy", "yyyy-MM-dd", "dd-MM-yyyy" };
         for (String format : formats) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat(format);
                 sdf.setLenient(false);
                 Date date = sdf.parse(dateString.trim());
                 return date.getTime();
-            } catch (ParseException ignored) {}
+            } catch (ParseException ignored) {
+            }
         }
 
         return null;
     }
-
 
     public static String parseLongToString(Long date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.format(new Date(date));
     }
 }
-

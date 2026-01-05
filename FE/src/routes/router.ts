@@ -1,167 +1,106 @@
-import {
-  createRouter,
-  createWebHistory,
-  type RouteRecordRaw,
-  type NavigationGuardNext,
-  type RouteLocationNormalized,
-} from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { ROUTES_CONSTANTS } from '@/constants/path'
 
-// Layouts
-const AuthLayout = () => import('@/layouts/AuthLayout.vue')
-const AdminLayout = () => import('@/layouts/AdminSidebar.vue')
-const CustomerLayout = () => import('@/layouts/CustomerLayout.vue')
-
-// Public pages
-const ProductDetailPage = () => import('@/pages/customer/products/ProductDetail.vue')
-const ProductList = () => import('@/pages/customer/products/ProductList.vue')
-const WishlistPage = () => import('@/pages/customer/wishlist/WishlistPage.vue')
-
-// Admin pages
-const AdminDashBoard = () => import('@/pages/admin/dashboard/AdminDashboardPage.vue')
-
-// -- Product Pages --
-const AdminProducts = () => import('@/pages/admin/product/ProductPage.vue')
-const AdminProductCreateModal = () => import('@/pages/admin/product/ProductCreateModal.vue')
-const AdminProductDetailModal = () => import('@/pages/admin/product/ProductDetailModal.vue') // <-- FILE MỚI
-
-// -- Order Pages --
-const AdminOrders = () => import('@/pages/admin/orders/OrderPage.vue')
-
-const AdminSettings = () => import('@/pages/admin/SettingsPage.vue')
-
-// -- Category Pages --
-const AdminCategories = () => import('@/pages/admin/categories/CategoryPage.vue')
-const AdminCategoryCreateModal = () => import('@/pages/admin/categories/CategoryCreateModal.vue')
-
-// -- Customer Pages --
-const AdminCustomer = () => import('@/pages/admin/manage_customer/ManageCustomerPage.vue')
-const AdminCustomerCreate = () => import('@/pages/admin/manage_customer/ManageCustomerCreate.vue')
-
-// -- Brand Pages --
-const AdminBrand = () => import('@/pages/admin/brand/BrandPage.vue')
-const AdminBrandCreateModal = () => import('@/pages/admin/brand/BrandCreateModal.vue')
-
-// Customer pages
-const CustomerDashboard = () => import('@/pages/customer/dashboard_cus/DashboardPage.vue')
-const CustomerOrders = () => import('@/pages/customer/orders/OrdersPage.vue')
-
-// Guards
-const requireAuth = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => next()
-const requireRole = (roles: string[]) => (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => next()
-
-const routes: RouteRecordRaw[] = [
-  { path: '/', redirect: '/selection' },
-  { path: '/login', redirect: '/selection' },
+const routes: Array<RouteRecordRaw> = [
+  // {
+  //   path: ROUTES_CONSTANTS.LOGIN.path,
+  //   name: ROUTES_CONSTANTS.LOGIN.name,
+  //   component: () => import('@/pages/auth/OAuthCallback.vue'), // Assuming this is the login/callback handler
+  // },
+  // {
+  //   path: ROUTES_CONSTANTS.SELECTION.path,
+  //   name: ROUTES_CONSTANTS.SELECTION.name,
+  //   // Creating a placeholder for selection since the file was not found, or pointing to existing if found later
+  //   component: () => import('@/pages/auth/OAuthCallback.vue'), // Temporary fallback or correct if it handles selection too
+  // },
   {
-    path: '/selection',
-    name: 'selection',
-    component: () => import('@/pages/log/SelectionPage.vue'),
-    meta: { public: true },
-  },
-
-  {
-    path: '/auth',
-    component: AuthLayout,
-    meta: { public: true },
-    children: [],
-  },
-
-  // --- ADMIN ROUTES ---
-  {
-    path: '/admin',
-    component: AdminLayout,
+    path: ROUTES_CONSTANTS.CUSTOMER.path,
+    component: () => import('@/layouts/public/PublicLayout.vue'),
     children: [
-      { path: '', redirect: '/admin/dashboard' },
       {
-        path: 'dashboard',
-        name: 'admin-dashboard',
-        component: AdminDashBoard,
-        meta: { title: 'Dashboard', apiEndpoint: '/api/v1/admin/dashboard' },
+        path: ROUTES_CONSTANTS.CUSTOMER.children.HOME.path,
+        name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name,
+        component: () => import('@/pages/client/home/HomePage.vue'),
       },
       {
-        path: 'products',
-        name: 'admin-products',
-        component: AdminProducts,
-        meta: { title: 'Quản lý sản phẩm', apiEndpoint: '/api/v1/admin/products' },
-        children: [
-          // Lưu ý: Các route con này chỉ hoạt động nếu ProductPage có <router-view>
-          // Hiện tại chúng ta dùng Modal state nội bộ, nhưng giữ lại route để mở rộng sau này
-          { path: 'new', name: 'admin-products-new', component: AdminProductCreateModal },
-          { path: ':id', name: 'admin-products-detail', component: AdminProductDetailModal }
-        ],
+        path: ROUTES_CONSTANTS.CUSTOMER.children.APPS.path,
+        name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name,
+        component: () => import('@/pages/client/app/ProductListPage.vue'),
       },
       {
-        path: 'categories',
-        name: 'admin-categories',
-        component: AdminCategories,
-        meta: { title: 'Quản lý danh mục', apiEndpoint: '/api/v1/admin/categories' },
-        children: [{ path: 'new', name: 'admin-categories-new', component: AdminCategoryCreateModal }],
+        path: ROUTES_CONSTANTS.CUSTOMER.children.APP_DETAIL.path,
+        name: ROUTES_CONSTANTS.CUSTOMER.children.APP_DETAIL.name,
+        component: () => import('@/pages/client/app/ProductDetailPage.vue'),
       },
       {
-        path: 'brand',
-        name: 'admin-brand',
-        component: AdminBrand,
-        meta: { title: 'Quản lý thương hiệu', apiEndpoint: '/api/v1/admin/brands' },
-        children: [{ path: 'new', name: 'admin-brand-new', component: AdminBrandCreateModal }],
+        path: ROUTES_CONSTANTS.CUSTOMER.children.DOMAINS.path,
+        name: ROUTES_CONSTANTS.CUSTOMER.children.DOMAINS.name,
+        component: () => import('@/pages/client/domain/DomainListPage.vue'),
       },
       {
-        path: 'orders',
-        name: 'admin-orders',
-        component: AdminOrders,
-        meta: { title: 'Quản lý đơn hàng', apiEndpoint: '/api/v1/admin/orders' },
+        path: ROUTES_CONSTANTS.CUSTOMER.children.TECHNOLOGIES.path,
+        name: ROUTES_CONSTANTS.CUSTOMER.children.TECHNOLOGIES.name,
+        component: () => import('@/pages/client/technology/TechnologyListPage.vue'),
       },
-      {
-        path: 'customers',
-        name: 'admin-customers',
-        component: AdminCustomer,
-        meta: { title: 'Quản lý khách hàng', apiEndpoint: '/api/v1/admin/customers' }
-      },
-      {
-        path: 'customers/new',
-        name: 'admin-customers-new',
-        component: AdminCustomerCreate,
-        meta: { title: 'Thêm khách hàng' }
-      },
-      {
-        path: 'settings',
-        name: 'admin-settings',
-        component: AdminSettings,
-        meta: { title: 'Cài đặt', apiEndpoint: '/api/v1/admin/settings' },
-      },
-      { path: ':catchAll(.*)*', redirect: '/admin/dashboard' },
     ],
   },
-
-  // --- CUSTOMER ROUTES ---
   {
-    path: '/customer',
-    component: CustomerLayout,
-    beforeEnter: requireRole(['customer', 'user']),
-    children: [
-      { path: 'dashboard', name: 'customer-dashboard', component: CustomerDashboard, meta: { title: 'My Dashboard' } },
-      { path: 'orders', name: 'customer-orders', component: CustomerOrders, meta: { title: 'My Orders' } },
-      { path: 'products', name: 'customer-products', component: ProductList, meta: { title: 'Sản phẩm' } },
-      { path: 'products/:id', name: 'customer-product-detail', component: ProductDetailPage, meta: { title: 'Chi tiết sản phẩm' } },
-      { path: 'wishlist', name: 'customer-wishlist', component: WishlistPage, meta: { title: 'Sản phẩm yêu thích' } },
-      { path: ':catchAll(.*)*', redirect: '/customer/dashboard' },
-    ],
+    path: ROUTES_CONSTANTS.ADMIN.path,
+    redirect: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.path}`,
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.path}`,
+    name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name,
+    component: () => import('@/pages/admin/dashboard/AdminDashboardView.vue'),
   },
 
-  { path: '/:catchAll(.*)*', redirect: '/selection' },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.APPS.path}`,
+    name: ROUTES_CONSTANTS.ADMIN.children.APPS.name,
+    component: () => import('@/pages/admin/app/AdminAppList.vue'),
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.APPS.path}/create`,
+    name: 'admin-apps-create',
+    component: () => import('@/pages/admin/app/AdminProductForm.vue'),
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.APPS.path}/:id`,
+    name: 'admin-apps-edit',
+    component: () => import('@/pages/admin/app/AdminProductForm.vue'),
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.DOMAINS.path}`,
+    name: ROUTES_CONSTANTS.ADMIN.children.DOMAINS.name,
+    component: () => import('@/pages/admin/domain/AdminDomainList.vue'),
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.TECHNOLOGIES.path}`,
+    name: ROUTES_CONSTANTS.ADMIN.children.TECHNOLOGIES.name,
+    component: () => import('@/pages/admin/technology/AdminTechnologyList.vue'),
+  },
+  {
+    path: `${ROUTES_CONSTANTS.ADMIN.path}/${ROUTES_CONSTANTS.ADMIN.children.FEATURES.path}`,
+    name: ROUTES_CONSTANTS.ADMIN.children.FEATURES.name,
+    component: () => import('@/pages/admin/feature/AdminFeatureList.vue'),
+  },
+
+  {
+    path: ROUTES_CONSTANTS.REDIRECT.path,
+    name: ROUTES_CONSTANTS.REDIRECT.name,
+    component: () => import('@/routes/guard/Redirect.vue'),
+  },
+
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/pages/error/NotFoundPage.vue'),
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior() { return { top: 0, behavior: 'smooth' } },
-})
-
-router.beforeEach((to, from, next) => {
-  if (to.path === '/') {
-    next('/admin')
-  } else {
-    next()
-  }
 })
 
 export default router

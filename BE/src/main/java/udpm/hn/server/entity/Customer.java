@@ -1,31 +1,35 @@
 package udpm.hn.server.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import udpm.hn.server.entity.base.PrimaryEntity;
-import udpm.hn.server.infrastructure.core.constant.EntityProperties;
+
+import udpm.hn.server.infrastructure.constant.EntityProperties;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-@Table(name = "customer")
+@Entity
+@Table(name = "customers")
 public class Customer extends PrimaryEntity implements Serializable {
-    @Column(name = "code", length = EntityProperties.LENGTH_NAME)
-    private String code;
 
-    @Column(name = "name", length = EntityProperties.LENGTH_NAME)
-    private String name;
-
-    @Column(name = "email", length = EntityProperties.LENGTH_NAME)
+    @Column(nullable = false, unique = true, length = EntityProperties.LENGTH_NAME)
     private String email;
 
-    @Column(name = "picture", length = EntityProperties.LENGTH_PICTURE)
-    private String picture;
+    @Column(nullable = false)
+    private String password;
+
+    @Column(name = "full_name", length = EntityProperties.LENGTH_NAME)
+    private String fullName;
+
+    @Column(length = 20)
+    private String phone;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "customer_roles", joinColumns = @JoinColumn(name = "customer_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 }
