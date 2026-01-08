@@ -234,34 +234,34 @@ VALUES
 -- =====================================================
 
 -- Confess Poly 2 Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `is_main`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+1', 'Confession Feed Interface', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
-    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+2', 'Post Creation UI', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
+    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+1', TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+2', FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Hotel Management Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `is_main`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Hotel+Dashboard', 'Hotel Management Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
-    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Booking+System', 'Booking System Interface', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
+    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Hotel+Dashboard', TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Booking+System', FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Student Attendance Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `is_main`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+QR+Scan', 'QR Code Scanning Interface', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
-    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+Report', 'Attendance Report Dashboard', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
+    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+QR+Scan', TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+Report', FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- LeetSync Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `is_main`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=LeetSync+Dashboard', 'LeetSync Progress Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
-    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Problem+Stats', 'Problem Statistics View', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
+    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=LeetSync+Dashboard', TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Problem+Stats', FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Indicator Explanation Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `is_main`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Indicator+Dashboard', 'Indicator Analysis Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
-    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Data+Visualization', 'Data Visualization Interface', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
+    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Indicator+Dashboard', TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Data+Visualization', FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- =====================================================
 -- VERIFICATION QUERIES
