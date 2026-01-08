@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure;
+package udpm.hn.server.infrastructure.listen;
 
 import jakarta.persistence.PrePersist;
 import udpm.hn.server.entity.base.PrimaryEntity;
@@ -10,8 +10,12 @@ public class CreatePrimaryEntityListener {
 
     @PrePersist
     private void onCreate(PrimaryEntity entity) {
-        entity.setId(UUID.randomUUID().toString());
-        entity.setStatus(EntityStatus.ACTIVE);
+        if (entity.getId() == null) {
+            entity.setId(UUID.randomUUID().toString());
+        }
+        if (entity.getStatus() == null) {
+            entity.setStatus(EntityStatus.ACTIVE);
+        }
     }
 
 }

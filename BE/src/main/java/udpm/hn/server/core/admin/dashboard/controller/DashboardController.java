@@ -15,7 +15,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping
+    @GetMapping("/stats")
     public ResponseEntity<?> getDashboardStats() {
         return ResponseEntity.ok(dashboardService.getDashboardStatistics());
     }

@@ -42,4 +42,11 @@ public class FeatureController {
         featureService.deleteFeature(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/bulk-update-order")
+    public ResponseEntity<Void> bulkUpdateOrder(
+            @RequestBody java.util.List<udpm.hn.server.core.admin.feature.dto.request.FeatureOrderRequest> requests) {
+        featureService.bulkUpdateOrder(requests);
+        return ResponseEntity.ok().build();
+    }
 }

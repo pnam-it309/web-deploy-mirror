@@ -1,34 +1,37 @@
+import axios from 'axios'
+// 1. IMPORT "TÚI" VÀ "TÊN" MÀ BẠN DÙNG (Từ file storage/storagekey)
+import { localStorageAction } from '@/utils/storage'
+import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey'
 
-import axios from 'axios';
-import { localStorageAction } from '@/utils/storage';
-import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
+// 2. TẠO AXIOS CLIENT TRUNG TÂM
 const apiClient = axios.create({
-  baseURL: '/api/v1', 
+  // baseURL này sẽ được Proxy (vite.config.ts) "bắt" lấy
+  baseURL: '/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
 // 3. TẠO "NGƯỜI VẬN CHUYỂN" INTERCEPTOR
 // (Nó sẽ lấy "Thẻ VIP" (JWT) từ ĐÚNG nơi bạn đã "CẤT")
 apiClient.interceptors.request.use(
   (config) => {
-    
     // 3a. Lấy token từ ĐÚNG "TÚI" VÀ ĐÚNG "CHÌA KHÓA"
     // (localStorageAction.get sẽ tự động JSON.parse)
-    const token = localStorageAction.get(ACCESS_TOKEN_STORAGE_KEY); 
-    
-    if (token && typeof token === 'string') { // Kiểm tra token có thật không
+    const token = localStorageAction.get(ACCESS_TOKEN_STORAGE_KEY)
+
+    if (token && typeof token === 'string') {
+      // Kiểm tra token có thật không
       // 3b. Đính token vào header
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`
     }
-    
-    return config;
+
+    return config
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
-);
+)
 
 // 4. Xuất ra để các service khác dùng
-export default apiClient;
+export default apiClient

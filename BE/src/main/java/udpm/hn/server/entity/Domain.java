@@ -10,8 +10,15 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Entity
-@Table(name = "domains")
+@Table(name = "domains", indexes = {
+        @Index(name = "idx_domain_slug", columnList = "slug"),
+        @Index(name = "idx_domain_name", columnList = "name")
+})
 public class Domain extends PrimaryEntity implements Serializable {
+
+    @Version
+    private Long version;
+
     @Column(nullable = false, length = EntityProperties.LENGTH_NAME)
     private String name;
 

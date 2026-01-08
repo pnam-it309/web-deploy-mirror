@@ -132,7 +132,8 @@ public class AppServiceImpl implements AppService {
             List<AppMember> newMembers = new ArrayList<>();
             for (AppUpdateRequest.MemberRequest mr : request.getMembers()) {
                 String input = mr.getCustomerId(); // Đây có thể là UUID hoặc Email
-                if (input == null || input.isEmpty()) continue;
+                if (input == null || input.isEmpty())
+                    continue;
 
                 AppMember member = new AppMember();
                 member.setApp(savedApp);
@@ -178,7 +179,8 @@ public class AppServiceImpl implements AppService {
 
             List<AppImage> newImages = new ArrayList<>();
             for (AppUpdateRequest.ImageRequest ir : request.getImages()) {
-                if(ir.getUrl() == null || ir.getUrl().isEmpty()) continue;
+                if (ir.getUrl() == null || ir.getUrl().isEmpty())
+                    continue;
 
                 AppImage img = new AppImage();
                 img.setApp(savedApp);
@@ -191,25 +193,30 @@ public class AppServiceImpl implements AppService {
 
         return convertToResponse(savedApp);
     }
+
     @Override
     @Transactional
     public void deleteApp(String id) {
-        if (!appRepository.existsById(id)) {
-            throw new EntityNotFoundException("App not found: " + id);
+        try {
+            App app = appRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("App not found: " + id));
+
+            // Soft Delete: Just mark status as DELETED
+            app.setStatus(EntityStatus.DELETED);
+            appRepository.save(app);
+            System.out.println("Soft deleted App: " + id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-        featureRepository.deleteByAppId(id);
-        appMemberRepository.deleteByAppId(id);
-        appImageRepository.deleteByAppId(id);
-        appDetailRepository.deleteByAppId(id);
-        appRepository.flush();
-        appRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public AppDetailResponse getAppDetail(String appId) {
         AppDetail detail = appDetailRepository.findByAppId(appId).orElse(null);
-        if (detail == null) return null;
+        if (detail == null)
+            return null;
 
         AppDetailResponse res = modelMapper.map(detail, AppDetailResponse.class);
         res.setAppId(detail.getApp().getId());
@@ -224,6 +231,19 @@ public class AppServiceImpl implements AppService {
 
         modelMapper.map(request, detail);
         return modelMapper.map(appDetailRepository.save(detail), AppDetailResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public void changeStatus(String id, ApprovalStatus status) {
+        App app = appRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("App not found: " + id));
+
+        // Validate transition (optional, e.g. only from PENDING)
+        // if (app.getApprovalStatus() != ApprovalStatus.PENDING) ...
+
+        app.setApprovalStatus(status);
+        appRepository.save(app);
     }
 
     // --- Helper Mapping ---
@@ -260,7 +280,8 @@ public class AppServiceImpl implements AppService {
                 // Kiểm tra null avatar nếu entity chưa update
                 try {
                     // mr.setAvatar(m.getCustomer().getAvatar());
-                    // Tạm thời set null nếu Entity Customer chưa có trường avatar để tránh lỗi compile
+                    // Tạm thời set null nếu Entity Customer chưa có trường avatar để tránh lỗi
+                    // compile
                     mr.setAvatar(null);
                 } catch (Exception e) {
                     mr.setAvatar(null);
@@ -271,7 +292,7 @@ public class AppServiceImpl implements AppService {
                 // Là Khách Mời
                 mr.setCustomerId(null);
                 mr.setFullName(m.getMemberName()); // Lấy tên từ bảng AppMember
-                mr.setEmail(m.getMemberEmail());   // Lấy email từ bảng AppMember
+                mr.setEmail(m.getMemberEmail()); // Lấy email từ bảng AppMember
                 mr.setAvatar(null);
                 mr.setIsGuest(true);
             }
@@ -289,7 +310,88 @@ public class AppServiceImpl implements AppService {
             return ir;
         }).collect(Collectors.toList());
         res.setImages(imageRes);
-
         return res;
+
+    }
+
+    @Override
+    @Transactional
+    public void toggleFeatured(String id) {
+        App app = appRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("App not found: " + id));
+
+        boolean currentStatus = Boolean.TRUE.equals(app.getIsFeatured());
+        app.setIsFeatured(!currentStatus);
+        appRepository.save(app);
+    }
+
+    @Override
+    @Transactional
+    public void bulkUpdateHomepageOrder(List<udpm.hn.server.core.admin.app.dto.request.HomepageOrderRequest> requests) {
+        for (udpm.hn.server.core.admin.app.dto.request.HomepageOrderRequest req : requests) {
+            appRepository.findById(req.getId()).ifPresent(app -> {
+                app.setHomepageSortOrder(req.getHomepageSortOrder());
+                appRepository.save(app);
+            });
+        }
+    }
+
+    @Override
+    public List<AppResponse.MemberResponse> getGithubContributors(String url) {
+        if (url == null || !url.contains("github.com/")) {
+            return new ArrayList<>();
+        }
+
+        try {
+            // Extract owner and repo: https://github.com/owner/repo
+            String[] parts = url.split("github.com/")[1].split("/");
+            if (parts.length < 2)
+                return new ArrayList<>();
+            String owner = parts[0];
+            String repo = parts[1].replace(".git", ""); // Clean .git extension if present
+
+            String apiUrl = String.format("https://api.github.com/repos/%s/%s/contributors", owner, repo);
+
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            // Need to set User-Agent as GitHub API requires it
+            org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+            headers.set("User-Agent", "Java-App");
+            org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+
+            org.springframework.http.ResponseEntity<java.util.List> response = restTemplate.exchange(
+                    apiUrl,
+                    org.springframework.http.HttpMethod.GET,
+                    entity,
+                    java.util.List.class);
+
+            if (response.getBody() == null)
+                return new ArrayList<>();
+
+            List<AppResponse.MemberResponse> list = new ArrayList<>();
+            for (Object obj : response.getBody()) {
+                if (obj instanceof java.util.Map) {
+                    java.util.Map map = (java.util.Map) obj;
+                    String login = (String) map.get("login");
+                    String avatar = (String) map.get("avatar_url");
+
+                    if (login == null)
+                        continue;
+
+                    AppResponse.MemberResponse member = new AppResponse.MemberResponse();
+                    // We map login as the input for guest email/id
+                    member.setCustomerId(null); // Guest
+                    member.setIsGuest(true);
+                    member.setFullName(login);
+                    member.setEmail(login + "@github.com"); // Dummy email as unique ID
+                    member.setAvatar(avatar);
+                    member.setRole("MEMBER");
+                    list.add(member);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

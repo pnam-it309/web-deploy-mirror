@@ -55,7 +55,39 @@ public class AppController {
     }
 
     @PutMapping("/{id}/details")
-    public ResponseEntity<AppDetailResponse> updateAppDetail(@PathVariable String id, @RequestBody AppDetailUpdateRequest request) {
+    public ResponseEntity<AppDetailResponse> updateAppDetail(@PathVariable String id,
+            @RequestBody AppDetailUpdateRequest request) {
         return ResponseEntity.ok(appService.updateAppDetail(id, request));
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Void> changeStatus(@PathVariable String id, @RequestParam("status") String status) {
+        // Simple conversion string -> enum
+        try {
+            udpm.hn.server.infrastructure.constant.ApprovalStatus s = udpm.hn.server.infrastructure.constant.ApprovalStatus
+                    .valueOf(status.toUpperCase());
+            appService.changeStatus(id, s);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/featured")
+    public ResponseEntity<Void> toggleFeatured(@PathVariable String id) {
+        appService.toggleFeatured(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/bulk-update-homepage-order")
+    public ResponseEntity<Void> bulkUpdateHomepageOrder(@RequestBody java.util.List<HomepageOrderRequest> requests) {
+        appService.bulkUpdateHomepageOrder(requests);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/github-contributors")
+    public ResponseEntity<java.util.List<udpm.hn.server.core.admin.app.dto.response.AppResponse.MemberResponse>> getGithubContributors(
+            @RequestParam("url") String url) {
+        return ResponseEntity.ok(appService.getGithubContributors(url));
     }
 }

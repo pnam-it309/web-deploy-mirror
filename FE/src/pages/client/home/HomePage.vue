@@ -40,6 +40,9 @@
             </div>
         </section>
 
+        <!-- Product Technologies Slider -->
+        <TechnologySlider />
+
         <!-- Featured Products Section -->
         <section id="featured" class="container mx-auto px-4">
             <div class="flex items-end justify-between mb-12">
@@ -71,6 +74,7 @@
 import { ref, onMounted } from 'vue';
 import DomainCard from '@/components/client/domain/DomainCard.vue';
 import ProductCard from '@/components/client/product/ProductCard.vue';
+import TechnologySlider from '@/components/client/home/TechnologySlider.vue';
 import { getPublicDomains, getPublicFeaturedProducts, type PublicDomain, type PublicProduct } from '@/services/client/client.service';
 
 const domains = ref<PublicDomain[]>([]);
@@ -82,8 +86,8 @@ onMounted(async () => {
             getPublicDomains(),
             getPublicFeaturedProducts()
         ]);
-        domains.value = domainsData;
-        featuredProducts.value = productsData;
+        domains.value = domainsData || [];
+        featuredProducts.value = productsData?.data || productsData || [];
     } catch (error) {
         console.error("Failed to load home data", error);
     }

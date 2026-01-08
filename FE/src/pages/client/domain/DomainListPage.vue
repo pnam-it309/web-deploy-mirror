@@ -8,13 +8,17 @@
         </div>
 
         <!-- Toolbar -->
-        <DomainToolbar v-model="searchQuery" :total="filteredDomains.length" />
+        <DomainToolbar v-model="searchQuery" :total="filteredDomains.length" v-model:layout="layout" />
 
-        <!-- Grid -->
-        <div v-if="filteredDomains.length > 0" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Grid/List -->
+        <div v-if="filteredDomains.length > 0" :class="[
+            layout === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6'
+                : 'flex flex-col gap-4'
+        ]">
             <template v-for="domain in filteredDomains" :key="domain.id">
                 <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name, query: { domain: domain.id } }">
-                    <DomainCard :domain="domain" />
+                    <DomainCard :domain="domain" :layout="layout" />
                 </router-link>
             </template>
         </div>
@@ -44,6 +48,7 @@ import { ROUTES_CONSTANTS } from '@/constants/path';
 const domains = ref<PublicDomain[]>([]);
 const searchQuery = ref('');
 const loading = ref(true);
+const layout = ref<'grid' | 'list'>('grid'); // Default grid
 
 onMounted(async () => {
     try {

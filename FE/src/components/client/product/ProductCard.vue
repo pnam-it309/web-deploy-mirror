@@ -1,9 +1,10 @@
 <template>
-    <div
-        class="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 h-full flex flex-col">
+    <div @click="navigateToDetail"
+        class="cursor-pointer group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 h-full flex flex-col">
         <!-- Thumbnail -->
         <div class="relative w-full aspect-video bg-gray-100 overflow-hidden">
-            <img :src="product.thumbnail || 'https://via.placeholder.com/640x360?text=No+Image'" :alt="product.name"
+            <img :src="product.thumbnail || 'https://placehold.co/640x360?text=No+Image'" :alt="product.name"
+                loading="lazy"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <!-- Overlay (Optional) -->
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
@@ -44,6 +45,9 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { ROUTES_CONSTANTS } from '@/constants/path';
+
 export interface Product {
     id: string;
     name: string;
@@ -53,7 +57,16 @@ export interface Product {
     technologies?: { name: string; icon: string }[];
 }
 
-defineProps<{
+const props = defineProps<{
     product: Product
 }>();
+
+const router = useRouter();
+
+const navigateToDetail = () => {
+    router.push({
+        name: ROUTES_CONSTANTS.CUSTOMER.children.APP_DETAIL.name,
+        params: { id: props.product.id }
+    });
+};
 </script>

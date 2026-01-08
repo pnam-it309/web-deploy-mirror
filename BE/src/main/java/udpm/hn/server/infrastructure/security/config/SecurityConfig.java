@@ -46,7 +46,8 @@ public class SecurityConfig {
         private final TokenProvider tokenProvider;
         private final CustomUserDetailsService customUserDetailsService;
         private final GlobalVariables globalVariables;
-        // Bean này được inject vào, đảm bảo bạn đã định nghĩa nó ở 1 file config khác (GlobalConfig hoặc CorsConfig)
+        // Bean này được inject vào, đảm bảo bạn đã định nghĩa nó ở 1 file config khác
+        // (GlobalConfig hoặc CorsConfig)
         private final CorsConfigurationSource corsConfigurationSource;
 
         @Bean
@@ -61,8 +62,8 @@ public class SecurityConfig {
 
         @Bean(BeanIds.AUTHENTICATION_MANAGER)
         public AuthenticationManager authenticationManager(
-                UserDetailsService userDetailsService,
-                PasswordEncoder passwordEncoder) {
+                        UserDetailsService userDetailsService,
+                        PasswordEncoder passwordEncoder) {
                 DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
                 provider.setPasswordEncoder(passwordEncoder);
                 provider.setUserDetailsService(userDetailsService);
@@ -73,56 +74,57 @@ public class SecurityConfig {
         protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 log.info("Initializing security filter chain");
                 http
-                        .csrf(AbstractHttpConfigurer::disable)
-                        .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Sử dụng cấu hình CORS inject vào
-                        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .formLogin(AbstractHttpConfigurer::disable)
-                        .httpBasic(AbstractHttpConfigurer::disable)
-                        .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Sử dụng cấu hình
+                                                                                                 // CORS inject vào
+                                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .formLogin(AbstractHttpConfigurer::disable)
+                                .httpBasic(AbstractHttpConfigurer::disable)
+                                .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
                 // 1. Cấu hình các đường dẫn Public (Không cần đăng nhập)
                 http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/error",
-                                "/favicon.ico",
-                                "/*/*.png",
-                                "/*/*.gif",
-                                "/*/*.svg",
-                                "/*/*.jpg",
-                                "/*/*.html",
-                                "/*/*.css",
-                                "/*/*.js",
-                                "/auth/**",
-                                "/oauth2/**",
-                                "/login/oauth2/code/**",
-                                appendWildcard(MappingConstants.API_AUTH_PREFIX))
-                        .permitAll());
+                                .requestMatchers(
+                                                "/",
+                                                "/error",
+                                                "/favicon.ico",
+                                                "/*/*.png",
+                                                "/*/*.gif",
+                                                "/*/*.svg",
+                                                "/*/*.jpg",
+                                                "/*/*.html",
+                                                "/*/*.css",
+                                                "/*/*.js",
+                                                "/auth/**",
+                                                "/oauth2/**",
+                                                "/login/oauth2/code/**",
+                                                appendWildcard(MappingConstants.API_AUTH_PREFIX),
+                                                appendWildcard(MappingConstants.API_COMMON))
+                                .permitAll());
 
                 // 2. Cấu hình Customer API (TẠM THỜI MỞ CỬA - permitAll)
-                // Khi nào làm xong Login thì sửa lại thành: .hasAnyAuthority("CUSTOMER", "ADMIN")
+                // Khi nào làm xong Login thì sửa lại thành: .hasAnyAuthority("CUSTOMER",
+                // "ADMIN")
                 http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
-                        .permitAll()
-                );
+                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
+                                .permitAll());
 
                 // 3. Cấu hình Admin API (TẠM THỜI MỞ CỬA - permitAll) -> ĐÂY LÀ CHỖ SỬA LỖI 401
                 // Khi nào làm xong Login thì sửa lại thành: .hasAuthority("ADMIN")
                 http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
-                        .permitAll()
-                );
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
+                                .permitAll());
 
                 // OAuth2 configuration
                 http.oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
-                        .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
-                        .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                        .authorizationEndpoint(
-                                a -> a.authorizationRequestRepository(
-                                        httpCookieOAuth2AuthorizationRequestRepository))
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler));
+                                .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
+                                .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
+                                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                                .authorizationEndpoint(
+                                                a -> a.authorizationRequestRepository(
+                                                                httpCookieOAuth2AuthorizationRequestRepository))
+                                .successHandler(oAuth2AuthenticationSuccessHandler)
+                                .failureHandler(oAuth2AuthenticationFailureHandler));
 
                 // Add token authentication filter
                 http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

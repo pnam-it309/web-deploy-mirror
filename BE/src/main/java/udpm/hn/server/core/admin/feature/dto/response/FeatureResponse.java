@@ -10,6 +10,8 @@ public class FeatureResponse {
     private String name;
     private String description;
     private String imagePreview;
+    private String videoUrl;
+    private String status;
     private Integer sortOrder;
     private String appId;
 }

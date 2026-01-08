@@ -19,8 +19,7 @@ public class DomainController {
     @GetMapping
     public ResponseEntity<?> getAllDomains(
             @RequestParam(required = false, defaultValue = "false") boolean unpaged,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
         if (unpaged) {
             return ResponseEntity.ok(domainService.getAllDomains()); // Cho dropdown
         }
@@ -46,5 +45,12 @@ public class DomainController {
     public ResponseEntity<?> deleteDomain(@PathVariable String id) {
         domainService.deleteDomain(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/bulk-update-order")
+    public ResponseEntity<Void> bulkUpdateOrder(
+            @RequestBody java.util.List<udpm.hn.server.core.admin.domain.dto.request.DomainOrderRequest> requests) {
+        domainService.bulkUpdateOrder(requests);
+        return ResponseEntity.ok().build();
     }
 }

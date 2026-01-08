@@ -26,4 +26,7 @@ public interface DomainService {
 
     // Xoá
     void deleteDomain(String id);
+
+    // Bulk update sort order for drag & drop
+    void bulkUpdateOrder(java.util.List<udpm.hn.server.core.admin.domain.dto.request.DomainOrderRequest> requests);
 }

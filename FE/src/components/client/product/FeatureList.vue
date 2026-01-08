@@ -9,7 +9,7 @@
                 </div>
                 <div>
                     <h4 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ feature.name
-                        }}</h4>
+                    }}</h4>
                     <p class="text-gray-500 text-sm mt-1">{{ feature.description }}</p>
                 </div>
             </div>

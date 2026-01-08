@@ -29,15 +29,26 @@ public interface CustomerAppRepository extends AppRepository {
          * If I pass null for list, it should be ignored.
          * Parameter validation is key.
          */
-        @Query("SELECT DISTINCT a FROM App a " +
+        @Query(value = "SELECT DISTINCT a FROM App a " +
+                        "LEFT JOIN FETCH a.domain " +
                         "LEFT JOIN a.technologies t " +
                         "WHERE a.status = :status " +
                         "AND (:domainId IS NULL OR a.domain.id = :domainId) " +
-                        "AND (:query IS NULL OR lower(a.name) LIKE lower(concat('%', :query, '%')) OR lower(a.shortDescription) LIKE lower(concat('%', :query, '%'))) "
+                        "AND (:query IS NULL OR lower(a.name) LIKE lower(concat('%', :query, '%')) OR lower(a.sku) LIKE lower(concat('%', :query, '%')) OR lower(a.shortDescription) LIKE lower(concat('%', :query, '%'))) "
                         +
-                        "AND (COALESCE(:techIds, NULL) IS NULL OR t.id IN :techIds)")
-        Page<App> filterApps(String domainId, String query, List<String> techIds,
-                        udpm.hn.server.infrastructure.constant.EntityStatus status, Pageable pageable);
+                        "AND (:techIds IS NULL OR t.id IN :techIds)", countQuery = "SELECT COUNT(DISTINCT a) FROM App a "
+                                        +
+                                        "LEFT JOIN a.technologies t " +
+                                        "WHERE a.status = :status " +
+                                        "AND (:domainId IS NULL OR a.domain.id = :domainId) " +
+                                        "AND (:query IS NULL OR lower(a.name) LIKE lower(concat('%', :query, '%')) OR lower(a.sku) LIKE lower(concat('%', :query, '%')) OR lower(a.shortDescription) LIKE lower(concat('%', :query, '%'))) "
+                                        +
+                                        "AND (:techIds IS NULL OR t.id IN :techIds)")
+        Page<App> filterApps(@org.springframework.data.repository.query.Param("domainId") String domainId,
+                        @org.springframework.data.repository.query.Param("query") String query,
+                        @org.springframework.data.repository.query.Param("techIds") List<String> techIds,
+                        @org.springframework.data.repository.query.Param("status") udpm.hn.server.infrastructure.constant.EntityStatus status,
+                        Pageable pageable);
 
         // For featured
         @Query("SELECT a FROM App a WHERE a.status = :status AND a.isFeatured = true ORDER BY a.homepageSortOrder ASC")

@@ -13,4 +13,6 @@ public class DomainRequest {
     private String description;
     private String icon;
     private String color;
+    private Integer sortOrder;
+    private udpm.hn.server.infrastructure.constant.EntityStatus status;
 }

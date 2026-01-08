@@ -36,6 +36,7 @@ public class CustomerAppServiceImpl implements CustomerAppService {
     private final CustomerAppMemberRepository appMemberRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public PageableObject<CustomerAppResponse> filter(CustomerAppFilterRequest request) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdDate"); // Default NEWEST
         if ("VIEW_COUNT".equalsIgnoreCase(request.getSort())) {
@@ -47,9 +48,15 @@ public class CustomerAppServiceImpl implements CustomerAppService {
                     .and(Sort.by(Sort.Direction.DESC, "createdDate"));
         } else if ("OLDEST".equalsIgnoreCase(request.getSort())) {
             sort = Sort.by(Sort.Direction.ASC, "createdDate");
+        } else if ("NAME_ASC".equalsIgnoreCase(request.getSort()) || "A-Z".equalsIgnoreCase(request.getSort())) {
+            sort = Sort.by(Sort.Direction.ASC, "name");
+        } else if ("NAME_DESC".equalsIgnoreCase(request.getSort()) || "Z-A".equalsIgnoreCase(request.getSort())) {
+            sort = Sort.by(Sort.Direction.DESC, "name");
+        } else if ("POPULAR".equalsIgnoreCase(request.getSort())) {
+            sort = Sort.by(Sort.Direction.DESC, "viewCount");
         }
 
-        Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), sort);
+        Pageable pageable = PageRequest.of(Math.max(0, request.getPage() - 1), request.getSize(), sort);
 
         Page<App> page = appRepository.filterApps(
                 request.getDomainId(),
@@ -73,10 +80,6 @@ public class CustomerAppServiceImpl implements CustomerAppService {
 
         App app = optionalApp.get();
 
-        // Increase view count
-        app.setViewCount(app.getViewCount() + 1);
-        appRepository.save(app);
-
         CustomerAppResponse response = toSimpleResponse(app);
 
         // Add full details
@@ -91,7 +94,8 @@ public class CustomerAppServiceImpl implements CustomerAppService {
         // Features
         response.setFeatures(featureRepository.findByApp_IdAndStatusOrderBySortOrderAsc(id, EntityStatus.ACTIVE)
                 .stream()
-                .map(f -> new CustomerFeatureResponse(f.getId(), f.getName(), f.getDescription(), f.getImagePreview()))
+                .map(f -> new CustomerFeatureResponse(f.getId(), f.getName(), f.getDescription(), f.getImagePreview(),
+                        f.getVideoUrl()))
                 .collect(Collectors.toList()));
 
         // Team
@@ -127,7 +131,6 @@ public class CustomerAppServiceImpl implements CustomerAppService {
         if (app.getDomain() != null) {
             response.setDomainName(app.getDomain().getName());
         }
-
 
         if (app.getTechnologies() != null) {
             response.setTechnologyNames(

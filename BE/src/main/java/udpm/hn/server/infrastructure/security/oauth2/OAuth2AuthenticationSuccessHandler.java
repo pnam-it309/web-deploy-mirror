@@ -33,15 +33,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Setter(onMethod_ = @Autowired)
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
-    @Value("${frontend.url}")
+    @Value("${frontend.url:http://localhost:6789}")
     private String DEFAULT_TARGET_URL_TUTOR_CLIENT;
 
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication
-    ) throws IOException {
+            Authentication authentication) throws IOException {
 
         log.info("Đã chạy vào success khi đăng nhập thành công");
 
@@ -57,8 +56,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(
             HttpServletRequest request,
             HttpServletResponse response,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         try {
             Optional<String> redirectUri = CookieUtils.getCookie(request, OAuth2Constant.REDIRECT_URI_PARAM_COOKIE_NAME)
                     .map(Cookie::getValue);
@@ -97,7 +95,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         if (message.equalsIgnoreCase(CookieConstant.ACCOUNT_NOT_EXIST)) {
             CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
         } else if (message.equalsIgnoreCase(CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION)) {
-            CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION);
+            CookieUtils.addCookie(response, CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION,
+                    CookieConstant.ACCOUNT_NOT_HAVE_PERMISSION);
         }
         return redirectUri.orElse(DEFAULT_TARGET_URL_TUTOR_CLIENT);
     }

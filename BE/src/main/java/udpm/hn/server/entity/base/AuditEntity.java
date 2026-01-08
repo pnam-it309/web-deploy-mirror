@@ -5,7 +5,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
-import udpm.hn.server.infrastructure.AuditEntityListener;
+import udpm.hn.server.infrastructure.listen.AuditEntityListener;
 
 /**
  * Lớp cơ sở chứa các trường audit cho tất cả các entity
@@ -15,8 +15,8 @@ import udpm.hn.server.infrastructure.AuditEntityListener;
 
 @Getter
 @Setter
-@MappedSuperclass  // Đánh dấu đây là class cơ sở cho các entity
-@EntityListeners(AuditEntityListener.class)  // Lắng nghe sự kiện để cập nhật thời gian
+@MappedSuperclass // Đánh dấu đây là class cơ sở cho các entity
+@EntityListeners(AuditEntityListener.class) // Lắng nghe sự kiện để cập nhật thời gian
 public abstract class AuditEntity {
 
     /**

@@ -14,6 +14,10 @@ public class FeatureRequest {
 
     private String imagePreview;
 
+    private String videoUrl;
+
+    private String status;
+
     @NotBlank(message = "Phải chọn thuộc về App nào")
     private String appId;
 

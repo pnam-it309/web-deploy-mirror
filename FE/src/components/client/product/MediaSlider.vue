@@ -2,7 +2,8 @@
     <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden group">
         <!-- Current Slide -->
         <div class="w-full h-full relative">
-            <img v-if="currentMedia.type === 'image'" :src="currentMedia.url" class="w-full h-full object-contain" />
+            <img v-if="currentMedia.type === 'image'" :src="currentMedia.url" class="w-full h-full object-contain"
+                loading="lazy" />
             <iframe v-else-if="currentMedia.type === 'video'" :src="currentMedia.url" class="w-full h-full"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

@@ -8,11 +8,16 @@ import udpm.hn.server.entity.App;
 import java.util.ArrayList;
 import java.util.List;
 
+import udpm.hn.server.infrastructure.constant.EntityStatus;
+
 public class AppSpecification {
 
     public static Specification<App> getFilter(AppFilterRequest req) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            // Exclude DELETED records essentially
+            predicates.add(cb.notEqual(root.get("status"), EntityStatus.DELETED));
 
             // 1. Tìm theo Keyword (Tên hoặc SKU)
             if (req.getKeyword() != null && !req.getKeyword().trim().isEmpty()) {

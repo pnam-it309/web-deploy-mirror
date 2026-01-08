@@ -9,21 +9,22 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import udpm.hn.server.infrastructure.constant.EntityProperties;
 import udpm.hn.server.infrastructure.constant.EntityStatus;
-import udpm.hn.server.infrastructure.CreatePrimaryEntityListener;
+import udpm.hn.server.infrastructure.listen.CreatePrimaryEntityListener;
 
 /**
  * Lớp cơ sở cho tất cả các entity trong hệ thống
  * - Cung cấp các trường cơ bản: id, status
  * - Tự động sinh ID khi tạo mới thông qua CreatePrimaryEntityListener
- * - Kế thừa từ AuditEntity để có các trường audit (createdDate, lastModifiedDate, ...)
+ * - Kế thừa từ AuditEntity để có các trường audit (createdDate,
+ * lastModifiedDate, ...)
  */
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@MappedSuperclass  // Đánh dấu đây là class cơ sở cho các entity
-@EntityListeners(CreatePrimaryEntityListener.class)  // Lắng nghe sự kiện tạo mới entity
+@MappedSuperclass // Đánh dấu đây là class cơ sở cho các entity
+@EntityListeners(CreatePrimaryEntityListener.class) // Lắng nghe sự kiện tạo mới entity
 public abstract class PrimaryEntity extends AuditEntity implements IsIdentified {
 
     /**

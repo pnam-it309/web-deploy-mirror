@@ -1,0 +1,31 @@
+Là Admin, tôi muốn tạo Lĩnh vực	Tạo form CRUD, lưu DB (name, slug, description, icon, status), validate trùng tên
+Là Admin, tôi muốn chỉnh sửa Lĩnh vực	Load dữ liệu theo ID, cho phép update các field, update slug nếu đổi tên
+Là Admin, tôi muốn xoá Lĩnh vực	Kiểm tra ràng buộc (có sản phẩm hay không), soft delete hoặc hard delete
+Là Admin, tôi muốn ẩn/hiện Lĩnh vực	Thêm field status (active/inactive), chỉ public active
+Là Admin, tôi muốn sắp xếp thứ tự Lĩnh vực	Thêm field order_index, hỗ trợ drag & drop hoặc input số
+Là Admin, tôi muốn tạo Sản phẩm	Form tạo sản phẩm, chọn Lĩnh vực, nhập name, summary, description, tech stack
+Là Admin, tôi muốn upload media cho Sản phẩm	Upload ảnh/video, lưu storage, generate thumbnail, validate dung lượng
+Là Admin, tôi muốn gắn link demo/source	Lưu URL demo, GitHub/GitLab, validate URL
+Là Admin, tôi muốn chỉnh sửa Sản phẩm	Update toàn bộ metadata, giữ lịch sử chỉnh sửa nếu cần
+Là Admin, tôi muốn xoá Sản phẩm	Kiểm tra ràng buộc chức năng/media, xử lý xoá an toàn
+Là Admin, tôi muốn duyệt Sản phẩm	Thêm workflow: draft → pending → approved → rejected
+Là Admin, tôi muốn gán Sản phẩm cho Sinh viên	Many-to-many product_user, chọn vai trò (leader/member)
+Là Admin, tôi muốn gán công nghệ cho Sản phẩm	Many-to-many product_technology, phục vụ filter
+Là Admin, tôi muốn thêm Chức năng cho Sản phẩm	CRUD feature (title, description, priority, status) theo product_id
+Là Admin, tôi muốn sắp xếp Chức năng	Order feature theo priority hoặc drag & drop
+Là Admin, tôi muốn ẩn/hiện Chức năng	Feature chỉ hiển thị public khi status=active
+Là Admin, tôi muốn gắn media cho Chức năng	Upload ảnh/video minh hoạ cho từng feature
+Là Admin, tôi muốn xem dashboard	Query số lượng lĩnh vực, sản phẩm, chức năng, user
+Là Admin, tôi muốn xem lượt xem sản phẩm	Tạo view_count, track khi public access
+Là Admin, tôi muốn cấu hình homepage	Chọn sản phẩm nổi bật, thứ tự hiển thị
+
+Là người xem, tôi muốn xem danh sách Lĩnh vực	API lấy domain active, UI grid/list
+Là người xem, tôi muốn xem Sản phẩm theo Lĩnh vực	Query product theo domain_id, pagination
+Là người xem, tôi muốn xem chi tiết Sản phẩm	Load full data: info, features, team, media
+Là người xem, tôi muốn xem Chức năng	Render danh sách feature theo thứ tự
+Là người xem, tôi muốn tìm kiếm Sản phẩm	Full-text search theo name, description
+Là người xem, tôi muốn lọc theo công nghệ	Filter product_technology
+Là người xem, tôi muốn sắp xếp Sản phẩm	Sort theo mới nhất / nổi bật / lượt xem
+Là người xem, tôi muốn xem media demo	Slider ảnh/video, lazy load
+Là người xem, tôi muốn truy cập link demo	Open demo/source trong tab mới
+Là người xem, tôi muốn xem nhóm sinh viên	Hiển thị avatar, tên, vai trò

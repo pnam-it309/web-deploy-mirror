@@ -8,13 +8,20 @@ import udpm.hn.server.entity.base.PrimaryEntity;
 import udpm.hn.server.infrastructure.constant.EntityProperties;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "apps")
+@Table(name = "apps", indexes = {
+        @Index(name = "idx_app_name", columnList = "name"),
+        @Index(name = "idx_app_domain", columnList = "domain_id"),
+        @Index(name = "idx_app_featured", columnList = "is_featured"),
+        @Index(name = "idx_app_status", columnList = "approval_status")
+})
 public class App extends PrimaryEntity implements Serializable {
+
+    @Version
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "domain_id", nullable = false)

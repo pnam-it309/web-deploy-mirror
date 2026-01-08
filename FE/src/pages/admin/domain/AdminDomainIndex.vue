@@ -9,14 +9,22 @@ import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import DomainFilter from '@/components/admin/domain/DomainFilter.vue';
 import DomainTable from '@/components/admin/domain/DomainTable.vue';
 
+import { toast } from 'vue3-toastify';
+
 const router = useRouter();
 const items = ref<Domain[]>([]);
 const isLoading = ref(false);
 
 const loadData = async () => {
   isLoading.value = true;
-  try { items.value = await DomainService.getAll(); } 
-  finally { isLoading.value = false; }
+  try {
+    const res = await DomainService.getAll();
+    items.value = res.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  } catch (error) {
+    console.error("Failed to load domains:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 onMounted(loadData);
@@ -26,8 +34,28 @@ const handleEdit = (item: Domain) => router.push({ name: 'AdminDomainEdit', para
 
 const handleDelete = async (id: string) => {
   if (confirm('Bạn có chắc muốn xoá?')) {
-    await DomainService.deleteDomain(id);
-    loadData();
+    try {
+      await DomainService.deleteDomain(id);
+      toast.success("Xoá thành công!");
+      loadData();
+    } catch (e: any) {
+      // Backend returns error if constraints failed
+      const msg = e.response?.data?.message || "Không thể xoá. Có thể danh mục này đang chứa sản phẩm.";
+      toast.error(msg);
+    }
+  }
+};
+
+const handleReorder = async () => {
+  try {
+    const payload = items.value.map((item, index) => ({
+      id: item.id,
+      sortOrder: index + 1
+    }));
+    await DomainService.updateOrder(payload);
+    // Silent success or optional toast
+  } catch (e) {
+    toast.error("Lỗi cập nhật thứ tự");
   }
 };
 </script>
@@ -38,12 +66,14 @@ const handleDelete = async (id: string) => {
       <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Lĩnh vực' }]" />
       <h1 class="text-2xl font-bold text-dark font-serif uppercase">Lĩnh vực</h1>
     </div>
-    
+
     <DomainFilter @create="handleCreate" @search="loadData" />
 
-    <div v-if="isLoading" class="flex-1 flex justify-center items-center"><BaseSpinner size="lg" /></div>
+    <div v-if="isLoading" class="flex-1 flex justify-center items-center">
+      <BaseSpinner size="lg" />
+    </div>
     <div v-else class="flex-1 overflow-auto custom-scrollbar">
-      <DomainTable :items="items" @edit="handleEdit" @delete="handleDelete" />
+      <DomainTable v-model:items="items" @edit="handleEdit" @delete="handleDelete" @reorder="handleReorder" />
     </div>
   </div>
 </template>

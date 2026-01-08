@@ -11,6 +11,7 @@ import udpm.hn.server.core.admin.technology.dto.response.TechnologyResponse;
 import udpm.hn.server.core.admin.technology.repository.TechnologyManageRepository; // Tự tạo interface này kế thừa JpaRepository
 import udpm.hn.server.core.admin.technology.service.TechnologyService;
 import udpm.hn.server.entity.Technology;
+import udpm.hn.server.core.admin.app.repository.AppManageRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,11 +21,13 @@ import java.util.stream.Collectors;
 public class TechnologyServiceImpl implements TechnologyService {
 
     private final TechnologyManageRepository technologyRepository;
+    private final AppManageRepository appRepository;
     private final ModelMapper modelMapper;
 
     @Override
     public List<TechnologyResponse> getAllTechnologies() {
         return technologyRepository.findAll().stream()
+                .filter(t -> t.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)
                 .map(t -> modelMapper.map(t, TechnologyResponse.class))
                 .collect(Collectors.toList());
     }
@@ -51,10 +54,23 @@ public class TechnologyServiceImpl implements TechnologyService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void deleteTechnology(String id) {
-        if (!technologyRepository.existsById(id)) {
-            throw new EntityNotFoundException("Technology not found");
+        try {
+            Technology tech = technologyRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
+
+            if (appRepository.existsByTechnologiesId(id)) {
+                // Soft Delete bypasses FK constraints because the record remains in DB
+            }
+
+            // Soft Delete
+            tech.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);
+            technologyRepository.save(tech);
+            System.out.println("Soft deleted Technology: " + id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-        technologyRepository.deleteById(id);
     }
 }

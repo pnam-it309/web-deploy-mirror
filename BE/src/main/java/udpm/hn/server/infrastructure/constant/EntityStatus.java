@@ -17,16 +17,23 @@ public enum EntityStatus {
      * - Được hiển thị và xử lý trong các nghiệp vụ
      */
     ACTIVE,
-    
+
     /**
      * Trạng thái không hoạt động
      * - Bản ghi bị vô hiệu hóa tạm thời
      * - Không hiển thị trong các chức năng thông thường
      */
-    INACTIVE;
+    INACTIVE,
+
+    /**
+     * Trạng thái đã xóa mềm
+     * - Bản ghi đánh dấu là đã xóa nhưng vẫn còn trong DB
+     */
+    DELETED;
 
     /**
      * Lấy danh sách tất cả các trạng thái dưới dạng List<String>
+     * 
      * @return Danh sách tên các trạng thái
      */
     public static List<String> getAllStatus() {
@@ -37,6 +44,7 @@ public enum EntityStatus {
 
     /**
      * Lấy chuỗi chứa tất cả các trạng thái, phân cách bởi dấu phẩy
+     * 
      * @return Chuỗi định dạng "ACTIVE, INACTIVE"
      */
     public static String getAllStatusString() {

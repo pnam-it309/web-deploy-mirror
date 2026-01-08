@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import udpm.hn.server.entity.Feature;
-import udpm.hn.server.repository.FeatureRepository;
 
 import java.util.List;
 

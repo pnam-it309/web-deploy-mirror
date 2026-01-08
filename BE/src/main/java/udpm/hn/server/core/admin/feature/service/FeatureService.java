@@ -7,8 +7,14 @@ import java.util.List;
 
 public interface FeatureService {
     List<FeatureResponse> getAllFeatures();
+
     List<FeatureResponse> getFeaturesByAppId(String appId);
+
     FeatureResponse createFeature(FeatureRequest request);
+
     FeatureResponse updateFeature(String id, FeatureRequest request);
+
     void deleteFeature(String id);
+
+    void bulkUpdateOrder(java.util.List<udpm.hn.server.core.admin.feature.dto.request.FeatureOrderRequest> requests);
 }

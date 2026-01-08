@@ -15,8 +15,13 @@ const isLoading = ref(false);
 
 const loadData = async () => {
   isLoading.value = true;
-  try { items.value = await TechnologyService.getAll(); } 
-  finally { isLoading.value = false; }
+  try {
+    items.value = await TechnologyService.getAll();
+  } catch (error) {
+    console.error("Failed to load technologies:", error);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 onMounted(loadData);
@@ -35,7 +40,9 @@ const handleDelete = async (id: string) => {
       <h1 class="text-2xl font-bold text-dark font-serif uppercase">Công nghệ</h1>
     </div>
     <TechnologyFilter @create="handleCreate" @search="loadData" />
-    <div v-if="isLoading" class="flex-1 flex justify-center items-center"><BaseSpinner size="lg" /></div>
+    <div v-if="isLoading" class="flex-1 flex justify-center items-center">
+      <BaseSpinner size="lg" />
+    </div>
     <div v-else class="flex-1 overflow-auto custom-scrollbar">
       <TechnologyTable :items="items" @edit="handleEdit" @delete="handleDelete" />
     </div>

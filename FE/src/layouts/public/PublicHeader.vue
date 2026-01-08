@@ -15,41 +15,15 @@
                     class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
                     Trang chủ
                 </router-link>
-                <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.DOMAINS.name }"
-                    class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
-                    Lĩnh vực
-                </router-link>
                 <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
                     class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
                     Sản phẩm
                 </router-link>
-                <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.TECHNOLOGIES.name }"
-                    class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
-                    Công nghệ
-                </router-link>
+
             </nav>
 
             <!-- Actions (Search/Auth) -->
             <div class="flex items-center gap-4">
-                <!-- Search Bar -->
-                <div class="relative hidden md:block">
-                    <input type="text" v-model="searchQuery" @keyup.enter="handleSearch" placeholder="Tìm kiếm..."
-                        class="bg-gray-100 hover:bg-white focus:bg-white border-transparent focus:border-blue-500 rounded-lg px-4 py-2 pl-10 text-sm transition-all focus:ring-4 focus:ring-blue-100 w-64 border">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-
-                <button class="md:hidden p-2 text-gray-500 hover:text-[#1e293b] transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </button>
                 <!-- Profile Dropdown (Mocked for now) -->
                 <div class="relative" ref="dropdownRef">
                     <button @click="toggleDropdown"
@@ -73,11 +47,11 @@
                         leave-to-class="transform opacity-0 scale-95">
                         <div v-if="isDropdownOpen"
                             class="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50 origin-top-right">
-                            <router-link :to="{ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }"
-                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 transition-colors">
+                            <div @click="handleLoginAdmin"
+                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 transition-colors cursor-pointer">
                                 <ArrowRightStartOnRectangleIcon class="w-5 h-5" />
                                 <span>Đăng nhập Admin</span>
-                            </router-link>
+                            </div>
                         </div>
                     </transition>
                 </div>
@@ -88,23 +62,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
+import { cookieStorageAction } from '@/utils/storage';
+import { SCREEN_COOKIE_NAME, ROLE_ADMIN } from '@/constants/cookie.constants';
 
-const router = useRouter();
-const searchQuery = ref('');
+const handleLoginAdmin = () => {
+    cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_ADMIN, 60 * 5); // 5 mins
+    cookieStorageAction.set('redirect_uri', window.location.origin + '/redirect', 60 * 5);
+    window.location.href = `/oauth2/authorization/google`;
+};
+
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
-
-const handleSearch = () => {
-    if (searchQuery.value.trim()) {
-        router.push({
-            name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name,
-            query: { q: searchQuery.value }
-        });
-    }
-};
 
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;

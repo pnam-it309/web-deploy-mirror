@@ -59,9 +59,9 @@ export class ConnectionPool<T extends IWebSocketLike> implements IWebSocketLike 
   }
 
   isConnected(): boolean {
-    // Return true if ALL shards are connected appropriate for a pool, 
+    // Return true if ALL shards are connected appropriate for a pool,
     // or at least one. "All" is safer for consistency.
-    return this.clients.every(c => c.isConnected())
+    return this.clients.every((c) => c.isConnected())
   }
 
   // --- Internal Pool Management ---
@@ -84,4 +84,3 @@ export class ConnectionPool<T extends IWebSocketLike> implements IWebSocketLike 
     this.clients.forEach((c) => c.disconnect())
   }
 }
-

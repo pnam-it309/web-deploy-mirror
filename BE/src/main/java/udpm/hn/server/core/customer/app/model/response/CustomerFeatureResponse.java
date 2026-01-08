@@ -14,4 +14,5 @@ public class CustomerFeatureResponse {
     private String name;
     private String description;
     private String imagePreview;
+    private String videoUrl;
 }

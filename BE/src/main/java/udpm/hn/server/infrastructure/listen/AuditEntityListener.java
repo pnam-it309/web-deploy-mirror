@@ -1,4 +1,4 @@
-package udpm.hn.server.infrastructure;
+package udpm.hn.server.infrastructure.listen;
 
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;

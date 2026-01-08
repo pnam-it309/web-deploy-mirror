@@ -13,6 +13,7 @@ import udpm.hn.server.entity.App;
 import udpm.hn.server.entity.Feature;
 import org.springframework.data.domain.Sort; // Import thêm cái này để sort
 
+import udpm.hn.server.infrastructure.constant.EntityStatus;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,17 @@ public class FeatureServiceImpl implements FeatureService {
             feature.setSortOrder(99);
         }
 
+        // Set Default Status if null
+        if (request.getStatus() != null) {
+            try {
+                feature.setStatus(EntityStatus.valueOf(request.getStatus()));
+            } catch (Exception e) {
+                feature.setStatus(EntityStatus.ACTIVE);
+            }
+        } else {
+            feature.setStatus(EntityStatus.ACTIVE);
+        }
+
         return modelMapper.map(featureRepository.save(feature), FeatureResponse.class);
     }
 
@@ -65,7 +77,16 @@ public class FeatureServiceImpl implements FeatureService {
         feature.setName(request.getName());
         feature.setDescription(request.getDescription());
         feature.setImagePreview(request.getImagePreview());
+        feature.setVideoUrl(request.getVideoUrl());
         feature.setSortOrder(request.getSortOrder());
+
+        if (request.getStatus() != null) {
+            try {
+                feature.setStatus(EntityStatus.valueOf(request.getStatus()));
+            } catch (Exception e) {
+                // Keep old status
+            }
+        }
 
         // Nếu muốn cho phép đổi App của Feature
         if (request.getAppId() != null && !request.getAppId().equals(feature.getApp().getId())) {
@@ -80,5 +101,17 @@ public class FeatureServiceImpl implements FeatureService {
     @Override
     public void deleteFeature(String id) {
         featureRepository.deleteById(id);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void bulkUpdateOrder(
+            java.util.List<udpm.hn.server.core.admin.feature.dto.request.FeatureOrderRequest> requests) {
+        for (udpm.hn.server.core.admin.feature.dto.request.FeatureOrderRequest req : requests) {
+            featureRepository.findById(req.getId()).ifPresent(feature -> {
+                feature.setSortOrder(req.getSortOrder());
+                featureRepository.save(feature);
+            });
+        }
     }
 }
