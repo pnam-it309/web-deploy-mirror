@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -45,14 +47,17 @@ public class TokenProvider {
     private final long TOKEN_EXP = 8 * 60 * 60 * 1000L; // 8 giờ
     private final long TOKEN_EXP_DATE = System.currentTimeMillis() + TOKEN_EXP;
     private final StaffAuthRepository staffAuthRepository;
-    private final HttpServletRequest httpServletRequest;
 
     public TokenProvider(@Value("${jwt.secret}") String tokenSecret, // Lấy secret từ config
-            StaffAuthRepository staffAuthRepository,
-            HttpServletRequest httpServletRequest) {
+            StaffAuthRepository staffAuthRepository) {
         this.tokenSecret = tokenSecret;
         this.staffAuthRepository = staffAuthRepository;
-        this.httpServletRequest = httpServletRequest;
+    }
+
+    // Helper method to get current HttpServletRequest from RequestContext
+    private HttpServletRequest getCurrentRequest() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attributes != null ? attributes.getRequest() : null;
     }
 
     // --- [THÊM HÀM MỚI: Đồng bộ "Chìa khoá"] ---
@@ -69,9 +74,10 @@ public class TokenProvider {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-        Optional<String> screenForRole = CookieUtils
-                .getCookie(httpServletRequest, OAuth2Constant.SCREEN_FOR_ROLE_COOKIE_NAME)
-                .map(Cookie::getValue);
+        HttpServletRequest request = getCurrentRequest();
+        Optional<String> screenForRole = request != null
+                ? CookieUtils.getCookie(request, OAuth2Constant.SCREEN_FOR_ROLE_COOKIE_NAME).map(Cookie::getValue)
+                : Optional.empty();
 
         TokenInfoResponse tokenInfoResponse = new TokenInfoResponse();
 

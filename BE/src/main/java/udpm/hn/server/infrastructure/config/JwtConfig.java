@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import udpm.hn.server.infrastructure.security.service.TokenProvider;
 import udpm.hn.server.infrastructure.security.repository.StaffAuthRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 @Configuration
 @RequiredArgsConstructor
 public class JwtConfig {
@@ -25,11 +23,9 @@ public class JwtConfig {
     // }
 
     @Bean
-    public TokenProvider tokenProvider(
-            HttpServletRequest httpServletRequest) {
+    public TokenProvider tokenProvider() {
         return new TokenProvider(
                 jwtSecret,
-                staffAuthRepository,
-                httpServletRequest);
+                staffAuthRepository);
     }
 }
