@@ -3,6 +3,7 @@
 -- Database: FPL-UDPM-Catalog
 -- Created: 2026-01-08
 -- Description: Insert sample apps from FPLHN-FACTORY
+-- Note: status is ORDINAL (0=ACTIVE), timestamps are in milliseconds
 -- =====================================================
 
 USE `catalog_web`;
@@ -10,14 +11,14 @@ USE `catalog_web`;
 -- =====================================================
 -- 1. Insert Domains (Categories)
 -- =====================================================
-INSERT INTO `domains` (`id`, `name`, `slug`, `description`, `icon`, `color`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`)
+INSERT INTO `domains` (`id`, `name`, `slug`, `description`, `icon`, `color`, `parent_id`, `sort_order`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), 'Education & Learning', 'education-learning', 'Educational management and learning platforms', 'fas fa-graduation-cap', '#4F46E5', NULL, 1, 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Social & Community', 'social-community', 'Social networking and community platforms', 'fas fa-users', '#EC4899', NULL, 2, 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Development Tools', 'development-tools', 'Developer productivity and coding tools', 'fas fa-code', '#10B981', NULL, 3, 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Business Management', 'business-management', 'Business and enterprise management systems', 'fas fa-briefcase', '#F59E0B', NULL, 4, 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Data & Analytics', 'data-analytics', 'Data analysis and indicator tracking', 'fas fa-chart-line', '#8B5CF6', NULL, 5, 'ACTIVE', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `updated_at` = NOW();
+    (UUID(), 'Education & Learning', 'education-learning', 'Educational management and learning platforms', 'fas fa-graduation-cap', '#4F46E5', NULL, 1, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Social & Community', 'social-community', 'Social networking and community platforms', 'fas fa-users', '#EC4899', NULL, 2, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Development Tools', 'development-tools', 'Developer productivity and coding tools', 'fas fa-code', '#10B981', NULL, 3, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Business Management', 'business-management', 'Business and enterprise management systems', 'fas fa-briefcase', '#F59E0B', NULL, 4, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Data & Analytics', 'data-analytics', 'Data analysis and indicator tracking', 'fas fa-chart-line', '#8B5CF6', NULL, 5, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000)
+ON DUPLICATE KEY UPDATE `lastModifiedDate` = UNIX_TIMESTAMP(NOW()) * 1000;
 
 -- Get domain IDs for reference
 SET @domain_education = (SELECT id FROM domains WHERE slug = 'education-learning' LIMIT 1);
@@ -29,19 +30,19 @@ SET @domain_analytics = (SELECT id FROM domains WHERE slug = 'data-analytics' LI
 -- =====================================================
 -- 2. Insert Technologies
 -- =====================================================
-INSERT INTO `technologies` (`id`, `name`, `icon`, `status`, `created_at`, `updated_at`)
+INSERT INTO `technologies` (`id`, `name`, `icon`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), 'Spring Boot', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Vue.js', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'React', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'MySQL', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Docker', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Redis', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'WebSocket', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'TypeScript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', 'ACTIVE', NOW(), NOW()),
-    (UUID(), 'Tailwind CSS', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg', 'ACTIVE', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `updated_at` = NOW();
+    (UUID(), 'Spring Boot', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Vue.js', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'React', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'MySQL', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Docker', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Redis', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'WebSocket', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/socketio/socketio-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Java', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'TypeScript', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), 'Tailwind CSS', 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000)
+ON DUPLICATE KEY UPDATE `lastModifiedDate` = UNIX_TIMESTAMP(NOW()) * 1000;
 
 -- Get technology IDs for reference
 SET @tech_spring = (SELECT id FROM technologies WHERE name = 'Spring Boot' LIMIT 1);
@@ -61,40 +62,40 @@ SET @tech_tailwind = (SELECT id FROM technologies WHERE name = 'Tailwind CSS' LI
 
 -- App 1: FPL UDPM Confess Poly 2
 SET @app_confess_id = UUID();
-INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `created_at`, `updated_at`)
+INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (@app_confess_id, @domain_social, 'FPL UDPM Confess Poly 2', 'CONFESS-V2', 'Anonymous confession platform for FPT Polytechnic students to share thoughts, stories, and connect with peers safely.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-udpm-confess-poly2/main/thumbnail.png', 0, TRUE, 1, 'APPROVED', 'ACTIVE', NOW(), NOW());
+    (@app_confess_id, @domain_social, 'FPL UDPM Confess Poly 2', 'CONFESS-V2', 'Anonymous confession platform for FPT Polytechnic students to share thoughts, stories, and connect with peers safely.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-udpm-confess-poly2/main/thumbnail.png', 0, TRUE, 1, 'APPROVED', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App 2: FPL Hotel Management System
 SET @app_hotel_id = UUID();
-INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `created_at`, `updated_at`)
+INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (@app_hotel_id, @domain_business, 'FPL Hotel Management System', 'HMS-2024', 'Comprehensive hotel management system for booking, check-in/out, room management, and customer service operations.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-hotel-management-system/main/thumbnail.png', 0, TRUE, 2, 'APPROVED', 'ACTIVE', NOW(), NOW());
+    (@app_hotel_id, @domain_business, 'FPL Hotel Management System', 'HMS-2024', 'Comprehensive hotel management system for booking, check-in/out, room management, and customer service operations.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-hotel-management-system/main/thumbnail.png', 0, TRUE, 2, 'APPROVED', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App 3: FPL Student Attendance
 SET @app_attendance_id = UUID();
-INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `created_at`, `updated_at`)
+INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (@app_attendance_id, @domain_education, 'FPL Student Attendance', 'ATTENDANCE-SYS', 'Smart attendance tracking system with QR code scanning, real-time monitoring, and automated reporting for classes.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-student-attendance/main/thumbnail.png', 0, TRUE, 3, 'APPROVED', 'ACTIVE', NOW(), NOW());
+    (@app_attendance_id, @domain_education, 'FPL Student Attendance', 'ATTENDANCE-SYS', 'Smart attendance tracking system with QR code scanning, real-time monitoring, and automated reporting for classes.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-student-attendance/main/thumbnail.png', 0, TRUE, 3, 'APPROVED', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App 4: FPL UDPM LeetSync
 SET @app_leetsync_id = UUID();
-INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `created_at`, `updated_at`)
+INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (@app_leetsync_id, @domain_devtools, 'FPL UDPM LeetSync', 'LEETSYNC-2024', 'Automated LeetCode problem synchronization and tracking tool for competitive programming practice and progress monitoring.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-udpm-leet-sync/main/thumbnail.png', 0, TRUE, 4, 'APPROVED', 'ACTIVE', NOW(), NOW());
+    (@app_leetsync_id, @domain_devtools, 'FPL UDPM LeetSync', 'LEETSYNC-2024', 'Automated LeetCode problem synchronization and tracking tool for competitive programming practice and progress monitoring.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/fpl-udpm-leet-sync/main/thumbnail.png', 0, TRUE, 4, 'APPROVED', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App 5: UDPM Indicator Explanation
 SET @app_indicator_id = UUID();
-INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `created_at`, `updated_at`)
+INSERT INTO `apps` (`id`, `domain_id`, `name`, `sku`, `short_description`, `thumbnail`, `view_count`, `is_featured`, `homepage_sort_order`, `approval_status`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (@app_indicator_id, @domain_analytics, 'UDPM Indicator Explanation', 'INDICATOR-EXP', 'Comprehensive data indicator explanation and visualization platform for academic and business metrics analysis.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/udpm-indicator-explanation/main/thumbnail.png', 0, TRUE, 5, 'APPROVED', 'ACTIVE', NOW(), NOW());
+    (@app_indicator_id, @domain_analytics, 'UDPM Indicator Explanation', 'INDICATOR-EXP', 'Comprehensive data indicator explanation and visualization platform for academic and business metrics analysis.', 'https://raw.githubusercontent.com/FPLHN-FACTORY/udpm-indicator-explanation/main/thumbnail.png', 0, TRUE, 5, 'APPROVED', 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- =====================================================
 -- 4. Insert App Details
 -- =====================================================
 
 -- App Detail 1: Confess Poly 2
-INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
     (UUID(), @app_confess_id, 
     'FPL UDPM Confess Poly 2 is an anonymous confession platform designed specifically for FPT Polytechnic students. The platform provides a safe and moderated space for students to share their thoughts, experiences, and stories anonymously.\n\nKey Features:\n- Anonymous posting with privacy protection\n- Real-time confession feed with WebSocket\n- Comment and reaction system\n- Content moderation and reporting\n- Tag-based categorization\n- Search and filter functionality\n- Admin dashboard for moderation\n\nTechnical Highlights:\n- Built with modern web technologies for optimal performance\n- Secure authentication and authorization\n- Real-time updates using WebSocket\n- Responsive design for mobile and desktop\n- Scalable architecture with microservices',
@@ -108,10 +109,10 @@ VALUES
         'deployment', 'Docker + CI/CD',
         'features', JSON_ARRAY('Anonymous Posting', 'Real-time Feed', 'Moderation System', 'React System', 'Search & Filter')
     ),
-    'ACTIVE', NOW(), NOW());
+    0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App Detail 2: Hotel Management System
-INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
     (UUID(), @app_hotel_id,
     'FPL Hotel Management System is a comprehensive solution for managing hotel operations from booking to checkout. The system streamlines all aspects of hotel management including reservations, room management, billing, and customer service.\n\nKey Features:\n- Online booking and reservation system\n- Room availability and pricing management\n- Check-in/check-out automation\n- Guest management and CRM\n- Billing and invoicing\n- Housekeeping management\n- Reporting and analytics\n- Multi-property support\n\nTechnical Highlights:\n- Enterprise-grade architecture\n- Payment gateway integration\n- Email and SMS notifications\n- Role-based access control\n- Audit logging and compliance',
@@ -125,10 +126,10 @@ VALUES
         'deployment', 'Docker Swarm',
         'features', JSON_ARRAY('Booking System', 'Room Management', 'Billing', 'Housekeeping', 'Reports', 'Multi-property')
     ),
-    'ACTIVE', NOW(), NOW());
+    0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App Detail 3: Student Attendance
-INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
     (UUID(), @app_attendance_id,
     'FPL Student Attendance is a smart attendance tracking system that revolutionizes how educational institutions manage student attendance. Using QR code technology and real-time monitoring, it provides accurate and efficient attendance management.\n\nKey Features:\n- QR code-based attendance marking\n- Real-time attendance tracking\n- GPS location verification\n- Automated attendance reports\n- Student and teacher portals\n- Absence notification system\n- Analytics and insights dashboard\n- Export to Excel/PDF\n\nTechnical Highlights:\n- Mobile-first responsive design\n- QR code generation and validation\n- Real-time data synchronization\n- Offline capability\n- Integration with academic systems',
@@ -142,10 +143,10 @@ VALUES
         'deployment', 'Docker + Nginx',
         'features', JSON_ARRAY('QR Scanning', 'GPS Verification', 'Real-time Sync', 'Reports', 'Notifications', 'Offline Mode')
     ),
-    'ACTIVE', NOW(), NOW());
+    0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App Detail 4: LeetSync
-INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
     (UUID(), @app_leetsync_id,
     'FPL UDPM LeetSync is an automated tool for synchronizing and tracking LeetCode problem-solving progress. It helps students and professionals maintain their competitive programming practice and monitor their improvement over time.\n\nKey Features:\n- Automatic LeetCode submission synchronization\n- Progress tracking and statistics\n- Problem categorization by difficulty and topic\n- Personal coding streak tracking\n- Submission history and analysis\n- Performance insights and recommendations\n- Study plan generation\n- Integration with GitHub\n\nTechnical Highlights:\n- LeetCode API integration\n- Automated data scraping and parsing\n- GitHub repository synchronization\n- Data visualization and charts\n- Scheduled background jobs',
@@ -159,10 +160,10 @@ VALUES
         'deployment', 'AWS Lambda + CloudWatch',
         'features', JSON_ARRAY('Auto Sync', 'Progress Tracking', 'Statistics', 'GitHub Integration', 'Study Plans', 'Insights')
     ),
-    'ACTIVE', NOW(), NOW());
+    0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- App Detail 5: Indicator Explanation
-INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_details` (`id`, `app_id`, `long_description`, `demo_url`, `source_url`, `specifications`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
     (UUID(), @app_indicator_id,
     'UDPM Indicator Explanation is a comprehensive platform for explaining, tracking, and visualizing various data indicators used in academic and business contexts. It provides clear explanations, formulas, and real-time calculations of complex metrics.\n\nKey Features:\n- Comprehensive indicator database\n- Interactive formula explanations\n- Real-time calculation tools\n- Data visualization dashboards\n- Comparative analysis\n- Export and reporting\n- Custom indicator creation\n- API access for integrations\n\nTechnical Highlights:\n- Advanced data analytics engine\n- Interactive charting libraries\n- RESTful API architecture\n- Data caching for performance\n- Multi-language support',
@@ -176,7 +177,7 @@ VALUES
         'deployment', 'Kubernetes',
         'features', JSON_ARRAY('Indicator Database', 'Formula Calc', 'Visualizations', 'Comparisons', 'Custom Indicators', 'API Access')
     ),
-    'ACTIVE', NOW(), NOW());
+    0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- =====================================================
 -- 5. Link Technologies to Apps
@@ -233,34 +234,34 @@ VALUES
 -- =====================================================
 
 -- Confess Poly 2 Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+1', 'Confession Feed Interface', 1, TRUE, 'ACTIVE', NOW(), NOW()),
-    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+2', 'Post Creation UI', 2, FALSE, 'ACTIVE', NOW(), NOW());
+    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+1', 'Confession Feed Interface', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_confess_id, 'https://via.placeholder.com/1920x1080/4F46E5/FFFFFF?text=Confess+Poly+2+Screenshot+2', 'Post Creation UI', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Hotel Management Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Hotel+Dashboard', 'Hotel Management Dashboard', 1, TRUE, 'ACTIVE', NOW(), NOW()),
-    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Booking+System', 'Booking System Interface', 2, FALSE, 'ACTIVE', NOW(), NOW());
+    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Hotel+Dashboard', 'Hotel Management Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_hotel_id, 'https://via.placeholder.com/1920x1080/F59E0B/FFFFFF?text=Booking+System', 'Booking System Interface', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Student Attendance Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+QR+Scan', 'QR Code Scanning Interface', 1, TRUE, 'ACTIVE', NOW(), NOW()),
-    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+Report', 'Attendance Report Dashboard', 2, FALSE, 'ACTIVE', NOW(), NOW());
+    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+QR+Scan', 'QR Code Scanning Interface', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_attendance_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Attendance+Report', 'Attendance Report Dashboard', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- LeetSync Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=LeetSync+Dashboard', 'LeetSync Progress Dashboard', 1, TRUE, 'ACTIVE', NOW(), NOW()),
-    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Problem+Stats', 'Problem Statistics View', 2, FALSE, 'ACTIVE', NOW(), NOW());
+    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=LeetSync+Dashboard', 'LeetSync Progress Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_leetsync_id, 'https://via.placeholder.com/1920x1080/10B981/FFFFFF?text=Problem+Stats', 'Problem Statistics View', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- Indicator Explanation Images
-INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `created_at`, `updated_at`)
+INSERT INTO `app_images` (`id`, `app_id`, `url`, `alt_text`, `sort_order`, `is_primary`, `status`, `createdDate`, `lastModifiedDate`)
 VALUES
-    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Indicator+Dashboard', 'Indicator Analysis Dashboard', 1, TRUE, 'ACTIVE', NOW(), NOW()),
-    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Data+Visualization', 'Data Visualization Interface', 2, FALSE, 'ACTIVE', NOW(), NOW());
+    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Indicator+Dashboard', 'Indicator Analysis Dashboard', 1, TRUE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000),
+    (UUID(), @app_indicator_id, 'https://via.placeholder.com/1920x1080/8B5CF6/FFFFFF?text=Data+Visualization', 'Data Visualization Interface', 2, FALSE, 0, UNIX_TIMESTAMP(NOW()) * 1000, UNIX_TIMESTAMP(NOW()) * 1000);
 
 -- =====================================================
 -- VERIFICATION QUERIES

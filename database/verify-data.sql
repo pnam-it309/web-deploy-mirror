@@ -10,31 +10,31 @@ SELECT '=== SUMMARY STATISTICS ===' AS '';
 SELECT 
     'Domains' AS entity,
     COUNT(*) AS total,
-    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active_count
+    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS active_count
 FROM domains
 UNION ALL
 SELECT 
     'Technologies' AS entity,
     COUNT(*) AS total,
-    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active_count
+    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS active_count
 FROM technologies
 UNION ALL
 SELECT 
     'Apps' AS entity,
     COUNT(*) AS total,
-    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active_count
+    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS active_count
 FROM apps
 UNION ALL
 SELECT 
     'App Details' AS entity,
     COUNT(*) AS total,
-    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active_count
+    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS active_count
 FROM app_details
 UNION ALL
 SELECT 
     'App Images' AS entity,
     COUNT(*) AS total,
-    SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) AS active_count
+    SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS active_count
 FROM app_images
 UNION ALL
 SELECT 
@@ -111,7 +111,7 @@ SELECT
     d.color,
     COUNT(a.id) AS app_count
 FROM domains d
-LEFT JOIN apps a ON d.id = a.domain_id AND a.status = 'ACTIVE'
+LEFT JOIN apps a ON d.id = a.domain_id AND a.status = 0
 GROUP BY d.id
 ORDER BY d.sort_order;
 
