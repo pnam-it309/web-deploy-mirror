@@ -1,5 +1,6 @@
 import request from '@/services/request'
 import { API_CUSTOMER_DOMAIN, API_CUSTOMER_APP, API_CUSTOMER_TECHNOLOGY } from '@/constants/url'
+import type { PaginatedResponse } from '@/types/api.types'
 
 export interface PublicDomain {
   id: string
@@ -13,10 +14,21 @@ export interface PublicProduct {
   id: string
   name: string
   description: string
+  shortDescription?: string
   thumbnail: string
   domainId: string
   domainName: string
   technologies: { id: string; name: string; icon: string }[]
+  demoUrl?: string
+  viewCount?: number
+  features?: {
+    id: string
+    name: string
+    description: string
+    imagePreview: string
+    videoUrl?: string
+  }[]
+  videoUrl?: string // Sometimes mapped manually
 }
 
 export interface ProductDetail extends PublicProduct {
@@ -25,7 +37,7 @@ export interface ProductDetail extends PublicProduct {
   longDescription?: string
   demoUrl?: string
   sourceUrl?: string
-  specifications?: any
+  specifications?: Record<string, unknown>
   viewCount?: number
   features: {
     id: string
@@ -58,8 +70,9 @@ export const getPublicDomains = async (): Promise<PublicDomain[]> => {
   return res.data.data
 }
 
-export const getPublicFeaturedProducts = async (params?: ProductFilterParams): Promise<any> => {
-  // Return any to handle pagination response structure: { data: [], totalPages: 1, ... }
+export const getPublicFeaturedProducts = async (
+  params?: ProductFilterParams
+): Promise<PaginatedResponse<PublicProduct>> => {
   const res = await request.get(API_CUSTOMER_APP, { params })
   return res.data.data
 }
@@ -76,4 +89,9 @@ export const getTechnologies = async (): Promise<PublicTechnology[]> => {
 
 export const incrementViewCount = async (id: string): Promise<void> => {
   await request.post(`${API_CUSTOMER_APP}/${id}/view`)
+}
+
+export const getPublicFeaturedVideos = async (): Promise<PublicProduct[]> => {
+  const res = await request.get(`${API_CUSTOMER_APP}/featured-videos`)
+  return res.data.data
 }

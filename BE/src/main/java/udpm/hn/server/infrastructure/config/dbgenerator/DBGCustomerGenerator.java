@@ -72,21 +72,21 @@ public class DBGCustomerGenerator {
         String roleCode = Roles.CUSTOMER.name();
         String roleName = "Customer";
 
-        if (roleRepository.findByName(roleCode).isEmpty()) {
+        if (roleRepository.findByCode(roleCode).isEmpty()) {
             Role role = new Role();
-            role.setName(roleCode);
-            role.setDescription(roleName);
+            role.setCode(roleCode);
+            role.setName(roleName);
             role.setStatus(EntityStatus.ACTIVE);
             roleRepository.save(role);
         }
     }
 
     private void addRoleToCustomer(Customer customer, String roleName) {
-        Optional<Role> roleOptional = roleRepository.findByName(roleName);
+        Optional<Role> roleOptional = roleRepository.findByCode(roleName);
 
         if (roleOptional.isPresent()) {
             Role role = roleOptional.get();
-            boolean exists = customer.getRoles().stream().anyMatch(r -> r.getName().equals(roleName));
+            boolean exists = customer.getRoles().stream().anyMatch(r -> r.getCode().equals(roleName));
 
             if (!exists) {
                 customer.getRoles().add(role);

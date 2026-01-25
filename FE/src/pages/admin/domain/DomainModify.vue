@@ -9,7 +9,7 @@ import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseTextarea from '@/components/base/BaseTextarea.vue';
-import BaseCard from '@/components/base/BaseCard.vue';
+
 import BaseIconPicker from '@/components/base/BaseIconPicker.vue';
 
 const route = useRoute();
@@ -57,7 +57,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="p-6 h-full overflow-y-auto custom-scrollbar">
+  <div class="p-6 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div class="mb-6 flex justify-between items-start">
       <div>
         <BaseBreadcrumb :items="[
@@ -65,7 +65,7 @@ const handleSubmit = async () => {
           { label: 'Lĩnh vực', to: '/admin/domains' },
           { label: isEdit ? 'Cập nhật' : 'Tạo mới' }
         ]" />
-        <h1 class="text-2xl font-bold text-dark font-serif uppercase">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">
           {{ isEdit ? 'Cập nhật Lĩnh vực' : 'Thêm Lĩnh vực mới' }}</h1>
       </div>
       <div class="flex gap-3">
@@ -76,77 +76,86 @@ const handleSubmit = async () => {
 
     <div class="grid grid-cols-1 gap-8 transition-all duration-300"
       :class="[sidebarStore.isDesktopExpanded ? 'xl:grid-cols-2' : 'lg:grid-cols-2']">
-      <BaseCard>
-        <h3 class="text-sm font-bold text-dark uppercase mb-4 border-b pb-2">Thông tin nhập liệu</h3>
-        <div class="space-y-5">
-          <BaseInput v-model="form.name" label="Tên lĩnh vực (*)" placeholder="VD: E-commerce" required />
+      
+      <!-- Input Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
+        <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">Thông tin nhập liệu</h3>
+        <div class="space-y-6">
+          <BaseInput v-model="form.name" label="Tên lĩnh vực (*)" placeholder="VD: E-commerce" required class="dark:text-white" />
 
-          <div class="grid grid-cols-2 gap-4">
-            <BaseIconPicker v-model="form.icon" label="Biểu tượng" />
+          <div class="grid grid-cols-2 gap-5">
+            <BaseIconPicker v-model="form.icon" label="Biểu tượng" class="dark:text-white" />
 
-            <div class="flex flex-col gap-1.5">
-              <label class="text-[11px] font-bold text-dark uppercase tracking-wider">Màu chủ đạo</label>
+            <div class="flex flex-col gap-2">
+              <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Màu chủ đạo</label>
               <div class="flex items-center gap-3">
                 <input type="color" v-model="form.color"
-                  class="h-[54px] w-[60px] p-1 bg-white border border-gray-200 rounded-sm cursor-pointer" />
+                  class="h-[46px] w-[60px] p-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer shadow-sm" />
                 <input type="text" v-model="form.color"
-                  class="flex-1 px-3 h-[54px] border border-gray-200 rounded-sm text-sm uppercase font-mono"
+                  class="flex-1 px-3 h-[46px] border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm uppercase font-mono shadow-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                   maxlength="7" />
               </div>
             </div>
 
-            <BaseInput v-model.number="form.sortOrder" type="number" label="Thứ tự hiển thị" placeholder="1" />
+            <BaseInput v-model.number="form.sortOrder" type="number" label="Thứ tự hiển thị" placeholder="1" class="dark:text-white" />
 
             <div class="flex flex-col gap-2">
-              <label class="text-[11px] font-bold text-dark uppercase tracking-wider">Trạng thái</label>
-              <div class="flex items-center gap-6 mt-2">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" v-model="form.status" value="ACTIVE"
-                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300" />
-                  <span class="text-sm font-medium text-gray-700">Hiển thị</span>
+              <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</label>
+              <div class="flex items-center gap-6 mt-3">
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <div class="relative flex items-center">
+                    <input type="radio" v-model="form.status" value="ACTIVE"
+                      class="peer sr-only" />
+                    <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full peer-checked:border-blue-600 peer-checked:bg-blue-600 transition-all"></div>
+                  </div>
+                  <span class="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Hiển thị</span>
                 </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" v-model="form.status" value="INACTIVE"
-                    class="w-4 h-4 text-red-500 focus:ring-red-500 border-gray-300" />
-                  <span class="text-sm font-medium text-gray-700">Ẩn</span>
+                <label class="flex items-center gap-2 cursor-pointer group">
+                  <div class="relative flex items-center">
+                    <input type="radio" v-model="form.status" value="INACTIVE"
+                      class="peer sr-only" />
+                    <div class="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-full peer-checked:border-red-500 peer-checked:bg-red-500 transition-all"></div>
+                  </div>
+                  <span class="text-sm font-bold text-gray-700 dark:text-gray-300 group-hover:text-red-500 transition-colors">Ẩn</span>
                 </label>
               </div>
             </div>
           </div>
 
           <BaseTextarea v-model="form.description" label="Mô tả ngắn" placeholder="Mô tả về lĩnh vực này..."
-            :rows="4" />
+            :rows="4" class="dark:text-white" />
         </div>
-      </BaseCard>
+      </div>
 
-      <div class="space-y-4">
-        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide">Xem trước (Giao diện người dùng)</h3>
+      <!-- Preview -->
+      <div class="space-y-6">
+        <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Xem trước (Giao diện người dùng)</h3>
 
         <div
-          class="bg-white rounded-xl shadow-lg border border-gray-100 p-6 flex items-start gap-4 max-w-md mx-auto transform transition-all hover:-translate-y-1 hover:shadow-xl cursor-default group">
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8 flex items-start gap-5 max-w-md mx-auto transform transition-all hover:-translate-y-1 hover:shadow-2xl cursor-default group">
           <div
-            class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl shrink-0 transition-colors duration-300"
+            class="w-14 h-14 rounded-xl flex items-center justify-center text-3xl shrink-0 transition-all duration-300 shadow-sm"
             :style="{ backgroundColor: form.color + '20', color: form.color }">
             <i v-if="form.icon" :class="form.icon"></i>
-            <span v-else class="font-bold text-sm">ICON</span>
+            <span v-else class="font-bold text-xs">ICON</span>
           </div>
 
           <div>
-            <h4 class="text-lg font-bold text-dark mb-1 group-hover:text-primary transition-colors">
+            <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {{ form.name || 'Tên Lĩnh Vực' }}</h4>
-            <p class="text-sm text-gray-500 leading-relaxed line-clamp-2">
+            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
               <span
                 v-text="form.description || 'Mô tả ngắn của lĩnh vực sẽ hiển thị ở đây. Ví dụ: Các giải pháp thương mại điện tử hiện đại...'">
               </span>
             </p>
-            <div class="mt-3 text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-colors"
+            <div class="mt-4 text-xs font-bold uppercase tracking-wider flex items-center gap-1 transition-colors group-hover:gap-2"
               :style="{ color: form.color }">
               Xem dự án <span class="text-lg leading-none">&rarr;</span>
             </div>
           </div>
         </div>
 
-        <p class="text-center text-xs text-gray-400 italic mt-4">
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500 italic mt-6">
           * Icon và màu sắc sẽ được sử dụng đồng bộ trên toàn bộ website.
         </p>
       </div>

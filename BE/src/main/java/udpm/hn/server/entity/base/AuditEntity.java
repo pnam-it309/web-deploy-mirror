@@ -25,7 +25,7 @@ public abstract class AuditEntity {
      * - Được tự động thiết lập bởi AuditEntityListener
      */
     @Column(updatable = false)
-    private Long createdDate;
+    private Long createdAt;
 
     /**
      * Thời điểm cập nhật bản ghi gần nhất (timestamp)

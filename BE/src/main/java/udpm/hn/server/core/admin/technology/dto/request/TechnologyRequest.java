@@ -10,5 +10,8 @@ public class TechnologyRequest {
     @NotBlank(message = "Tên công nghệ không được để trống")
     private String name;
 
+    private String slug;
+    private String description;
+
     private String icon; // Đường dẫn ảnh icon
 }

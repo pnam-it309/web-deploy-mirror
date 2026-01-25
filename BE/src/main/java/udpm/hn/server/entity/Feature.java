@@ -40,4 +40,9 @@ public class Feature extends PrimaryEntity implements Serializable {
 
     @OneToMany(mappedBy = "feature", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.Set<FeatureMedia> media = new java.util.HashSet<>();
+
+    // Convenience method for backward compatibility
+    public String getTitle() {
+        return this.name;
+    }
 }

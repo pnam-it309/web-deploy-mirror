@@ -11,8 +11,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-
+import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
@@ -27,21 +26,15 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class BatchConfig {
 
-    private final DataSource dataSource;
-    private final LocalContainerEntityManagerFactoryBean entityManagerFactory;
-
-    public BatchConfig(DataSource dataSource, LocalContainerEntityManagerFactoryBean entityManagerFactory) {
-        this.dataSource = dataSource;
-        this.entityManagerFactory = entityManagerFactory;
-    }
-
     /**
      * Tạo bean JobRepository để lưu trữ thông tin về các job, step và execution
+     * 
      * @return Đối tượng JobRepository đã được cấu hình
      * @throws Exception Nếu có lỗi khi khởi tạo JobRepository
      */
     @Bean
-    public JobRepository jobRepository(PlatformTransactionManager transactionManager) throws Exception {
+    public JobRepository jobRepository(PlatformTransactionManager transactionManager, DataSource dataSource)
+            throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
         factory.setDataSource(dataSource);
         factory.setTransactionManager(transactionManager);
@@ -66,11 +59,11 @@ public class BatchConfig {
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
     }
-    
+
     @Bean
-    public PlatformTransactionManager transactionManager() {
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory.getObject());
+        transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;
     }
 }

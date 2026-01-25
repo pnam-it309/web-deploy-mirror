@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAppStore } from '@/stores/app.store';
 import { DomainService } from '@/services/admin/domain.service';
 import { TechnologyService } from '@/services/admin/technology.service';
-import type { AppCreateRequest, AppUpdateRequest, AppDetailUpdateRequest, Domain, Technology } from '@/types/admin.types';
+import type { AdminAppCreateRequest, AdminAppUpdateRequest, AppDetailUpdateRequest, Domain, Technology } from '@/types/admin.types';
 import { toast } from 'vue3-toastify';
 
 // Components
@@ -18,6 +18,8 @@ import BaseMultiSelect from '@/components/base/BaseMultiSelect.vue';
 import AppFormMembers from '@/components/admin/app/AppFormMembers.vue';
 import AppFormImages from '@/components/admin/app/AppFormImages.vue';
 import MediaUpload from '@/components/common/MediaUpload.vue';
+import BaseModal from '@/components/base/BaseModal.vue';
+import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -29,10 +31,16 @@ const domains = ref<Domain[]>([]);
 const technologies = ref<Technology[]>([]);
 
 // Extended Form State
-interface ExtendedAppForm extends AppUpdateRequest {
+interface ExtendedAppForm extends AdminAppUpdateRequest {
   longDescription: string;
   demoUrl: string;
   sourceUrl: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  publishAt: string;
+  isFeatured: boolean;
+  isFeaturedVideo: boolean;
 }
 
 const form = reactive<ExtendedAppForm>({
@@ -47,7 +55,13 @@ const form = reactive<ExtendedAppForm>({
   images: [],
   longDescription: '',
   demoUrl: '',
-  sourceUrl: ''
+  sourceUrl: '',
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
+  publishAt: '',
+  isFeatured: false,
+  isFeaturedVideo: false
 });
 
 onMounted(async () => {
@@ -90,12 +104,19 @@ onMounted(async () => {
         } else {
           form.images = [];
         }
+        // Map new field
+        form.isFeaturedVideo = data.isFeaturedVideo || false;
       }
 
       if (detail) {
         form.longDescription = detail.longDescription || '';
         form.demoUrl = detail.demoUrl || '';
         form.sourceUrl = detail.sourceUrl || '';
+        form.metaTitle = detail.metaTitle || '';
+        form.metaDescription = detail.metaDescription || '';
+        form.metaKeywords = detail.metaKeywords || '';
+        form.publishAt = detail.publishAt ? new Date(detail.publishAt).toISOString().slice(0, 16) : '';
+        form.isFeatured = detail.isFeatured || false;
       }
     }
   } catch (e) {
@@ -168,7 +189,7 @@ const handleSubmit = async () => {
     const cleanMembers = form.members.filter(m => m.customerId && m.customerId.trim() !== '');
     const cleanImages = form.images.filter(i => i.url && i.url.trim() !== '');
 
-    const mainPayload: AppUpdateRequest = {
+    const mainPayload: AdminAppUpdateRequest = {
       name: form.name,
       sku: form.sku,
       shortDescription: form.shortDescription,
@@ -176,6 +197,7 @@ const handleSubmit = async () => {
       domainId: form.domainId,
       technologyIds: form.technologyIds,
       approvalStatus: form.approvalStatus,
+      isFeaturedVideo: form.isFeaturedVideo,
       members: cleanMembers,
       images: cleanImages
     };
@@ -185,7 +207,7 @@ const handleSubmit = async () => {
       await appStore.updateApp(appId, mainPayload);
       targetId = appId;
     } else {
-      const res = await appStore.createApp(mainPayload as AppCreateRequest);
+      const res = await appStore.createApp(mainPayload as AdminAppCreateRequest);
       targetId = res.id;
       // Update extended fields for new app immediately
       if (cleanMembers.length > 0 || cleanImages.length > 0) {
@@ -198,7 +220,12 @@ const handleSubmit = async () => {
       longDescription: form.longDescription,
       demoUrl: form.demoUrl,
       sourceUrl: form.sourceUrl,
-      specifications: null
+      specifications: null as any,
+      metaTitle: form.metaTitle,
+      metaDescription: form.metaDescription,
+      metaKeywords: form.metaKeywords,
+      publishAt: form.publishAt ? new Date(form.publishAt).toISOString() : null,
+      isFeatured: form.isFeatured
     };
     await appStore.updateAppDetailInfo(targetId, detailPayload);
 
@@ -221,10 +248,40 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
     toast.error("Lỗi khi cập nhật trạng thái");
   }
 };
+
+const showPreviewModal = ref(false);
+const previewUrl = ref('');
+
+const handlePreview = async () => {
+  if (!appId) {
+    toast.error("Chưa lưu dự án. Vui lòng lưu trước khi xem preview.");
+    return;
+  }
+  try {
+    const res = await apiClient.post(`/admin/preview/${appId}/generate-token`);
+    const token = res.data.token;
+    previewUrl.value = `${window.location.origin}/preview/${token}`;
+    showPreviewModal.value = true;
+  } catch (error) {
+    toast.error("Không thể tạo preview link");
+  }
+};
+
+const copyPreviewLink = () => {
+  navigator.clipboard.writeText(previewUrl.value);
+  toast.success("Đã sao chép link preview");
+};
+
+// Video Preview Logic
+const showVideoModal = ref(false);
+const isValidYoutube = (url?: string) => {
+  if (!url) return false;
+  return /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/.test(url);
+};
 </script>
 
 <template>
-  <div class="p-6 min-h-screen bg-gray-50/50">
+  <div class="p-6 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div class="mb-6 flex justify-between items-start">
       <div>
         <BaseBreadcrumb :items="[
@@ -232,12 +289,13 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
           { label: 'Dự án', to: '/admin/apps' },
           { label: isEdit ? 'Cập nhật' : 'Tạo mới' }
         ]" />
-        <h1 class="text-2xl font-bold text-dark font-serif uppercase tracking-wide">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">
           {{ isEdit ? `Cập nhật: ${form.name}` : 'Thêm Dự án mới' }}
         </h1>
       </div>
       <div class="flex gap-3">
         <BaseButton variant="outline" @click="router.back()">Huỷ bỏ</BaseButton>
+        <BaseButton v-if="isEdit" variant="primary" class="!bg-blue-600 hover:!bg-blue-700" @click="handlePreview">Xem Preview</BaseButton>
         <BaseButton variant="primary" @click="handleSubmit" :disabled="appStore.isLoading">
           {{ appStore.isLoading ? 'Đang lưu...' : 'Lưu lại' }}
         </BaseButton>
@@ -248,52 +306,84 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
 
       <div class="lg:col-span-2 space-y-6">
         <BaseCard>
-          <h3 class="text-lg font-bold text-dark mb-4 border-b border-gray-100 pb-2">Thông tin chung</h3>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Thông tin chung</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <BaseInput v-model="form.name" label="Tên dự án (*)" placeholder="Nhập tên dự án..." />
-            <BaseInput v-model="form.sku" label="Mã SKU" placeholder="VD: PROJ-001" />
+            <BaseInput v-model="form.name" label="Tên dự án (*)" placeholder="Nhập tên dự án..." class="dark:text-white" />
+            <BaseInput v-model="form.sku" label="Mã SKU" placeholder="VD: PROJ-001" class="dark:text-white" />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <BaseSelect v-model="form.domainId" :options="domains.map(d => ({ value: d.id, label: d.name }))"
-              label="Lĩnh vực (*)" />
+              label="Lĩnh vực (*)" class="dark:text-white" />
 
             <BaseMultiSelect v-model="form.technologyIds"
               :options="technologies.map(t => ({ value: t.id, label: t.name }))" label="Công nghệ sử dụng"
-              placeholder="Chọn các công nghệ..." />
+              placeholder="Chọn các công nghệ..." class="dark:text-white" />
           </div>
 
           <BaseTextarea v-model="form.shortDescription" label="Mô tả ngắn"
-            placeholder="Giới thiệu tóm tắt về dự án..." />
+            placeholder="Giới thiệu tóm tắt về dự án..." class="dark:text-white" />
         </BaseCard>
 
         <BaseCard>
-          <h3 class="text-lg font-bold text-dark mb-4 border-b border-gray-100 pb-2">Thông tin chi tiết</h3>
+          <div class="flex justify-between items-center mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Thông tin chi tiết</h3>
+            <BaseButton size="sm" variant="outline" @click="showVideoModal = true"
+              class="!text-blue-600 !border-blue-200 hover:!bg-blue-50 dark:hover:!bg-blue-900/20">
+              <span class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Xem Video
+              </span>
+            </BaseButton>
+          </div>
+
+          <div class="mb-4">
+            <label class="flex items-center space-x-2 cursor-pointer bg-blue-50 dark:bg-blue-900/10 p-2 rounded border border-blue-100 dark:border-blue-800">
+              <input type="checkbox" v-model="form.isFeaturedVideo"
+                class="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+              <span class="text-sm font-medium text-blue-800 dark:text-blue-300">Hiển thị trong danh sách Video nổi bật (Trang chủ)</span>
+            </label>
+          </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <BaseInput v-model="form.demoUrl" label="Link Demo (URL)" placeholder="https://..." />
-            <BaseInput v-model="form.sourceUrl" label="Source Code (Git)" placeholder="https://github.com/..." />
+            <BaseInput v-model="form.demoUrl" label="Link Demo (URL)" placeholder="https://..." class="dark:text-white" />
+            <BaseInput v-model="form.sourceUrl" label="Source Code (Git)" placeholder="https://github.com/..." class="dark:text-white" />
           </div>
 
           <BaseTextarea v-model="form.longDescription" label="Bài viết chi tiết" :rows="6"
-            placeholder="Mô tả chi tiết về chức năng, công nghệ, hướng dẫn cài đặt..." />
+            placeholder="Mô tả chi tiết về chức năng, công nghệ, hướng dẫn cài đặt..." class="dark:text-white" />
         </BaseCard>
 
         <BaseCard>
           <AppFormMembers v-model="form.members" />
+
+        </BaseCard>
+
+        <BaseCard>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">SEO & Tối ưu hoá</h3>
+          <BaseInput v-model="form.metaTitle" label="Meta Title" placeholder="Tiêu đề SEO..." class="mb-4 dark:text-white" />
+          <BaseTextarea v-model="form.metaDescription" label="Meta Description" placeholder="Mô tả SEO..." class="mb-4 dark:text-white"
+            :rows="3" />
+          <BaseInput v-model="form.metaKeywords" label="Meta Keywords"
+            placeholder="Từ khoá cách nhau bởi dấu phẩy..." class="dark:text-white" />
         </BaseCard>
       </div>
 
       <div class="space-y-6">
         <BaseCard>
-          <h3 class="text-sm font-bold text-dark mb-4 uppercase">Trạng thái</h3>
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4 uppercase">Trạng thái</h3>
 
           <div class="mb-4">
             <div class="px-3 py-1.5 rounded text-sm font-bold inline-block" :class="{
-              'bg-gray-200 text-gray-700': form.approvalStatus === 'DRAFT',
-              'bg-yellow-100 text-yellow-700': form.approvalStatus === 'PENDING',
-              'bg-green-100 text-green-700': form.approvalStatus === 'APPROVED',
-              'bg-red-100 text-red-700': form.approvalStatus === 'REJECTED'
+              'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300': form.approvalStatus === 'DRAFT',
+              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': form.approvalStatus === 'PENDING',
+              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': form.approvalStatus === 'APPROVED',
+              'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': form.approvalStatus === 'REJECTED'
             }">
               {{
                 form.approvalStatus === 'PENDING' ? 'Chờ duyệt' :
@@ -305,7 +395,7 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
 
           <div v-if="isEdit" class="space-y-2">
             <div v-if="form.approvalStatus === 'PENDING'" class="grid grid-cols-2 gap-2">
-              <BaseButton variant="outline" class="!text-red-600 !border-red-200 hover:!bg-red-50"
+              <BaseButton variant="outline" class="!text-red-600 !border-red-200 hover:!bg-red-50 dark:hover:!bg-red-900/20"
                 @click="handleStatusChange('REJECTED')">
                 Từ chối
               </BaseButton>
@@ -316,7 +406,8 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
             </div>
 
             <!-- Allow returning to Draft or Pending from other states if needed, or simple reset -->
-            <div v-if="['APPROVED', 'REJECTED'].includes(form.approvalStatus)" class="pt-2 border-t border-gray-100">
+            <div v-if="form.approvalStatus && ['APPROVED', 'REJECTED'].includes(form.approvalStatus)"
+              class="pt-2 border-t border-gray-100 dark:border-gray-700">
               <p class="text-xs text-center text-gray-400 mb-2">Thay đổi trạng thái</p>
               <div class="grid grid-cols-2 gap-2">
                 <BaseButton size="sm" variant="outline" @click="handleStatusChange('DRAFT')">Về Nháp</BaseButton>
@@ -327,7 +418,7 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
         </BaseCard>
 
         <BaseCard>
-          <h3 class="text-sm font-bold text-dark mb-4 uppercase">Ảnh đại diện</h3>
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4 uppercase">Ảnh đại diện</h3>
           <div class="mb-3">
             <MediaUpload v-model="form.thumbnail" label="Ảnh thumbnail" />
           </div>
@@ -338,5 +429,41 @@ const handleStatusChange = async (status: 'APPROVED' | 'REJECTED' | 'DRAFT' | 'P
         </BaseCard>
       </div>
     </div>
+
+    <BaseModal :is-open="showPreviewModal" title="Preview Link" @close="showPreviewModal = false">
+      <div class="space-y-4">
+        <p class="text-sm text-gray-600 dark:text-gray-300">Chia sẻ link này để xem trước sản phẩm chưa public. Link có hiệu lực trong 24
+          giờ.</p>
+        <div class="flex gap-2">
+          <input type="text" readonly :value="previewUrl"
+            class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded text-sm outline-none" />
+          <BaseButton variant="primary" @click="copyPreviewLink">Sao chép</BaseButton>
+        </div>
+        <div>
+          <a :href="previewUrl" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">Mở preview trong tab mới
+            →</a>
+        </div>
+      </div>
+      <template #footer>
+        <BaseButton variant="outline" @click="showPreviewModal = false">Đóng</BaseButton>
+      </template>
+    </BaseModal>
+
+    <!-- Video Preview Modal -->
+    <BaseModal :is-open="showVideoModal" title="Preview Video Demo" @close="showVideoModal = false">
+      <div class="space-y-4">
+        <div v-if="isValidYoutube(form.demoUrl)" class=" aspect-video bg-black rounded overflow-hidden">
+          <YouTubeEmbed :url="form.demoUrl" :title="form.name" class="w-full h-full" />
+        </div>
+        <div v-else class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 border-dashed">
+          <p class="text-gray-500 dark:text-gray-400">Link Demo không phải là định dạng YouTube hợp lệ hoặc đang trống.</p>
+          <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Vui lòng nhập link dạng: https://youtube.com/watch?v=... hoặc
+            https://youtu.be/...</p>
+        </div>
+      </div>
+      <template #footer>
+        <BaseButton variant="outline" @click="showVideoModal = false">Đóng</BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>

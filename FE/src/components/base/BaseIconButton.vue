@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  variant?: 'primary' | 'danger' | 'default';
+  variant?: 'primary' | 'danger' | 'default' | 'secondary';
 }>();
 </script>
 

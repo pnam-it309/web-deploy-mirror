@@ -61,10 +61,10 @@ const handleReorder = async () => {
 </script>
 
 <template>
-  <div class="p-6 h-full flex flex-col">
+  <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div class="mb-6 shrink-0">
       <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Lĩnh vực' }]" />
-      <h1 class="text-2xl font-bold text-dark font-serif uppercase">Lĩnh vực</h1>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">Lĩnh vực</h1>
     </div>
 
     <DomainFilter @create="handleCreate" @search="loadData" />
@@ -72,7 +72,7 @@ const handleReorder = async () => {
     <div v-if="isLoading" class="flex-1 flex justify-center items-center">
       <BaseSpinner size="lg" />
     </div>
-    <div v-else class="flex-1 overflow-auto custom-scrollbar">
+    <div v-else class="flex-1 overflow-auto custom-scrollbar bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm mt-4">
       <DomainTable v-model:items="items" @edit="handleEdit" @delete="handleDelete" @reorder="handleReorder" />
     </div>
   </div>

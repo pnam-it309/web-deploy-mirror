@@ -12,8 +12,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
  * - Có thể mở rộng để xử lý các sự kiện khác liên quan đến phiên WebSocket
  */
 
-@Slf4j  // Tự động tạo logger
-@Component  // Đánh dấu là một Spring component
+@Slf4j // Tự động tạo logger
+@Component // Đánh dấu là một Spring component
 public class WebSocketEventListener {
 
     /**
@@ -35,6 +35,7 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         log.info("Người dùng đã ngắt kết nối: {}", event.getSessionId());
-        // TODO: Có thể thêm xử lý dọn dẹp tài nguyên hoặc cập nhật trạng thái người dùng
+        // Resource cleanup if necessary
+        log.debug("Session closed: {}", event.getSessionId());
     }
 }

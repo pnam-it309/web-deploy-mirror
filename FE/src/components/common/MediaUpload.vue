@@ -34,13 +34,7 @@ const handleFileChange = async (event: any) => {
   formData.append('file', file);
 
   try {
-    // Assuming a generic upload endpoint exists, otherwise update to match actual BE
-    // For now, if BE MediaService endpoint isn't exposed via a Controller, we might need one.
-    // Assuming /api/common/upload or similar. 
-    // !!! CHECK REQ: We didn't create a Controller for MediaService yet. 
-    // I will assume for now we might fail or need to mock if no controller.
-    // Let's create a TODO task to create a CommonController for upload.
-
+    // Upload file to common endpoint
     const res = await apiClient.post('/common/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'

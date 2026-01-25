@@ -1,27 +1,31 @@
 <template>
-    <div class="group relative flex bg-white border border-gray-100 rounded-2xl hover:border-[#1e293b] hover:shadow-lg transition-all duration-300 cursor-pointer h-full"
-        :class="layout === 'list' ? 'flex-row items-center p-4 gap-6' : 'flex-col items-center justify-center p-6'">
+    <div class="group relative flex bg-white dark:bg-dark-light border border-gray-100 dark:border-gray-700 rounded-xl hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer h-full overflow-hidden"
+        :class="layout === 'list' ? 'flex-row items-center p-5 gap-6' : 'flex-col items-center justify-center p-8'">
+        
+        <!-- Decoration Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
         <!-- Icon Container -->
-        <div class="rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-[#1e293b] transition-colors duration-300"
-            :class="layout === 'list' ? 'w-12 h-12 flex-shrink-0' : 'w-16 h-16 mb-4'">
+        <div class="relative z-10 rounded-2xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-sm"
+            :class="layout === 'list' ? 'w-14 h-14 flex-shrink-0' : 'w-20 h-20 mb-6'">
             <img v-if="domain.icon && domain.icon.startsWith('http')" :src="domain.icon" :alt="domain.name"
-                class="object-contain filter group-hover:brightness-0 group-hover:invert transition-all duration-300"
-                :class="layout === 'list' ? 'w-6 h-6' : 'w-8 h-8'" />
-            <span v-else class="text-2xl text-gray-400 group-hover:text-white transition-colors duration-300">
-                <FolderIcon :class="layout === 'list' ? 'w-6 h-6' : 'w-8 h-8'" />
+                class="object-contain filter transition-all duration-300 group-hover:brightness-0 group-hover:invert"
+                :class="layout === 'list' ? 'w-7 h-7' : 'w-10 h-10'" />
+            <span v-else class="text-3xl text-gray-400 group-hover:text-white transition-colors duration-300">
+                <FolderIcon :class="layout === 'list' ? 'w-7 h-7' : 'w-10 h-10'" />
             </span>
         </div>
 
         <!-- Content -->
-        <div :class="{ 'flex-1 text-left': layout === 'list', 'text-center': layout !== 'list' }">
+        <div class="relative z-10" :class="{ 'flex-1 text-left': layout === 'list', 'text-center': layout !== 'list' }">
             <!-- Name -->
-            <h3 class="text-lg font-semibold text-gray-800 group-hover:text-[#1e293b] transition-colors">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors font-sans tracking-tight">
                 {{ domain.name }}
             </h3>
 
-            <!-- Product Count (Optional) -->
-            <span class="mt-1 text-sm text-gray-500 group-hover:text-gray-600 block">
-                {{ domain.productCount || 0 }} sản phẩm
+            <!-- Product Count -->
+            <span class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-primary/80 block">
+                {{ domain.productCount || 0 }} products
             </span>
         </div>
     </div>

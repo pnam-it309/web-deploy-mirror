@@ -7,7 +7,7 @@ import { toast } from 'vue3-toastify';
 import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
-import BaseCard from '@/components/base/BaseCard.vue';
+
 
 const route = useRoute();
 const router = useRouter();
@@ -35,7 +35,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="p-6 h-full overflow-y-auto custom-scrollbar">
+  <div class="p-6 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div class="mb-6 flex justify-between items-start">
       <div>
         <BaseBreadcrumb :items="[
@@ -43,7 +43,7 @@ const handleSubmit = async () => {
           { label: 'Công nghệ', to: '/admin/technologies' },
           { label: isEdit ? 'Cập nhật' : 'Thêm mới' }
         ]" />
-        <h1 class="text-2xl font-bold text-dark font-serif uppercase">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">
           {{ isEdit ? 'Cập nhật Công nghệ' : 'Thêm Công nghệ' }}
         </h1>
       </div>
@@ -54,37 +54,37 @@ const handleSubmit = async () => {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <BaseCard>
-        <h3 class="text-sm font-bold text-dark uppercase mb-4 border-b pb-2">Thông tin</h3>
-        <div class="space-y-5">
-          <BaseInput v-model="form.name" label="Tên công nghệ (*)" placeholder="VD: Java, React..." required />
-          <BaseInput v-model="form.icon" label="URL Logo / Icon" placeholder="Link ảnh logo..." />
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
+        <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">Thông tin</h3>
+        <div class="space-y-6">
+          <BaseInput v-model="form.name" label="Tên công nghệ (*)" placeholder="VD: Java, React..." required class="dark:text-white" />
+          <BaseInput v-model="form.icon" label="URL Logo / Icon" placeholder="Link ảnh logo..." class="dark:text-white" />
         </div>
-      </BaseCard>
+      </div>
 
       <div class="space-y-6">
-        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide">Live Preview</h3>
+        <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Live Preview</h3>
 
-        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-md text-center">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm text-center transition-all hover:shadow-lg">
           <div
-            class="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center overflow-hidden mb-3 border border-gray-200">
-            <img v-if="form.icon" :src="form.icon" class="w-14 h-14 object-contain" />
-            <span v-else class="text-2xl font-bold text-gray-300">{{ form.name.charAt(0) || '?' }}</span>
+            class="w-24 h-24 mx-auto bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center overflow-hidden mb-4 border border-gray-100 dark:border-gray-600 shadow-inner">
+            <img v-if="form.icon" :src="form.icon" class="w-16 h-16 object-contain" />
+            <span v-else class="text-3xl font-bold text-gray-300 dark:text-gray-500">{{ form.name.charAt(0) || '?' }}</span>
           </div>
-          <p class="font-bold text-lg text-dark">{{ form.name || 'Tên Công Nghệ' }}</p>
-          <p class="text-xs text-gray-400 mt-1">Hiển thị dạng lưới</p>
+          <p class="font-bold text-xl text-gray-900 dark:text-white">{{ form.name || 'Tên Công Nghệ' }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Hiển thị dạng lưới</p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-md">
-          <p class="text-xs text-gray-400 mb-2">Hiển thị trong thẻ dự án:</p>
-          <div class="flex gap-2">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+          <p class="text-xs text-gray-400 dark:text-gray-500 mb-3 uppercase font-bold tracking-wider">Hiển thị trong thẻ dự án:</p>
+          <div class="flex gap-3">
             <div
-              class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs font-medium text-dark border border-gray-200">
-              <img v-if="form.icon" :src="form.icon" class="w-3 h-3 object-contain" />
+              class="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 shadow-sm border-b-2 border-b-gray-300 dark:border-b-gray-500">
+              <img v-if="form.icon" :src="form.icon" class="w-4 h-4 object-contain" />
               {{ form.name || 'Tech Name' }}
             </div>
             <div
-              class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded text-xs font-medium text-dark border border-gray-200 opacity-50">
+              class="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600 opacity-50 border-b-2 border-b-gray-300 dark:border-b-gray-500">
               Spring Boot
             </div>
           </div>

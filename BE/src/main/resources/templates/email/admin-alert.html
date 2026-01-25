@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Alert</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 30px;
+      }
+      .alert-box {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .product-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        border: 1px solid #e9ecef;
+      }
+      .product-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin: 0 0 10px 0;
+      }
+      .product-summary {
+        color: #666;
+        margin: 10px 0;
+        line-height: 1.6;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-top: 15px;
+        font-weight: 500;
+      }
+      .btn:hover {
+        opacity: 0.9;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .product-list {
+        list-style: none;
+        padding: 0;
+      }
+      .product-list li {
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef;
+      }
+      .product-list li:last-child {
+        border-bottom: none;
+      }
+      .count-badge {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔔 Thông báo Admin</h1>
+      </div>
+
+      <div class="content">
+        <!-- Single Product Alert -->
+        <div th:if="${!isBatch}">
+          <div class="alert-box">
+            <strong>⚠️ Sản phẩm mới cần duyệt</strong>
+          </div>
+
+          <div class="product-card">
+            <div class="product-title" th:text="${appName}">Product Name</div>
+            <div class="product-summary" th:text="${summary}">
+              Product Summary
+            </div>
+
+            <a th:href="${adminUrl}" class="btn"> Xem và duyệt sản phẩm → </a>
+          </div>
+
+          <p style="color: #666; margin-top: 20px">
+            Vui lòng xem xét và duyệt sản phẩm này ngay để sinh viên có thể công
+            bố dự án của họ.
+          </p>
+        </div>
+
+        <!-- Batch Products Alert -->
+        <div th:if="${isBatch}">
+          <div class="alert-box">
+            <strong>⚠️ Tổng hợp sản phẩm chờ duyệt</strong>
+          </div>
+
+          <p>
+            Hiện có <span class="count-badge" th:text="${count}">0</span> sản
+            phẩm đang chờ duyệt:
+          </p>
+
+          <ul class="product-list">
+            <li th:each="app : ${apps}">
+              <strong th:text="${app.name}">Product Name</strong>
+              <div
+                style="color: #666; font-size: 14px; margin-top: 5px"
+                th:text="${app.summary}"
+              >
+                Summary
+              </div>
+            </li>
+          </ul>
+
+          <div style="text-align: center; margin-top: 25px">
+            <a th:href="${adminUrl}" class="btn"> Xem tất cả sản phẩm → </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          Email tự động từ hệ thống FPL UDPM Catalog<br />
+          Nếu bạn có câu hỏi, vui lòng liên hệ quản trị viên.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -2,7 +2,10 @@ package udpm.hn.server.core.admin.technology.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import udpm.hn.server.core.admin.app.repository.AppManageRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TechnologyServiceImpl implements TechnologyService {
@@ -25,7 +29,9 @@ public class TechnologyServiceImpl implements TechnologyService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Cacheable(value = "technologies", key = "'all'")
     public List<TechnologyResponse> getAllTechnologies() {
+        log.debug("Cache MISS: Fetching all technologies from database");
         return technologyRepository.findAll().stream()
                 .filter(t -> t.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)
                 .map(t -> modelMapper.map(t, TechnologyResponse.class))
@@ -39,23 +45,38 @@ public class TechnologyServiceImpl implements TechnologyService {
     }
 
     @Override
+    @CacheEvict(value = "technologies", allEntries = true)
     public TechnologyResponse createTechnology(TechnologyRequest request) {
-        // Logic check trùng tên tương tự Domain
+        log.info("Creating technology: name={}", request.getName());
         Technology tech = modelMapper.map(request, Technology.class);
-        return modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
+        
+        // Auto generate slug if empty
+        if (tech.getSlug() == null || tech.getSlug().isEmpty()) {
+            tech.setSlug(udpm.hn.server.utils.SlugUtils.toSlug(tech.getName()));
+        }
+        
+        TechnologyResponse response = modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
+        log.info("Technology created successfully: id={}, evicting cache", response.getId());
+        return response;
     }
 
     @Override
+    @CacheEvict(value = "technologies", allEntries = true)
     public TechnologyResponse updateTechnology(String id, TechnologyRequest request) {
+        log.info("Updating technology: id={}, name={}", id, request.getName());
         Technology tech = technologyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
         modelMapper.map(request, tech);
-        return modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
+        TechnologyResponse response = modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
+        log.info("Technology updated successfully, evicting cache");
+        return response;
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional
+    @CacheEvict(value = "technologies", allEntries = true)
     public void deleteTechnology(String id) {
+        log.info("Soft deleting technology: id={}", id);
         try {
             Technology tech = technologyRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
@@ -67,9 +88,9 @@ public class TechnologyServiceImpl implements TechnologyService {
             // Soft Delete
             tech.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);
             technologyRepository.save(tech);
-            System.out.println("Soft deleted Technology: " + id);
+            log.info("Technology soft deleted successfully, evicting cache");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to delete technology: id={}, error={}", id, e.getMessage(), e);
             throw e;
         }
     }

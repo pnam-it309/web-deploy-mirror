@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseCard from '@/components/base/BaseCard.vue';
+
 import BaseIconButton from '@/components/base/BaseIconButton.vue';
 import type { Technology } from '@/types/admin.types';
 
@@ -8,24 +8,24 @@ const emit = defineEmits(['edit', 'delete']);
 </script>
 
 <template>
-  <BaseCard class="p-0 overflow-hidden">
+  <div class="overflow-x-auto">
     <table class="w-full text-left border-collapse">
-      <thead class="bg-gray-50 border-b border-gray-100">
+      <thead class="bg-gray-50 border-b border-gray-100 dark:bg-gray-900/50 dark:border-gray-700">
         <tr>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider w-24">Icon</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider">Tên Công nghệ</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider text-right">Thao tác</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Icon</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên Công nghệ</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Thao tác</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-50">
-        <tr v-for="item in items" :key="item.id" class="hover:bg-yellow-50/10 transition-colors">
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
+        <tr v-for="item in items" :key="item.id" class="hover:bg-primary/5 dark:hover:bg-primary/5 transition-colors">
           <td class="py-4 px-6">
-            <div class="w-10 h-10 rounded bg-white border border-gray-200 flex items-center justify-center p-1">
+            <div class="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center p-1 shadow-sm">
               <img v-if="item.icon" :src="item.icon" class="w-full h-full object-contain" onerror="this.style.display='none'"/>
-              <span v-else class="text-xs font-bold text-gray-400">{{ item.name.charAt(0) }}</span>
+              <span v-else class="text-xs font-bold text-gray-400 dark:text-gray-500">{{ item.name.charAt(0) }}</span>
             </div>
           </td>
-          <td class="py-4 px-6 font-bold text-dark">{{ item.name }}</td>
+          <td class="py-4 px-6 font-bold text-gray-900 dark:text-white">{{ item.name }}</td>
           <td class="py-4 px-6 text-right flex justify-end gap-1">
             <BaseIconButton variant="primary" @click="emit('edit', item)">
                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -37,5 +37,5 @@ const emit = defineEmits(['edit', 'delete']);
         </tr>
       </tbody>
     </table>
-  </BaseCard>
+  </div>
 </template>

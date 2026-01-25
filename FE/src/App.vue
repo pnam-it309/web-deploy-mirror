@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTheme } from '@/composable/useTheme'
+import { useTheme } from '@/composable/ui/useTheme'
 
 useTheme()
 </script>

@@ -90,4 +90,29 @@ public class AppController {
             @RequestParam("url") String url) {
         return ResponseEntity.ok(appService.getGithubContributors(url));
     }
+
+    @PostMapping("/{id}/duplicate")
+    public ResponseEntity<AppResponse> duplicateApp(@PathVariable String id) {
+        return new ResponseEntity<>(appService.duplicateApp(id), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/batch")
+    public ResponseEntity<Void> deleteApps(@RequestBody java.util.List<String> ids) {
+        appService.deleteApps(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/batch/status")
+    public ResponseEntity<Void> changeStatusApps(
+            @RequestBody java.util.List<String> ids,
+            @RequestParam("status") String status) {
+        try {
+            udpm.hn.server.infrastructure.constant.ApprovalStatus s = udpm.hn.server.infrastructure.constant.ApprovalStatus
+                    .valueOf(status.toUpperCase());
+            appService.changeStatusApps(ids, s);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -1,23 +1,23 @@
 export const localStorageAction = {
-  get: (key: string, defaultValue = null) => {
+  get: <T = unknown>(key: string, defaultValue: T | null = null): T | null => {
     const value = localStorage.getItem(key)
 
-    return value ? JSON.parse(value) : defaultValue
+    return value ? (JSON.parse(value) as T) : defaultValue
   },
-  set: (key: string, value: any) => localStorage.setItem(key, JSON.stringify(value)),
+  set: (key: string, value: unknown) => localStorage.setItem(key, JSON.stringify(value)),
   remove: (key: string) => localStorage.removeItem(key),
-  clear: () => localStorage.clear()
+  clear: () => localStorage.clear(),
 }
 
 export const sessionStorageAction = {
-  get: (key: string, defaultValue = '') => {
+  get: (key: string, defaultValue = ''): string => {
     const value = sessionStorage.getItem(key)
 
     return value ? value : defaultValue
   },
-  set: (key: string, value: any) => sessionStorage.setItem(key, value),
+  set: (key: string, value: string) => sessionStorage.setItem(key, value),
   remove: (key: string) => sessionStorage.removeItem(key),
-  clear: () => sessionStorage.clear()
+  clear: () => sessionStorage.clear(),
 }
 
 export const cookieStorageAction = {
@@ -31,7 +31,7 @@ export const cookieStorageAction = {
     }
     return ''
   },
-  set: (key: string, value: any, expire: number | null = 60 * 60 * 0.5) => {
+  set: (key: string, value: string | number, expire: number | null = 60 * 60 * 0.5) => {
     document.cookie = `${key}=${value}; Max-Age=${expire}`
   },
   remove: (key: string) => {
@@ -44,5 +44,5 @@ export const cookieStorageAction = {
         document.cookie = `${keys[i]}=0;expire=${new Date(0).toUTCString()}`
       }
     }
-  }
+  },
 }

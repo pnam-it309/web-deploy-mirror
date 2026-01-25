@@ -24,4 +24,5 @@ public class AppCreateRequest {
     private String domainId;
 
     private Set<String> technologyIds;
+    private Boolean isFeaturedVideo;
 }

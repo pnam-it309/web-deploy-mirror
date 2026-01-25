@@ -3,6 +3,12 @@ version: "3.8"
 # Production Docker Compose Configuration
 # Usage: docker-compose -f docker-compose.prod.yml up -d
 
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   # ===== Frontend Application =====
   frontend:
@@ -16,6 +22,7 @@ services:
     networks:
       - app-network
     restart: always
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6789"]
       interval: 30s
@@ -68,6 +75,7 @@ services:
     networks:
       - app-network
     restart: always
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9999/actuator/health"]
       interval: 30s
@@ -84,7 +92,6 @@ services:
   mysqldb:
     image: mysql:8.0
     container_name: mysqldb
-    # No external port exposure in production
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-catalog_web}
@@ -95,6 +102,7 @@ services:
       - app-network
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
@@ -111,13 +119,13 @@ services:
   redis:
     image: redis:alpine
     container_name: redis-cache
-    # No external port exposure in production
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
     networks:
       - app-network
     restart: always
+    logging: *default-logging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -129,10 +137,30 @@ services:
           cpus: '0.25'
           memory: 256M
 
+  # ===== Observability (Logs) =====
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle-logs
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8888:8080"
+    networks:
+      - app-network
+    restart: always
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   mysql-data:
+    name: fpl_catalog_mysql_data
   redis-data:
+    name: fpl_catalog_redis_data

@@ -21,6 +21,9 @@ public class AppResponse {
     private String thumbnail;
     private Long viewCount;
     private ApprovalStatus approvalStatus;
+    private Boolean isFeatured;
+    private Boolean isFeaturedVideo;
+    private Integer homepageSortOrder;
 
     // --- Domain (Lĩnh vực) ---
     private String domainId;
@@ -33,7 +36,11 @@ public class AppResponse {
     private List<MemberResponse> members;
 
     // --- Images (Thư viện ảnh) ---
+    // --- Images (Thư viện ảnh) ---
     private List<ImageResponse> images;
+
+    // --- Detail (mapped from AppDetail) ---
+    private AppDetailResponse detail;
 
     // ================= INNER CLASSES =================
 

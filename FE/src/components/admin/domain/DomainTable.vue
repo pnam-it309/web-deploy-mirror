@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseCard from '@/components/base/BaseCard.vue';
+
 import BaseIconButton from '@/components/base/BaseIconButton.vue';
 import type { Domain } from '@/types/admin.types';
 import VueDraggable from 'vuedraggable';
@@ -20,32 +20,32 @@ const onDragChange = () => {
 </script>
 
 <template>
-  <BaseCard class="p-0 overflow-hidden">
+  <div class="overflow-x-auto">
     <table class="w-full text-left border-collapse">
-      <thead class="bg-gray-50 border-b border-gray-100">
+      <thead class="bg-gray-50 border-b border-gray-100 dark:bg-gray-900/50 dark:border-gray-700">
         <tr>
           <th class="py-4 px-6 w-10"></th> <!-- Handle -->
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider">Tên lĩnh vực</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider">Mô tả</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider">Slug</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider">Trạng thái</th>
-          <th class="py-4 px-6 text-[11px] font-bold text-dark uppercase tracking-wider text-right">Thao tác</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên lĩnh vực</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mô tả</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Slug</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
+          <th class="py-4 px-6 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Thao tác</th>
         </tr>
       </thead>
       <VueDraggable tag="tbody" v-model="list" item-key="id" handle=".handle" @change="onDragChange"
-        class="divide-y divide-gray-50">
+        class="divide-y divide-gray-50 dark:divide-gray-700/50">
         <template #item="{ element: item }">
-          <tr class="hover:bg-yellow-50/10 transition-colors group">
-            <td class="py-4 px-6 cursor-move handle text-gray-400 hover:text-dark">
+          <tr class="hover:bg-primary/5 dark:hover:bg-primary/5 transition-colors group">
+            <td class="py-4 px-6 cursor-move handle text-gray-400 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
               </svg>
             </td>
-            <td class="py-4 px-6 font-bold text-dark group-hover:text-primary transition-colors">{{ item.name }}</td>
-            <td class="py-4 px-6 text-sm text-gray-500 truncate max-w-xs">{{ item.description || '-' }}</td>
-            <td class="py-4 px-6 text-xs font-mono text-gray-400">{{ item.slug }}</td>
+            <td class="py-4 px-6 font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{{ item.name }}</td>
+            <td class="py-4 px-6 text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ item.description || '-' }}</td>
+            <td class="py-4 px-6 text-xs font-mono text-gray-400 dark:text-gray-500">{{ item.slug }}</td>
             <td class="py-4 px-6">
-              <span :class="item.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+              <span :class="item.status === 'ACTIVE' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'"
                 class="px-2 py-1 rounded-full text-xs font-bold uppercase">
                 {{ item.status === 'ACTIVE' ? 'Hiển thị' : 'Ẩn' }}
               </span>
@@ -70,9 +70,9 @@ const onDragChange = () => {
 
       <tbody v-if="items.length === 0">
         <tr>
-          <td colspan="5" class="py-8 text-center text-gray-400 text-sm">Không tìm thấy dữ liệu</td>
+          <td colspan="6" class="py-12 text-center text-gray-400 dark:text-gray-500 text-sm italic">Không tìm thấy dữ liệu</td>
         </tr>
       </tbody>
     </table>
-  </BaseCard>
+  </div>
 </template>

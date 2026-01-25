@@ -1,76 +1,54 @@
 version: "3.8"
 
 services:
-  # --- Frontend Application ---
-  frontend:
-    build:
-      context: ./FE
-      dockerfile: Dockerfile
-    container_name: frontend-app
-    ports:
-      - "6789:6789"
-    depends_on:
-      - backend
-    restart: always
-
-  # --- Backend Application ---
-  backend:
-    build:
-      context: ./BE
-      dockerfile: Dockerfile
-    container_name: backend-app
-    ports:
-      - "9999:9999"
+  # Existing PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: udpm-postgres
     environment:
-      # Database Connection (Internal Docker Network)
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/catalog_web?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: "123456"
-
-      # Redis Connection (Internal Docker Network)
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-
-      # App Config
-      SERVER_PORT: 9999
-      ALLOWED_ORIGIN: http://localhost:6789
-      CORS_ALLOWED_ORIGINS: http://localhost:6789
-    depends_on:
-      - mysqldb
-      - redis
-    networks:
-      - app-network
-    restart: always
-
-  # --- Database (MySQL) ---
-  mysqldb:
-    image: mysql:8.0
-    container_name: mysqldb
+      POSTGRES_DB: udpm_catalog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "3307:3306" # Expose 3307 to host to avoid conflicts
-    environment:
-      MYSQL_ROOT_PASSWORD: "123456"
-      MYSQL_DATABASE: catalog_web
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
 
-  # --- Cache (Redis) ---
-  redis:
-    image: redis:alpine
-    container_name: redis-cache
+  # Meilisearch - Open-source search engine
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: udpm-meilisearch
+    environment:
+      MEILI_ENV: development
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-changeme_master_key_for_production}
+      MEILI_NO_ANALYTICS: true
     ports:
-      - "6380:6379"
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
     networks:
       - app-network
-    restart: always
+    restart: unless-stopped
+
+  # Redis for caching (optional but recommended)
+  redis:
+    image: redis:7-alpine
+    container_name: udpm-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  meilisearch_data:
+  redis_data:
 
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  mysql-data:

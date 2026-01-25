@@ -10,7 +10,7 @@ import udpm.hn.server.infrastructure.constant.MappingConstants;
 import udpm.hn.server.repository.CustomerRepository; // Hoặc package chứa repo của bạn
 
 @RestController
-@RequestMapping(MappingConstants.API_ADMIN_PREFIX + "/customers")
+@RequestMapping(MappingConstants.API_ADMIN_CUSOTMER)
 @RequiredArgsConstructor
 public class AdminCustomerController {
 

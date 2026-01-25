@@ -21,6 +21,7 @@ export const ROUTES_CONSTANTS = {
       APP_DETAIL: { path: 'apps/:id', name: 'client-app-detail' },
       DOMAINS: { path: 'domains', name: 'client-domain-list' },
       TECHNOLOGIES: { path: 'technologies', name: 'client-technology-list' },
+      BOOKMARKS: { path: 'bookmarks', name: 'client-bookmarks' },
     },
   },
 

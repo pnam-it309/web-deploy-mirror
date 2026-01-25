@@ -55,9 +55,23 @@ services:
       - app-network
     restart: always
 
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    container_name: meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_MASTER_KEY=changeme_master_key_for_production
+    volumes:
+      - meilisearch-data:/meili_data
+    networks:
+      - app-network
+    restart: always
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   mysql-data:
+  meilisearch-data:

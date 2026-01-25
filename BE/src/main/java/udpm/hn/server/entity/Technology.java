@@ -21,6 +21,12 @@ public class Technology extends PrimaryEntity implements Serializable {
     @Column(nullable = false, unique = true, length = EntityProperties.LENGTH_NAME)
     private String name;
 
+    @Column(length = EntityProperties.LENGTH_CODE)
+    private String slug;
+
+    @Column(length = EntityProperties.LENGTH_DESCRIPTION)
+    private String description;
+
     @Column(length = EntityProperties.LENGTH_PICTURE)
     private String icon;
 }

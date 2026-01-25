@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerTeamMemberResponse {
+    private String id;
     private String customerId;
     private String fullName;
     private String role;

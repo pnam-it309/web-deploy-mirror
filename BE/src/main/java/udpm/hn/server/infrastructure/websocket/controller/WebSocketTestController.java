@@ -30,17 +30,18 @@ public class WebSocketTestController {
                 .data(message.getData())
                 .build();
     }
+
     @MessageMapping("/sendMessage")
     @SendTo("/topic/messages")
     public ResponseObject<?> sendMessage(Map<String, String> message) {
         String timestamp = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        List<String> list = new ArrayList<>();
+        List<String> lt = new ArrayList<>();
         // Đảm bảo trả về JSON hợp lệ
         Map<String, String> response = new HashMap<>();
         response.put("sender", message.get("sender"));
         response.put("content", message.get("content"));
         response.put("timestamp", timestamp);
 
-        return new ResponseObject(response, HttpStatus.OK,"đã nhận");
+        return new ResponseObject(response, HttpStatus.OK, "đã nhận");
     }
 }

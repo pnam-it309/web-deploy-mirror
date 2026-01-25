@@ -8,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -34,9 +34,10 @@ import static udpm.hn.server.utils.Helper.appendWildcard;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
 @Slf4j
+@org.springframework.core.annotation.Order(1)
 public class SecurityConfig {
 
         private final CustomOAuth2UserService customOAuth2UserService;
@@ -48,6 +49,7 @@ public class SecurityConfig {
         private final GlobalVariables globalVariables;
         // Bean này được inject vào, đảm bảo bạn đã định nghĩa nó ở 1 file config khác
         // (GlobalConfig hoặc CorsConfig)
+        @org.springframework.beans.factory.annotation.Qualifier("corsConfigurationSource")
         private final CorsConfigurationSource corsConfigurationSource;
 
         @Bean
@@ -73,6 +75,9 @@ public class SecurityConfig {
         @Bean
         protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 log.info("Initializing security filter chain");
+                log.info("Customer API prefix: {}", MappingConstants.API_CUSTOMER_PREFIX);
+                log.info("Customer API with wildcard: {}", appendWildcard(MappingConstants.API_CUSTOMER_PREFIX));
+                
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Sử dụng cấu hình
@@ -82,8 +87,32 @@ public class SecurityConfig {
                                 .httpBasic(AbstractHttpConfigurer::disable)
                                 .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
-                // 1. Cấu hình các đường dẫn Public (Không cần đăng nhập)
+                // Add debug filter to log all requests
+                http.addFilterBefore((request, response, chain) -> {
+                        jakarta.servlet.http.HttpServletRequest httpRequest = (jakarta.servlet.http.HttpServletRequest) request;
+                        String requestURI = httpRequest.getRequestURI();
+                        String method = httpRequest.getMethod();
+                        log.debug("Security Filter processing: {} {}", method, requestURI);
+                        
+                        if (requestURI.startsWith("/customer") || requestURI.startsWith("/admin")) {
+                                log.info("API Request detected: {} {}", method, requestURI);
+                        }
+                        
+                        chain.doFilter(request, response);
+                }, org.springframework.security.web.context.SecurityContextHolderFilter.class);
+
+                // IMPORTANT: Consolidate ALL authorization rules in ONE place to prevent
+                // fallthrough to static resources
                 http.authorizeHttpRequests(auth -> auth
+                                // 1. Customer API endpoints (FIRST - highest priority)
+                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
+                                .permitAll()
+
+                                // 2. Admin API endpoints
+                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
+                                .permitAll()
+
+                                // 3. Public/Static Resources and Auth endpoints
                                 .requestMatchers(
                                                 "/",
                                                 "/error",
@@ -100,20 +129,11 @@ public class SecurityConfig {
                                                 "/login/oauth2/code/**",
                                                 appendWildcard(MappingConstants.API_AUTH_PREFIX),
                                                 appendWildcard(MappingConstants.API_COMMON))
-                                .permitAll());
+                                .permitAll()
 
-                // 2. Cấu hình Customer API (TẠM THỜI MỞ CỬA - permitAll)
-                // Khi nào làm xong Login thì sửa lại thành: .hasAnyAuthority("CUSTOMER",
-                // "ADMIN")
-                http.authorizeHttpRequests(auth -> auth
-                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
-                                .permitAll());
-
-                // 3. Cấu hình Admin API (TẠM THỜI MỞ CỬA - permitAll) -> ĐÂY LÀ CHỖ SỬA LỖI 401
-                // Khi nào làm xong Login thì sửa lại thành: .hasAuthority("ADMIN")
-                http.authorizeHttpRequests(auth -> auth
-                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
-                                .permitAll());
+                                // 4. Any other request must be authenticated (prevents fallthrough to static
+                                // resources)
+                                .anyRequest().authenticated());
 
                 // OAuth2 configuration
                 http.oauth2Login(oauth2 -> oauth2

@@ -10,7 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ResponseObject<T>  {
+public class ResponseObject<T> {
 
     private boolean isSuccess = false;
 
@@ -27,7 +27,6 @@ public class ResponseObject<T>  {
         this.status = status;
         this.message = message;
     }
-
 
     public ResponseObject(Integer integer) {
     }
@@ -79,5 +78,8 @@ public class ResponseObject<T>  {
         return responseObject;
     }
 
+    public static <T> ResponseObject<T> errorForward(String message) {
+        return errorForward(message, HttpStatus.BAD_REQUEST);
+    }
 
 }

@@ -30,17 +30,17 @@ public class RoleGenerator {
     private void ensureRoleExists(String roleCode, String roleName) {
         System.out.println("Checking role: " + roleCode);
 
-        Optional<Role> existingRole = roleRepository.findByName(roleCode);
+        Optional<Role> existingRole = roleRepository.findByCode(roleCode);
         if (existingRole.isEmpty()) {
             System.out.println("Creating role: " + roleCode + " - " + roleName);
             Role role = new Role();
-            role.setName(roleCode);
-            role.setDescription(roleName);
+            role.setCode(roleCode);
+            role.setName(roleName);
             role.setStatus(EntityStatus.ACTIVE);
 
             try {
                 Role savedRole = roleRepository.save(role);
-                System.out.println("✅ Role created: " + savedRole.getName() + " (ID: " + savedRole.getId() + ")");
+                System.out.println("✅ Role created: " + savedRole.getCode() + " (ID: " + savedRole.getId() + ")");
             } catch (Exception e) {
                 System.out.println("❌ ERROR: Failed to create role " + roleCode);
                 System.out.println("Error: " + e.getMessage());

@@ -1,14 +1,14 @@
 <template>
-    <div class="container mx-auto px-4 py-8">
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Danh sách Ứng dụng</h1>
-            <p class="text-gray-500">Khám phá tất cả các dự án và ứng dụng từ sinh viên</p>
+    <div class="container mx-auto px-4 py-12">
+        <div class="mb-10 text-center lg:text-left">
+            <h1 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:text-white mb-3">Danh sách Ứng dụng</h1>
+            <p class="text-gray-500 dark:text-gray-400 text-lg">Khám phá tất cả các dự án và ứng dụng từ sinh viên</p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar Filters -->
             <aside class="w-full lg:w-64 flex-shrink-0 space-y-6">
-                <ProductFilter @change="handleFilterChange" />
+                <AdvancedFilters @filter="handleAdvancedFilter" />
             </aside>
 
             <!-- Main Content -->
@@ -18,14 +18,10 @@
                     <input type="text" placeholder="Tìm kiếm ứng dụng..." :value="filterParams.query"
                         @input="handleSearch"
                         class="px-4 py-2 border border-gray-200 rounded-lg w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                    <select v-model="filterParams.sort" @change="handleFilterChange({ sort: filterParams.sort })"
-                        class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="NEWEST">Mới nhất</option>
-                        <option value="FEATURED">Nổi bật</option>
-                        <option value="VIEW_COUNT">Xem nhiều nhất</option>
-                        <option value="NAME_ASC">Tên (A-Z)</option>
-                        <option value="NAME_DESC">Tên (Z-A)</option>
-                    </select>
+                    <!-- Sort is now handled in AdvancedFilters, but we can keep this or sync it. 
+                         For now, let's keep it as is, or hide it if AdvancedFilters handles sort. 
+                         AdvancedFilters DOES handle sort. So we can iterate on this later. 
+                         The USER wants to see AdvancedFilters. -->
                 </div>
 
                 <!-- Grid -->
@@ -62,7 +58,7 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'; // Import Icon
 import ProductCard from '@/components/client/product/ProductCard.vue';
 import ProductCardSkeleton from '@/components/client/product/ProductCardSkeleton.vue'; // Import Skeleton
 import EmptyState from '@/components/common/EmptyState.vue'; // Import EmptyState
-import ProductFilter from '@/components/client/product/ProductFilter.vue';
+import AdvancedFilters from '@/components/client/product/AdvancedFilters.vue';
 import Pagination from '@/components/common/Pagination.vue';
 import { getPublicFeaturedProducts, type PublicProduct, type ProductFilterParams } from '@/services/client/client.service';
 
@@ -104,9 +100,32 @@ const handlePageChange = (page: number) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const handleFilterChange = (newFilters: Partial<ProductFilterParams>) => {
-    Object.assign(filterParams, newFilters);
-    currentPage.value = 1; // Reset to page 1 on filter change
+// Adapted handler for AdvancedFilters
+const handleAdvancedFilter = (filters: any) => {
+    // AdvancedFilters emits: { domains: string[], technologies: string[], year, teamSize, sortBy }
+    // We map this to filterParams
+
+    // API currently supports single domainId
+    if (filters.domains && filters.domains.length > 0) {
+        filterParams.domainId = filters.domains[0];
+    } else {
+        filterParams.domainId = undefined;
+    }
+
+    filterParams.technologyIds = filters.technologies;
+
+    // Sort mapping
+    // AdvancedFilters sends 'newest', 'oldest', 'popular', 'name'
+    // Backend expects 'NEWEST', 'FEATURED', 'VIEW_COUNT', 'NAME_ASC', ...
+    switch (filters.sortBy) {
+        case 'newest': filterParams.sort = 'NEWEST'; break;
+        case 'oldest': filterParams.sort = 'OLDEST'; break; // Make sure backend supports this or fallback
+        case 'popular': filterParams.sort = 'VIEW_COUNT'; break;
+        case 'name': filterParams.sort = 'NAME_ASC'; break;
+        default: filterParams.sort = 'NEWEST';
+    }
+
+    currentPage.value = 1;
     fetchProducts();
 };
 

@@ -8,16 +8,75 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Vàng kim (Gold)
+        // Premium Modern Palette
         primary: {
-          DEFAULT: '#D4AF37', // Vàng kim cổ điển
-          hover: '#C5A028',   // Đậm hơn khi hover
-          light: '#F3E5AB',   // Vàng nhạt (dùng cho background nhẹ)
+          DEFAULT: '#2563EB', // Electric Blue (Blue-600)
+          hover: '#1D4ED8',   // Blue-700
+          light: '#60A5FA',   // Blue-400
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
         },
-        // Đen (Dùng màu than chì đậm thay vì đen tuyền #000 sẽ sang hơn)
+        secondary: {
+          DEFAULT: '#0F172A', // Deep Slate (Slate-900)
+          light: '#334155',   // Slate-700
+          lighter: '#64748B', // Slate-500
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+          950: '#020617',
+        },
+        accent: {
+          DEFAULT: '#F59E0B', // Amber-500 (Gold accent)
+          hover: '#D97706',   // Amber-600
+        },
         dark: {
-          DEFAULT: '#1A1A1A',
-          light: '#2D2D2D',
+          DEFAULT: '#0F172A', // Mapped to secondary for compatibility
+          light: '#1E293B',
+          lighter: '#334155',
+        },
+        surface: {
+          light: '#FFFFFF',
+          dark: '#0F172A',
+          dim: '#F8FAFC', // Slate-50
+        }
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'slide-up': 'slideInUp 0.5s ease-out',
+        'scale-in': 'scaleIn 0.3s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         }
       }
     }

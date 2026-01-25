@@ -44,7 +44,7 @@ public class AppSpecification {
 
             // Mặc định sắp xếp: Mới nhất lên đầu
             // (Nếu entity App có field createdDate/createdAt, hãy đảm bảo tên field đúng)
-            query.orderBy(cb.desc(root.get("createdDate")));
+            query.orderBy(cb.desc(root.get("createdAt")));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

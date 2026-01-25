@@ -6,5 +6,5 @@ import udpm.hn.server.repository.RoleRepository;
 import java.util.Optional;
 
 public interface DBGRoleRepository extends RoleRepository {
-    Optional<Role> findByName(String name);
+    Optional<Role> findByCode(String code);
 }

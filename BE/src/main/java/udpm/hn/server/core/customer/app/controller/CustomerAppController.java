@@ -41,4 +41,18 @@ public class CustomerAppController {
                 "Tăng lượt xem thành công"));
     }
 
+    @GetMapping("/{id}/related")
+    public ResponseEntity<?> getRelatedApps(@PathVariable String id) {
+        return Helper.createResponseEntity(ResponseObject.successForward(
+                customerAppService.findRelatedApps(id, 6),
+                "Lấy danh sách sản phẩm liên quan thành công"));
+    }
+
+    @GetMapping("/featured-videos")
+    public ResponseEntity<?> getFeaturedVideos() {
+        return Helper.createResponseEntity(ResponseObject.successForward(
+                customerAppService.getFeaturedVideos(),
+                "Lấy danh sách video nổi bật thành công"));
+    }
+
 }

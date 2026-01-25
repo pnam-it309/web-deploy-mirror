@@ -14,5 +14,5 @@ public class DomainResponse {
     private String color;
     private Integer sortOrder;
     private udpm.hn.server.infrastructure.constant.EntityStatus status;
-    private Long createdDate;
+    private Long createdAt;
 }

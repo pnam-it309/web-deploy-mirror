@@ -39,8 +39,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
 
             log.info("request nhân vào trong dofiletr :{} ", request.toString());
@@ -53,15 +52,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 String userId = tokenProvider.getUserIdFromToken(jwt);
                 String userEmail = tokenProvider.getEmailFromToken(jwt);
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
-                String facilityId = tokenProvider.getIdFacilityFromToken(jwt);
-//                String roleCode = tokenProvider.getRolesFromToken(jwt);
+                // String facilityId = tokenProvider.getIdFacilityFromToken(jwt);
+                // String roleCode = tokenProvider.getRolesFromToken(jwt);
                 List<Role> roleCode = tokenProvider.getRolesCodesFromToken(jwt);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
-                        userDetails.getAuthorities()
-                );
+                        userDetails.getAuthorities());
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

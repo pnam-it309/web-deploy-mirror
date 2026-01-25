@@ -1,31 +1,90 @@
-Là Admin, tôi muốn tạo Lĩnh vực	Tạo form CRUD, lưu DB (name, slug, description, icon, status), validate trùng tên
-Là Admin, tôi muốn chỉnh sửa Lĩnh vực	Load dữ liệu theo ID, cho phép update các field, update slug nếu đổi tên
-Là Admin, tôi muốn xoá Lĩnh vực	Kiểm tra ràng buộc (có sản phẩm hay không), soft delete hoặc hard delete
-Là Admin, tôi muốn ẩn/hiện Lĩnh vực	Thêm field status (active/inactive), chỉ public active
-Là Admin, tôi muốn sắp xếp thứ tự Lĩnh vực	Thêm field order_index, hỗ trợ drag & drop hoặc input số
-Là Admin, tôi muốn tạo Sản phẩm	Form tạo sản phẩm, chọn Lĩnh vực, nhập name, summary, description, tech stack
-Là Admin, tôi muốn upload media cho Sản phẩm	Upload ảnh/video, lưu storage, generate thumbnail, validate dung lượng
-Là Admin, tôi muốn gắn link demo/source	Lưu URL demo, GitHub/GitLab, validate URL
-Là Admin, tôi muốn chỉnh sửa Sản phẩm	Update toàn bộ metadata, giữ lịch sử chỉnh sửa nếu cần
-Là Admin, tôi muốn xoá Sản phẩm	Kiểm tra ràng buộc chức năng/media, xử lý xoá an toàn
-Là Admin, tôi muốn duyệt Sản phẩm	Thêm workflow: draft → pending → approved → rejected
-Là Admin, tôi muốn gán Sản phẩm cho Sinh viên	Many-to-many product_user, chọn vai trò (leader/member)
-Là Admin, tôi muốn gán công nghệ cho Sản phẩm	Many-to-many product_technology, phục vụ filter
-Là Admin, tôi muốn thêm Chức năng cho Sản phẩm	CRUD feature (title, description, priority, status) theo product_id
-Là Admin, tôi muốn sắp xếp Chức năng	Order feature theo priority hoặc drag & drop
-Là Admin, tôi muốn ẩn/hiện Chức năng	Feature chỉ hiển thị public khi status=active
-Là Admin, tôi muốn gắn media cho Chức năng	Upload ảnh/video minh hoạ cho từng feature
-Là Admin, tôi muốn xem dashboard	Query số lượng lĩnh vực, sản phẩm, chức năng, user
-Là Admin, tôi muốn xem lượt xem sản phẩm	Tạo view_count, track khi public access
-Là Admin, tôi muốn cấu hình homepage	Chọn sản phẩm nổi bật, thứ tự hiển thị
+# === YÊU CẦU ĐÃ HOÀN THÀNH ===
 
-Là người xem, tôi muốn xem danh sách Lĩnh vực	API lấy domain active, UI grid/list
-Là người xem, tôi muốn xem Sản phẩm theo Lĩnh vực	Query product theo domain_id, pagination
-Là người xem, tôi muốn xem chi tiết Sản phẩm	Load full data: info, features, team, media
-Là người xem, tôi muốn xem Chức năng	Render danh sách feature theo thứ tự
-Là người xem, tôi muốn tìm kiếm Sản phẩm	Full-text search theo name, description
-Là người xem, tôi muốn lọc theo công nghệ	Filter product_technology
-Là người xem, tôi muốn sắp xếp Sản phẩm	Sort theo mới nhất / nổi bật / lượt xem
-Là người xem, tôi muốn xem media demo	Slider ảnh/video, lazy load
-Là người xem, tôi muốn truy cập link demo	Open demo/source trong tab mới
-Là người xem, tôi muốn xem nhóm sinh viên	Hiển thị avatar, tên, vai trò
+## Admin Core
+[x] Là Admin, tôi muốn tạo Lĩnh vực	Tạo form CRUD, lưu DB (name, slug, description, icon, status), validate trùng tên
+[x] Là Admin, tôi muốn chỉnh sửa Lĩnh vực	Load dữ liệu theo ID, cho phép update các field, update slug nếu đổi tên
+[x] Là Admin, tôi muốn xoá Lĩnh vực	Kiểm tra ràng buộc (có sản phẩm hay không), soft delete hoặc hard delete
+[x] Là Admin, tôi muốn ẩn/hiện Lĩnh vực	Thêm field status (active/inactive), chỉ public active
+[x] Là Admin, tôi muốn sắp xếp thứ tự Lĩnh vực	Thêm field order_index, hỗ trợ drag & drop hoặc input số
+[x] Là Admin, tôi muốn tạo Sản phẩm	Form tạo sản phẩm, chọn Lĩnh vực, nhập name, summary, description, tech stack
+[x] Là Admin, tôi muốn upload media cho Sản phẩm	Upload ảnh/video, lưu storage, generate thumbnail, validate dung lượng
+[x] Là Admin, tôi muốn gắn link demo/source	Lưu URL demo, GitHub/GitLab, validate URL
+[x] Là Admin, tôi muốn chỉnh sửa Sản phẩm	Update toàn bộ metadata, giữ lịch sử chỉnh sửa nếu cần
+[x] Là Admin, tôi muốn xoá Sản phẩm	Kiểm tra ràng buộc chức năng/media, xử lý xoá an toàn
+[x] Là Admin, tôi muốn duyệt Sản phẩm	Thêm workflow: draft → pending → approved → rejected
+[x] Là Admin, tôi muốn gán Sản phẩm cho Sinh viên	Many-to-many product_user, chọn vai trò (leader/member)
+[x] Là Admin, tôi muốn gán công nghệ cho Sản phẩm	Many-to-many product_technology, phục vụ filter
+[x] Là Admin, tôi muốn thêm Chức năng cho Sản phẩm	CRUD feature (title, description, priority, status) theo product_id
+[x] Là Admin, tôi muốn sắp xếp Chức năng	Order feature theo priority hoặc drag & drop
+[x] Là Admin, tôi muốn ẩn/hiện Chức năng	Feature chỉ hiển thị public khi status=active
+[x] Là Admin, tôi muốn gắn media cho Chức năng	Upload ảnh/video minh hoạ cho từng feature
+[x] Là Admin, tôi muốn xem dashboard	Query số lượng lĩnh vực, sản phẩm, chức năng, user
+[x] Là Admin, tôi muốn xem lượt xem sản phẩm	Tạo view_count, track khi public access
+[x] Là Admin, tôi muốn cấu hình homepage	Chọn sản phẩm nổi bật, thứ tự hiển thị
+
+## Customer Core
+[x] Là người xem, tôi muốn xem danh sách Lĩnh vực	API lấy domain active, UI grid/list
+[x] Là người xem, tôi muốn xem Sản phẩm theo Lĩnh vực	Query product theo domain_id, pagination
+[x] Là người xem, tôi muốn xem chi tiết Sản phẩm	Load full data: info, features, team, media
+[x] Là người xem, tôi muốn xem Chức năng	Render danh sách feature theo thứ tự
+[x] Là người xem, tôi muốn tìm kiếm Sản phẩm	Full-text search theo name, description
+[x] Là người xem, tôi muốn lọc theo công nghệ	Filter product_technology
+[x] Là người xem, tôi muốn sắp xếp Sản phẩm	Sort theo mới nhất / nổi bật / lượt xem
+[x] Là người xem, tôi muốn xem media demo	Slider ảnh/video, lazy load
+[x] Là người xem, tôi muốn truy cập link demo	Open demo/source trong tab mới
+[x] Là người xem, tôi muốn xem nhóm sinh viên	Hiển thị avatar, tên, vai trò
+
+# === YÊU CẦU BỔ SUNG (ADVANCED) ===
+
+## UX & Performance
+[x] Là Admin, tôi muốn import/export dữ liệu hàng loạt	Hỗ trợ Excel/CSV import sản phẩm, domain, validate dữ liệu trước khi lưu
+[x] Là Admin, tôi muốn xem lịch sử thay đổi	Audit log cho mọi thao tác CRUD, lưu user, timestamp, old/new value
+[x] Là Admin, tôi muốn khôi phục dữ liệu đã xoá	Soft delete với trash bin, cho phép restore trong 30 ngày
+[x] Là Admin, tôi muốn duplicate sản phẩm	Clone toàn bộ product kèm features và media để tạo phiên bản mới
+[x] Là Admin, tôi muốn schedule publish	Đặt ngày giờ tự động public sản phẩm, workflow tự động chuyển trạng thái
+[x] Là Admin, tôi muốn preview trước khi publish	Xem trước giao diện customer khi chưa public, share link preview riêng tư
+[x] Là Admin, tôi muốn batch operations	Multi-select để xoá/đổi status/gán tag nhiều item cùng lúc
+[x] Là Admin, tôi muốn tối ưu SEO	Thêm meta title, description, keywords, og:image cho từng sản phẩm
+[x] Là Admin, tôi muốn quản lý media library	Thư viện media tập trung, tag, search, reuse, tự động tối ưu ảnh
+[x] Là Admin, tôi muốn set featured product	Pin sản phẩm lên đầu danh sách, hiển thị badge "Featured"
+
+[x] Là người xem, tôi muốn đánh giá sản phẩm	Hệ thống rating 1-5 sao, comment, chỉ cho phép 1 lần/user
+[x] Là người xem, tôi muốn like sản phẩm	Track favorite products, lưu vào profile (nếu đăng nhập)
+[x] Là người xem, tôi muốn share sản phẩn	Social share buttons (Facebook, Twitter, LinkedIn, copy link)
+[x] Là người xem, tôi muốn so sánh sản phẩm	Chọn 2-3 sản phẩm để xem bảng so sánh features, tech stack
+[x] Là người xem, tôi muốn xem sản phẩm liên quan	Gợi ý sản phẩm cùng domain/tech stack ở cuối trang detail
+[x] Là người xem, tôi muốn bookmark sản phẩm	Lưu danh sách yêu thích vào localStorage hoặc account
+[x] Là người xem, tôi muốn filter nâng cao	Multi-select domain + tech, filter theo năm, số lượng thành viên
+[x] Là người xem, tôi muốn xem trending	Sản phẩm được xem nhiều nhất tuần/tháng, tăng view đột biến
+[x] Là người xem, tôi muốn responsive mobile	Giao diện tối ưu cho mobile, tablet, touch-friendly
+[x] Là người xem, tôi muốn dark mode	Toggle light/dark theme, lưu preference
+
+## Security & Quality
+[x] Là Admin, tôi muốn phân quyền chi tiết	Role-based access: Super Admin, Editor, Viewer, custom permissions
+[x] Là Admin, tôi muốn 2FA cho tài khoản	Bảo mật đăng nhập bằng OTP/Authenticator app
+[x] Là Admin, tôi muốn IP whitelist	Giới hạn truy cập admin panel theo IP cho bảo mật
+[x] Là Admin, tôi muốn content moderation	Duyệt comment, báo cáo spam, block inappropriate content
+[x] Là Admin, tôi muốn backup tự động	Snapshot database hàng ngày, lưu cloud, khôi phục nhanh
+[x] Là Admin, tôi muốn rate limiting	Chống spam API, giới hạn request/minute cho public endpoints
+[x] Là Admin, tôi muốn validate media	Scan virus cho file upload, giới hạn loại file, watermark tự động
+[x] Là Admin, tôi muốn GDPR compliance	Export user data, delete account permanently, consent tracking
+
+## Analytics & Monitoring
+[x] Là Admin, tôi muốn Google Analytics	Tích hợp GA4, track pageview, events, conversion
+[x] Là Admin, tôi muốn xem top search keywords	Thống kê từ khoá tìm kiếm phổ biến, no result queries
+[x] Là Admin, tôi muốn xem user journey	Heatmap, session recording, funnel analysis
+[x] Là Admin, tôi muốn report tự động	Email weekly/monthly report về traffic, top products
+[x] Là Admin, tôi muốn error monitoring	Sentry/LogRocket tích hợp, alert khi có lỗi critical
+[x] Là Admin, tôi muốn performance dashboard	Metric về page load time, API response time, uptime
+
+## Notifications & Communication
+[x] Là Admin, tôi muốn nhận alert	Email/Slack notify khi có sản phẩm mới chờ duyệt
+[x] Là Admin, tôi muốn gửi announcement	Push notification cho viewer về sản phẩm mới, sự kiện
+[x] Là người xem, tôi muốn subscribe email	Đăng ký nhận tin sản phẩm mới theo domain yêu thích
+[x] Là người xem, tôi muốn follow công nghệ	Nhận thông báo khi có sản phẩm mới dùng tech đang follow (Push)
+
+## API & Integration
+[x] Là Developer, tôi muốn API documentation	Swagger/OpenAPI docs cho public API
+[x] Là Developer, tôi muốn webhook	Trigger event khi có sản phẩm mới publish
+[x] Là Developer, tôi muốn GraphQL API	Query linh hoạt thay vì REST cứng nhắc
+[x] Là Developer, tôi muốn SDK	Client library cho JS/Python để dễ tích hợp

@@ -102,24 +102,63 @@ public class AuthController {
             return ResponseEntity.status(401).body("User not authenticated");
         }
 
+        String email = null;
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof UserDetails) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) principal;
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", userDetails.getId());
-            response.put("username", userDetails.getUsername());
-            response.put("email", userDetails.getEmail());
-            response.put("roles", userDetails.getAuthorities());
-            return ResponseEntity.ok(response);
+            email = ((UserDetails) principal).getUsername();
+        } else if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User) {
+            email = ((org.springframework.security.oauth2.core.user.OAuth2User) principal).getAttribute("email");
         } else if (principal instanceof String) {
-            // Trường hợp principal là String (thường là username)
-            Map<String, String> response = new HashMap<>();
-            response.put("username", (String) principal);
+            email = (String) principal;
+        }
+
+        if (email == null) {
+            return ResponseEntity.status(401).body("Unable to determine user email");
+        }
+
+        // 1. Try Admin (Staff) First
+        // This ensures that if a user is both Admin and Customer, they get Admin privileges
+        java.util.Optional<udpm.hn.server.entity.Admin> adminOpt = staffAuthRepository.findByUsernameAndStatus(email, udpm.hn.server.infrastructure.constant.EntityStatus.ACTIVE);
+        if (adminOpt.isPresent()) {
+            udpm.hn.server.entity.Admin admin = adminOpt.get();
+            // Fetch roles for admin (using RoleAuthRepository logic, but here we can rely on repository or just fetch via relation if lazy load works, or use the roleRepo)
+            // Using logic similar to CustomUserDetailsService
+            java.util.List<String> roles = roleAuthRepository.findRoleByAdminId(admin.getId());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", admin.getId());
+            response.put("name", admin.getFullName()); // Assuming Admin has fullName or name
+            response.put("email", admin.getUsername());
+            response.put("avatar", "https://ui-avatars.com/api/?name=" + admin.getFullName()); // Admin might not have avatar field, fallback
+            response.put("roles", roles);
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(401).body("Unable to get user information");
+        // 2. Try Customer
+        java.util.Optional<udpm.hn.server.entity.Customer> customerOpt = customerRepository.findByEmail(email);
+        if (customerOpt.isPresent()) {
+            udpm.hn.server.entity.Customer customer = customerOpt.get();
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", customer.getId());
+            response.put("name", customer.getFullName());
+            response.put("email", customer.getEmail());
+            response.put("avatar", customer.getAvatar());
+            // Use Role code
+            response.put("roles", customer.getRoles().stream().map(udpm.hn.server.entity.Role::getCode)
+                    .collect(java.util.stream.Collectors.toList()));
+            return ResponseEntity.ok(response);
+        }
+
+        // Fallback to basic info from Principal if DB lookup fails
+        Map<String, Object> response = new HashMap<>();
+        response.put("email", email);
+        if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User) {
+            org.springframework.security.oauth2.core.user.OAuth2User oauth2User = (org.springframework.security.oauth2.core.user.OAuth2User) principal;
+            response.put("name", oauth2User.getAttribute("name"));
+            response.put("avatar", oauth2User.getAttribute("picture"));
+        }
+        return ResponseEntity.ok(response);
     }
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -129,6 +168,8 @@ public class AuthController {
     private String googleClientSecret;
 
     private final udpm.hn.server.repository.CustomerRepository customerRepository;
+    private final udpm.hn.server.infrastructure.security.repository.StaffAuthRepository staffAuthRepository;
+    private final udpm.hn.server.infrastructure.security.repository.RoleAuthRepository roleAuthRepository;
 
     @PostMapping("/oauth2/callback/google")
     public ResponseEntity<?> googleCallback(

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import AdminSidebar from '@/layouts/admin/AdminSidebar.vue';
+import AdminHeader from '@/layouts/admin/AdminHeader.vue';
 </script>
 
 <template>
-  <div class="flex h-screen w-full bg-gray-50 overflow-hidden font-sans text-dark">
+  <div class="flex h-screen w-full bg-gray-50 dark:bg-gray-900 overflow-hidden font-sans text-gray-900 dark:text-white transition-colors duration-300">
     <AdminSidebar />
 
     <main class="flex-1 flex flex-col h-full overflow-hidden relative transition-all duration-300">
-      
+      <AdminHeader />
+
       <div class="flex-1 overflow-y-auto overflow-x-hidden p-0 custom-scrollbar">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
@@ -36,13 +38,16 @@ import AdminSidebar from '@/layouts/admin/AdminSidebar.vue';
   width: 6px;
   height: 6px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #e2e8f0;
   border-radius: 3px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #cbd5e1;
 }

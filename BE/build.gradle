@@ -46,11 +46,35 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.springframework.boot:spring-boot-starter-graphql'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    
+    // Micrometer for metrics
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
     runtimeOnly 'com.h2database:h2'
     implementation 'io.lettuce:lettuce-core'
+    
+    // Flyway for database migrations
+    implementation 'org.flywaydb:flyway-core:9.22.3'
+    implementation 'org.flywaydb:flyway-mysql:9.22.3'
+    
+    // Bucket4j for rate limiting
+    implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
+    
+    // 2FA - TOTP & QR Code
+    implementation 'dev.samstevens.totp:totp:1.7.1'
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.google.zxing:javase:3.5.2'
+    
+    // Web Push Notifications
+    implementation 'nl.martijndwars:web-push:5.1.1'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.77'
+    
+    // Media Validation (Apache Tika)
+    implementation 'org.apache.tika:tika-core:2.9.1'
 
     // Utils
     implementation 'org.modelmapper:modelmapper:3.2.0'
@@ -106,10 +130,16 @@ dependencies {
     implementation 'org.elasticsearch:elasticsearch:8.9.0'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+    
+    // Meilisearch - Open-source search engine
+    implementation 'com.meilisearch.sdk:meilisearch-java:0.11.5'
 
     // Other Utilities
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation 'com.cloudinary:cloudinary-http44:1.34.0'
+
+    // Sentry for error monitoring
+    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.2.0'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

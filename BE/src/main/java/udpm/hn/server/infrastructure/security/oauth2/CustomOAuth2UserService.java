@@ -100,7 +100,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private void assignCustomerRole(Customer customer) {
         try {
-            Optional<Role> customerRoleOptional = roleAuthRepository.findByName(Roles.CUSTOMER.name());
+            Optional<Role> customerRoleOptional = roleAuthRepository.findByCode(Roles.CUSTOMER.name());
             if (customerRoleOptional.isPresent()) {
                 customer.getRoles().add(customerRoleOptional.get());
                 customerAuthRepository.save(customer);
@@ -120,7 +120,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (staffOptional.isPresent()) {
             Admin admin = staffOptional.get();
-            List<String> roleUser = admin.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+            List<String> roleUser = admin.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 
             if (roleUser.contains(role)) {
                 staffAuthRepository.save(admin);
@@ -146,12 +146,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             customer = new Customer();
             customer.setEmail(oAuth2UserInfo.getEmail());
             customer.setFullName(oAuth2UserInfo.getName());
+            customer.setPassword(java.util.UUID.randomUUID().toString()); // Set dummy password
+            customer.setAvatar(oAuth2UserInfo.getImageUrl());
             customer.setStatus(EntityStatus.ACTIVE);
             customer = customerAuthRepository.save(customer);
             assignCustomerRole(customer);
         }
 
-        List<String> roleUser = customer.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+        List<String> roleUser = customer.getRoles().stream().map(Role::getCode).collect(Collectors.toList());
 
         if (roleUser.contains(role)) {
             return UserPrincipal.create(customer, oAuth2UserInfo.getAttributes(), roleUser);

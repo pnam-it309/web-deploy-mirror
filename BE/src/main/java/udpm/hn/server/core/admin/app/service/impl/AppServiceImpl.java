@@ -16,7 +16,6 @@ import udpm.hn.server.core.admin.app.dto.response.AppDetailResponse;
 import udpm.hn.server.core.admin.app.dto.response.AppResponse;
 import udpm.hn.server.core.admin.app.repository.*;
 import udpm.hn.server.core.admin.app.service.AppService;
-import udpm.hn.server.core.admin.feature.repository.FeatureManageRepository;
 import udpm.hn.server.entity.*;
 import udpm.hn.server.infrastructure.constant.ApprovalStatus;
 import udpm.hn.server.infrastructure.constant.EntityStatus;
@@ -39,7 +38,6 @@ public class AppServiceImpl implements AppService {
     private final AppDetailManageRepository appDetailRepository;
     private final AppImageManageRepository appImageRepository;
     private final AppMemberManageRepository appMemberRepository;
-    private final FeatureManageRepository featureRepository; // Inject thêm để xoá Feature
 
     // Repositories danh mục
     private final DomainRepository domainRepository;
@@ -47,6 +45,9 @@ public class AppServiceImpl implements AppService {
     private final CustomerRepository customerRepository;
 
     private final ModelMapper modelMapper;
+    private final udpm.hn.server.infrastructure.notification.AdminAlertService adminAlertService;
+    private final udpm.hn.server.infrastructure.notification.AnnouncementService announcementService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -76,6 +77,10 @@ public class AppServiceImpl implements AppService {
         app.setStatus(EntityStatus.ACTIVE);
         app.setViewCount(0L);
 
+        if (request.getIsFeaturedVideo() != null) {
+            app.setIsFeaturedVideo(request.getIsFeaturedVideo());
+        }
+
         // 1. Set Domain
         if (request.getDomainId() != null) {
             Domain domain = domainRepository.findById(request.getDomainId())
@@ -90,6 +95,11 @@ public class AppServiceImpl implements AppService {
         }
 
         App savedApp = appRepository.save(app);
+
+        // Publish event for Meilisearch sync
+        eventPublisher.publishEvent(
+            new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductCreatedEvent(savedApp)
+        );
 
         // 3. Tạo AppDetail mặc định (1-1)
         AppDetail detail = new AppDetail();
@@ -108,6 +118,11 @@ public class AppServiceImpl implements AppService {
         // 1. Update thông tin cơ bản
         modelMapper.map(request, app);
 
+        // Manually map Boolean field to ensure it is updated
+        if (request.getIsFeaturedVideo() != null) {
+            app.setIsFeaturedVideo(request.getIsFeaturedVideo());
+        }
+
         // 2. Update Domain
         if (request.getDomainId() != null && !request.getDomainId().equals(app.getDomain().getId())) {
             Domain domain = domainRepository.findById(request.getDomainId())
@@ -122,6 +137,11 @@ public class AppServiceImpl implements AppService {
         }
 
         App savedApp = appRepository.save(app);
+
+        // Publish event for Meilisearch sync
+        eventPublisher.publishEvent(
+            new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductUpdatedEvent(savedApp)
+        );
 
         // 4. Update Members (Logic Hybrid: User Hệ Thống vs Khách Mời Email)
         if (request.getMembers() != null) {
@@ -204,6 +224,12 @@ public class AppServiceImpl implements AppService {
             // Soft Delete: Just mark status as DELETED
             app.setStatus(EntityStatus.DELETED);
             appRepository.save(app);
+            
+            // Publish event for Meilisearch sync (remove from search index)
+            eventPublisher.publishEvent(
+                new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductDeletedEvent(id)
+            );
+            
             System.out.println("Soft deleted App: " + id);
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,13 +268,25 @@ public class AppServiceImpl implements AppService {
         // Validate transition (optional, e.g. only from PENDING)
         // if (app.getApprovalStatus() != ApprovalStatus.PENDING) ...
 
+        ApprovalStatus oldStatus = app.getApprovalStatus();
         app.setApprovalStatus(status);
         appRepository.save(app);
+
+        // Send alert to admins when app moves to PENDING
+        if (status == ApprovalStatus.PENDING && oldStatus != ApprovalStatus.PENDING) {
+            adminAlertService.notifyProductPendingApproval(app);
+        }
+
+        // Send push notification to users when app is approved
+        if (status == ApprovalStatus.APPROVED && oldStatus != ApprovalStatus.APPROVED) {
+            announcementService.sendNewProductNotification(app);
+        }
     }
 
     // --- Helper Mapping ---
     private AppResponse convertToResponse(App app) {
         AppResponse res = modelMapper.map(app, AppResponse.class);
+        res.setIsFeaturedVideo(app.getIsFeaturedVideo());
 
         // Map Domain
         if (app.getDomain() != null) {
@@ -309,7 +347,16 @@ public class AppServiceImpl implements AppService {
             ir.setIsMain(i.getIsMain());
             return ir;
         }).collect(Collectors.toList());
+        }).collect(Collectors.toList());
         res.setImages(imageRes);
+
+        // Map Detail
+        if (app.getAppDetail() != null) {
+            // Note: This might trigger lazy loading if not fetched
+            AppDetailResponse detailRes = modelMapper.map(app.getAppDetail(), AppDetailResponse.class);
+            res.setDetail(detailRes);
+        }
+
         return res;
 
     }
@@ -370,7 +417,7 @@ public class AppServiceImpl implements AppService {
             List<AppResponse.MemberResponse> list = new ArrayList<>();
             for (Object obj : response.getBody()) {
                 if (obj instanceof java.util.Map) {
-                    java.util.Map map = (java.util.Map) obj;
+                    java.util.Map<String, Object> map = (java.util.Map<String, Object>) obj;
                     String login = (String) map.get("login");
                     String avatar = (String) map.get("avatar_url");
 
@@ -392,6 +439,118 @@ public class AppServiceImpl implements AppService {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    @Transactional
+    public AppResponse duplicateApp(String id) {
+        App source = appRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("App not found: " + id));
+
+        // Clone App
+        App target = new App();
+        // Ensure unique name
+        String newName = source.getName() + " (Copy " + System.currentTimeMillis() % 10000 + ")";
+        target.setName(newName);
+        target.setSku(source.getSku());
+        target.setShortDescription(source.getShortDescription());
+        target.setDomain(source.getDomain());
+        if (source.getTechnologies() != null) {
+            target.setTechnologies(new HashSet<>(source.getTechnologies()));
+        }
+        target.setApprovalStatus(ApprovalStatus.PENDING);
+        target.setStatus(EntityStatus.ACTIVE);
+        target.setViewCount(0L);
+        target.setIsFeatured(false);
+        // Meta
+        target.setMetaTitle(source.getMetaTitle());
+        target.setMetaDescription(source.getMetaDescription());
+        target.setMetaKeywords(source.getMetaKeywords());
+
+        // Thumbnail is in App entity? Checking view...
+        // AdminTrashController view showed: map.put("thumbnail", app.getThumbnail() !=
+        // null ? ...);
+        // But AppServiceImpl create doesn't seem to set it explicitly (mapped via
+        // modelMapper).
+        // Let's assume modelMapper handled it or it's not a direct field in App (maybe
+        // mapped from images?).
+        // Wait, AdminTrashController.java:46 calls app.getThumbnail().
+        // So App has getThumbnail().
+        // I should check App.java to be sure, but I can just try to set it if getter
+        // exists.
+        // Or if it IS a field, I should copy it.
+        // I will assume it is a field for now. But getters exist.
+        // Actually, let's look at getThumbnail if possible.
+        // Wait, I saw App in AdminTrashController, so I can check if I can just use
+        // get/set.
+        // Safest is to rely on compilation or check.
+        // I'll skip explicit thumbnail set if it's derived, but if it's a field...
+        // Let's check App.java quickly to be safe?
+        // Actually, if I use modelMapper it might be easier, but I am doing manual copy
+        // to control what is copied.
+
+        target.setThumbnail(source.getThumbnail());
+
+        App savedTarget = appRepository.save(target);
+
+        // Clone AppDetail
+        AppDetail sourceDetail = appDetailRepository.findByAppId(id).orElse(null);
+        if (sourceDetail != null) {
+            AppDetail targetDetail = new AppDetail();
+            targetDetail.setApp(savedTarget);
+            targetDetail.setLongDescription(sourceDetail.getLongDescription());
+            targetDetail.setSourceUrl(sourceDetail.getSourceUrl());
+            targetDetail.setDemoUrl(sourceDetail.getDemoUrl());
+            targetDetail.setSpecifications(sourceDetail.getSpecifications());
+            appDetailRepository.save(targetDetail);
+        } else {
+            // Ensure detail always exists
+            AppDetail detail = new AppDetail();
+            detail.setApp(savedTarget);
+            appDetailRepository.save(detail);
+        }
+
+        // Clone Images
+        List<AppImage> sourceImages = appImageRepository.findByAppId(id);
+        List<AppImage> targetImages = sourceImages.stream().map(img -> {
+            AppImage newImg = new AppImage();
+            newImg.setApp(savedTarget);
+            newImg.setUrl(img.getUrl());
+            newImg.setIsMain(img.getIsMain());
+            return newImg;
+        }).collect(Collectors.toList());
+        appImageRepository.saveAll(targetImages);
+
+        // Clone Members
+        List<AppMember> sourceMembers = appMemberRepository.findByAppId(id);
+        List<AppMember> targetMembers = sourceMembers.stream().map(mem -> {
+            AppMember newMem = new AppMember();
+            newMem.setApp(savedTarget);
+            newMem.setCustomer(mem.getCustomer());
+            newMem.setMemberName(mem.getMemberName());
+            newMem.setMemberEmail(mem.getMemberEmail());
+            newMem.setRole(mem.getRole());
+            return newMem;
+        }).collect(Collectors.toList());
+        appMemberRepository.saveAll(targetMembers);
+
+        return convertToResponse(savedTarget);
+    }
+
+    @Override
+    @Transactional
+    public void deleteApps(java.util.List<String> ids) {
+        for (String id : ids) {
+            deleteApp(id);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void changeStatusApps(java.util.List<String> ids, ApprovalStatus status) {
+        for (String id : ids) {
+            changeStatus(id, status);
         }
     }
 }

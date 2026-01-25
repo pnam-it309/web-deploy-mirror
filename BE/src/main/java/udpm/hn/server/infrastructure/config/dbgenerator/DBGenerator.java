@@ -54,6 +54,9 @@ public class DBGenerator {
             admin = adminOptional.get();
         }
 
+        // Refresh the admin entity to ensure roles collection is properly loaded
+        admin = adminRepository.findById(admin.getId()).orElse(admin);
+
         addRoleToUser(admin, Roles.ADMIN.name());
         addRoleToUser(admin, Roles.CUSTOMER.name());
     }
@@ -64,26 +67,34 @@ public class DBGenerator {
     }
 
     private void createRoleIfNotExist(String roleCode, String roleName) {
-        if (roleRepository.findByName(roleCode).isEmpty()) {
+        if (roleRepository.findByCode(roleCode).isEmpty()) {
             Role role = new Role();
-            role.setName(roleCode);
-            role.setDescription(roleName);
+            role.setCode(roleCode);
+            role.setName(roleName);
             role.setStatus(EntityStatus.ACTIVE);
             roleRepository.save(role);
         }
     }
 
     private void addRoleToUser(Admin admin, String roleName) {
-        Optional<Role> roleOptional = roleRepository.findByName(roleName);
+        Optional<Role> roleOptional = roleRepository.findByCode(roleName);
 
         if (roleOptional.isPresent()) {
             Role role = roleOptional.get();
-            boolean alreadyHasRole = admin.getRoles().stream().anyMatch(r -> r.getName().equals(roleName));
+            // Initialize roles collection if null
+            if (admin.getRoles() == null) {
+                admin.setRoles(new java.util.HashSet<>());
+            }
+
+            boolean alreadyHasRole = admin.getRoles().stream()
+                    .anyMatch(r -> r.getCode().equals(roleName));
 
             if (!alreadyHasRole) {
                 admin.getRoles().add(role);
                 adminRepository.save(admin);
                 System.out.println("Role " + roleName + " added to admin " + admin.getUsername());
+            } else {
+                System.out.println("Admin " + admin.getUsername() + " already has role " + roleName);
             }
         }
     }

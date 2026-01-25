@@ -1,6 +1,8 @@
 package udpm.hn.server.core.admin.dashboard.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import udpm.hn.server.core.admin.app.repository.AppManageRepository;
 import udpm.hn.server.core.admin.dashboard.dto.response.DashboardResponse;
@@ -9,6 +11,7 @@ import udpm.hn.server.core.admin.technology.repository.TechnologyManageRepositor
 import udpm.hn.server.core.admin.feature.repository.FeatureManageRepository;
 import udpm.hn.server.repository.CustomerRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DashboardService { // Không cần Interface vì logic đơn giản
@@ -19,7 +22,9 @@ public class DashboardService { // Không cần Interface vì logic đơn giản
     private final FeatureManageRepository featureRepository;
     private final CustomerRepository customerRepository;
 
+    @Cacheable(value = "dashboard:stats", unless = "#result == null")
     public udpm.hn.server.core.admin.dashboard.dto.response.DashboardResponse getDashboardStatistics() {
+        log.debug("Cache MISS: Calculating dashboard statistics from database");
         // Tính tổng lượt view bằng query (Giả sử bạn thêm method sumViews vào repo,
         // hoặc fetch all rồi sum ở java nếu ít data)
         // Ở đây demo count cơ bản
@@ -32,6 +37,9 @@ public class DashboardService { // Không cần Interface vì logic đơn giản
         // View count sum
         Long sumViews = appRepository.sumTotalViews();
         long totalViews = (sumViews != null) ? sumViews : 0L;
+
+        log.debug("Dashboard stats calculated: apps={}, domains={}, tech={}",
+                totalApps, totalDomains, totalTechnologies);
 
         return DashboardResponse.builder()
                 .totalApps(totalApps)

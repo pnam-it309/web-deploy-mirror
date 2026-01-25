@@ -1,0 +1,73 @@
+# type: file
+# path: src/main/resources/graphql/schema.graphqls
+
+type Query {
+  apps(page: Int, size: Int, domainId: ID, search: String): AppPage!
+  app(id: ID!): App
+  domains: [Domain!]!
+  domain(id: ID!): Domain
+  technologies: [Technology!]!
+  technology(id: ID!): Technology
+}
+
+type AppPage {
+  content: [App!]!
+  totalElements: Int!
+  totalPages: Int!
+  number: Int!
+  size: Int!
+}
+
+type App {
+  id: ID!
+  name: String!
+  shortDescription: String
+  thumbnail: String
+  viewCount: Int
+  isFeatured: Boolean
+  approvalStatus: String
+  domain: Domain!
+  technologies: [Technology!]!
+  images: [AppImage!]!
+  members: [AppMember!]!
+  detail: AppDetail
+}
+
+type AppDetail {
+  longDescription: String
+  sourceUrl: String
+  demoUrl: String
+  specifications: String
+}
+
+type AppImage {
+  id: ID!
+  url: String!
+  isMain: Boolean
+}
+
+type AppMember {
+  id: ID!
+  fullName: String
+  email: String
+  role: String
+  isGuest: Boolean
+}
+
+type Domain {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  icon: String
+  status: String
+}
+
+type Technology {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  icon: String
+  status: String
+}

@@ -1,4 +1,9 @@
 import apiClient from '@/services/api/api'
+import type {
+  FeatureCreateRequest,
+  FeatureUpdateRequest,
+  FeatureOrderRequest,
+} from '@/types/api.types'
 
 const BASE_URL = '/admin/features'
 
@@ -12,12 +17,12 @@ export const FeatureService = {
     return response.data
   },
 
-  create: async (data: any) => {
+  create: async (data: FeatureCreateRequest) => {
     const response = await apiClient.post(BASE_URL, data)
     return response.data
   },
 
-  update: async (id: string, data: any) => {
+  update: async (id: string, data: FeatureUpdateRequest) => {
     const response = await apiClient.put(`${BASE_URL}/${id}`, data)
     return response.data
   },
@@ -25,7 +30,7 @@ export const FeatureService = {
   deleteFeature: async (id: string) => {
     await apiClient.delete(`${BASE_URL}/${id}`)
   },
-  updateOrder: async (orders: { id: string; sortOrder: number }[]) => {
+  updateOrder: async (orders: FeatureOrderRequest[] | { id: string; sortOrder: number }[]) => {
     await apiClient.put(`${BASE_URL}/bulk-update-order`, orders)
   },
 }

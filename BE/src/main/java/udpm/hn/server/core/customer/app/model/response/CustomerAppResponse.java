@@ -21,6 +21,7 @@ public class CustomerAppResponse {
     private String thumbnail;
     private Long viewCount;
     private Boolean isFeatured;
+    private Boolean isFeaturedVideo;
 
     // Details
     private String longDescription;

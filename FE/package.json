@@ -24,6 +24,8 @@
     "@fullcalendar/vue3": "^6.1.15",
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
+    "@monaco-editor/react": "^4.7.0",
+    "@sentry/vue": "^7.99.0",
     "@stomp/stompjs": "^7.0.0",
     "@tanstack/vue-query": "^5.52.0",
     "@tanstack/vue-query-devtools": "^5.53.1",

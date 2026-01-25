@@ -1,36 +1,67 @@
 <template>
-    <header class="h-16 bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header
+        class="h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300">
         <div class="container mx-auto px-4 h-full flex items-center justify-between">
             <!-- Logo -->
             <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }" class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-[#1e293b] flex items-center justify-center text-white font-bold">
+                <div
+                    class="w-8 h-8 rounded bg-[#1e293b] dark:bg-blue-600 flex items-center justify-center text-white font-bold">
                     F
                 </div>
-                <span class="font-bold text-xl text-gray-800">FPL Catalog</span>
+                <!-- <img src="@/assets/images/logo.png" alt="Logo" class="w-8 h-8" /> -->
+                <span class="font-bold text-xl text-gray-800 dark:text-white">FPL Catalog</span>
             </router-link>
 
             <!-- Navigation -->
             <nav class="hidden md:flex items-center gap-8">
                 <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }"
-                    class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
+                    class="text-gray-600 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium transition-colors">
                     Trang chủ
                 </router-link>
                 <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
-                    class="text-gray-600 hover:text-[#1e293b] font-medium transition-colors">
+                    class="text-gray-600 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium transition-colors">
                     Sản phẩm
                 </router-link>
 
             </nav>
 
+            <!-- Mobile Menu Button -->
+            <button @click="toggleMobileMenu"
+                class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <svg v-if="!isMobileMenuOpen" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg v-else class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
             <!-- Actions (Search/Auth) -->
             <div class="flex items-center gap-4">
-                <!-- Profile Dropdown (Mocked for now) -->
-                <div class="relative" ref="dropdownRef">
+                <!-- Bookmarks Link -->
+                <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.BOOKMARKS.name }"
+                    class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                    title="Sản phẩm đã lưu">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span v-if="bookmarkCount > 0"
+                        class="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-red-500 rounded-full">
+                        {{ bookmarkCount > 9 ? '9+' : bookmarkCount }}
+                    </span>
+                </router-link>
+                <!-- Theme Toggle -->
+                <ThemeToggle />
+
+                <!-- Profile Dropdown (If Logged In) -->
+                <div v-if="isLoggedIn" class="relative" ref="dropdownRef">
                     <button @click="toggleDropdown"
-                        class="flex items-center gap-2 cursor-pointer focus:outline-none pl-2 border-l border-gray-200">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt="User" class="w-8 h-8 rounded-full border border-gray-200" />
-                        <span class="hidden sm:block text-sm font-medium text-gray-700">Annisa Salma</span>
+                        class="flex items-center gap-2 cursor-pointer focus:outline-none pl-2 border-l border-gray-200 dark:border-gray-700">
+                        <img :src="userInfo.avatar || 'https://ui-avatars.com/api/?name=' + userInfo.name" alt="User"
+                            class="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-600" />
+                        <span class="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-200">{{
+                            userInfo.name }}</span>
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="h-4 w-4 text-gray-400 transition-transform duration-200"
                             :class="{ 'rotate-180': isDropdownOpen }" fill="none" viewBox="0 0 24 24"
@@ -46,33 +77,190 @@
                         leave-from-class="transform opacity-100 scale-100"
                         leave-to-class="transform opacity-0 scale-95">
                         <div v-if="isDropdownOpen"
-                            class="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-50 origin-top-right">
-                            <div @click="handleLoginAdmin"
-                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 transition-colors cursor-pointer">
+                            class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg py-1 z-50 origin-top-right">
+                            <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Đăng nhập là</p>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ userInfo.email
+                                }}</p>
+                            </div>
+
+                            <router-link v-if="isAdmin" :to="{ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }"
+                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-[#1e293b] dark:hover:text-white transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                </svg>
+                                <span>Quản trị hệ thống</span>
+                            </router-link>
+
+                            <div @click="handleLogout"
+                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-700 transition-colors cursor-pointer">
                                 <ArrowRightStartOnRectangleIcon class="w-5 h-5" />
-                                <span>Đăng nhập Admin</span>
+                                <span>Đăng xuất</span>
                             </div>
                         </div>
                     </transition>
                 </div>
+
+                <!-- Apps/Login Button (If Not Logged In) -->
+                <div v-else class="pl-2 border-l border-gray-200 dark:border-gray-700">
+                    <button @click="openLoginModal"
+                        class="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                        Đăng ký / Đăng nhập
+                    </button>
+                </div>
             </div>
         </div>
+
+        <!-- Mobile Menu Overlay -->
+        <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="isMobileMenuOpen" @click="closeMobileMenu"
+                class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+        </transition>
+
+        <!-- Mobile Menu Drawer -->
+        <transition enter-active-class="transition ease-out duration-300" enter-from-class="translate-x-full"
+            enter-to-class="translate-x-0" leave-active-class="transition ease-in duration-200"
+            leave-from-class="translate-x-0" leave-to-class="translate-x-full">
+            <div v-if="isMobileMenuOpen"
+                class="fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl z-50 md:hidden overflow-y-auto">
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">Menu</span>
+                        <button @click="closeMobileMenu" class="p-2 text-gray-600 dark:text-gray-300">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <nav class="flex flex-col gap-4">
+                        <router-link @click="closeMobileMenu"
+                            :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }"
+                            class="text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors">
+                            Trang chủ
+                        </router-link>
+                        <router-link @click="closeMobileMenu"
+                            :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
+                            class="text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors">
+                            Sản phẩm
+                        </router-link>
+                        <router-link @click="closeMobileMenu"
+                            :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.BOOKMARKS.name }"
+                            class="text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors flex items-center justify-between">
+                            <span>Đã lưu</span>
+                            <span v-if="bookmarkCount > 0"
+                                class="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">{{ bookmarkCount
+                                }}</span>
+                        </router-link>
+                        <div class="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                        <template v-if="isLoggedIn">
+                            <!-- Admin Link Mobile -->
+                            <router-link v-if="isAdmin" @click="closeMobileMenu"
+                                :to="{ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }"
+                                class="text-left text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                </svg>
+                                Quản trị hệ thống
+                            </router-link>
+
+                            <div class="flex items-center gap-3 py-2">
+                                <img :src="userInfo.avatar || 'https://ui-avatars.com/api/?name=' + userInfo.name"
+                                    alt="User" class="w-8 h-8 rounded-full border border-gray-200" />
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ userInfo.name
+                                    }}</span>
+                                    <span class="text-xs text-gray-500">{{ userInfo.email }}</span>
+                                </div>
+                            </div>
+                            <button @click="handleLogout"
+                                class="text-left text-red-600 hover:text-red-700 font-medium py-2 transition-colors">
+                                Đăng xuất
+                            </button>
+                        </template>
+                        <button v-else @click="onMobileLoginClick"
+                            class="text-left text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors">
+                            Đăng ký / Đăng nhập
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </transition>
+
+        <!-- Login Modal -->
+        <LoginModal :isOpen="isLoginModalOpen" @close="closeLoginModal" @login-google="handleLoginGoogle" />
+
     </header>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
+import ThemeToggle from '@/components/common/ThemeToggle.vue';
+import LoginModal from '@/components/auth/LoginModal.vue';
 import { cookieStorageAction } from '@/utils/storage';
-import { SCREEN_COOKIE_NAME, ROLE_ADMIN } from '@/constants/cookie.constants';
+import { SCREEN_COOKIE_NAME, ROLE_CUSTOMER } from '@/constants/cookie.constants';
+import { useBookmarks } from '@/composable/data/useBookmarks';
+import { localStorageAction } from '@/utils/storage';
+import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
+import { authService } from '@/services/api/auth.service';
+import { ROLES } from '@/constants/roles';
 
-const handleLoginAdmin = () => {
-    cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_ADMIN, 60 * 5); // 5 mins
+const { bookmarks } = useBookmarks();
+const bookmarkCount = computed(() => bookmarks.value.length);
+
+// State for Login/User
+// Note: In a real app, you'd check a token in cookie/localStorage or use a Pinia store.
+// For now, defaulting to false unless we detect a token/cookie.
+const isLoggedIn = ref(false);
+const userInfo = ref({
+    name: 'User',
+    email: 'user@example.com',
+    avatar: '',
+    roles: [] as string[]
+});
+
+const isAdmin = computed(() => userInfo.value.roles.includes(ROLES.ADMIN));
+
+const isLoginModalOpen = ref(false);
+const openLoginModal = () => isLoginModalOpen.value = true;
+const closeLoginModal = () => isLoginModalOpen.value = false;
+
+const onMobileLoginClick = () => {
+    closeMobileMenu();
+    openLoginModal();
+}
+
+const handleLoginGoogle = () => {
+    // Determine role effectively. For general login/register, use Customer role.
+    cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_CUSTOMER, 60 * 5); // 5 mins
     cookieStorageAction.set('redirect_uri', window.location.origin + '/redirect', 60 * 5);
     window.location.href = `/oauth2/authorization/google`;
+    closeLoginModal();
 };
+
+const handleLogout = async () => {
+    // Implement logout logic here (clear cookies, redirect)
+
+    // Clear tokens
+    localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
+    // remove refresh token
+
+    isLoggedIn.value = false;
+
+    // In real app: cookieStorageAction.remove('your_token_key'); window.location.reload();
+    window.location.reload();
+};
+
 
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -81,14 +269,48 @@ const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
 };
 
+const isMobileMenuOpen = ref(false);
+
+const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+    isMobileMenuOpen.value = false;
+};
+
+
 const closeDropdown = (event: MouseEvent) => {
     if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
         isDropdownOpen.value = false;
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     document.addEventListener('click', closeDropdown);
+
+    const token = localStorageAction.get(ACCESS_TOKEN_STORAGE_KEY);
+    if (token) {
+        isLoggedIn.value = true;
+        try {
+            const res = await authService.getCurrentUser();
+            if (res.data) {
+                // Ensure roles is always an array
+                const roles = Array.isArray(res.data.roles) ? res.data.roles : (res.data.roles ? [res.data.roles] : []);
+
+                userInfo.value = {
+                    name: res.data.name,
+                    email: res.data.email,
+                    avatar: res.data.avatar || 'https://ui-avatars.com/api/?name=' + res.data.name,
+                    roles: roles as string[]
+                };
+            }
+        } catch (error) {
+            console.error('Failed to fetch user info', error);
+            // Optional: force logout if token is invalid
+            isLoggedIn.value = false;
+        }
+    }
 });
 
 onUnmounted(() => {

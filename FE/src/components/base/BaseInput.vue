@@ -30,10 +30,10 @@ defineEmits(['update:modelValue']);
       
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       :placeholder="placeholder"
-      class="w-full px-4 py-2.5 bg-white border border-gray-200 text-dark rounded-sm 
-             focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50
-             placeholder-gray-400 transition-all duration-300 text-sm"
-      :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-200': error }"
+      class="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg
+             focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+             placeholder-gray-400 transition-all duration-300 text-sm shadow-sm"
+      :class="{ '!border-red-500 focus:!border-red-500 focus:!ring-red-200': error }"
     />
     
     <span v-if="error" class="text-xs text-red-500 mt-1">{{ error }}</span>

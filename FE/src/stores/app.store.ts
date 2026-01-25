@@ -120,6 +120,49 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
+  const duplicateApp = async (id: string) => {
+    isLoading.value = true
+    try {
+      await AppService.duplicate(id)
+      await fetchApps()
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const exportApps = async () => {
+    isLoading.value = true
+    try {
+      const data = await AppService.exportApps()
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `apps_export_${new Date().getTime()}.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const importApps = async (file: File) => {
+    isLoading.value = true
+    try {
+      await AppService.importApps(file)
+      await fetchApps()
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     apps,
     currentApp,
@@ -136,5 +179,8 @@ export const useAppStore = defineStore('app', () => {
     deleteApp,
     setFilter,
     changeStatus,
+    duplicateApp,
+    exportApps,
+    importApps,
   }
 })

@@ -14,13 +14,14 @@ public class AppUpdateRequest {
     private String domainId;
     private Set<String> technologyIds;
     private ApprovalStatus approvalStatus;
+    private Boolean isFeaturedVideo;
     private List<MemberRequest> members; // Danh sách sinh viên
-    private List<ImageRequest> images;   // Bộ sưu tập ảnh
+    private List<ImageRequest> images; // Bộ sưu tập ảnh
 
     @Data
     public static class MemberRequest {
         private String customerId; // ID của sinh viên
-        private String role;       // "LEADER" hoặc "MEMBER"
+        private String role; // "LEADER" hoặc "MEMBER"
     }
 
     @Data

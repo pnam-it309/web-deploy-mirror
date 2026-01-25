@@ -25,6 +25,8 @@ export interface Domain {
 export interface Technology {
   id: string
   name: string
+  slug?: string
+  description?: string
   icon?: string
 }
 export interface AppMemberRequest {
@@ -53,7 +55,7 @@ export interface AppImageResponse {
   url: string
   isMain: boolean
 }
-export interface AppCreateRequest {
+export interface AdminAppCreateRequest {
   name: string
   sku?: string
   shortDescription?: string
@@ -61,7 +63,7 @@ export interface AppCreateRequest {
   domainId: string
   technologyIds: string[]
 }
-export interface AppUpdateRequest {
+export interface AdminAppUpdateRequest {
   name: string
   sku?: string
   shortDescription?: string
@@ -69,6 +71,7 @@ export interface AppUpdateRequest {
   domainId: string
   technologyIds: string[]
   approvalStatus?: ApprovalStatus
+  isFeaturedVideo?: boolean
   members: AppMemberRequest[]
   images: AppImageRequest[]
 }
@@ -85,7 +88,9 @@ export interface AppResponse {
   technologies: Technology[]
   members: AppMemberResponse[]
   images: AppImageResponse[]
+  detail?: AppDetailResponse
   isFeatured?: boolean
+  isFeaturedVideo?: boolean
   homepageSortOrder?: number
 }
 export interface AppDetailResponse {
@@ -94,14 +99,24 @@ export interface AppDetailResponse {
   longDescription: string
   demoUrl: string
   sourceUrl: string
-  specifications: any
+  specifications: Record<string, unknown>
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string
+  publishAt?: string
+  isFeatured?: boolean
 }
 
 export interface AppDetailUpdateRequest {
   longDescription: string
   demoUrl: string
   sourceUrl: string
-  specifications: any
+  specifications: Record<string, unknown>
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string
+  publishAt?: string | null
+  isFeatured?: boolean
 }
 export interface Feature {
   id: string

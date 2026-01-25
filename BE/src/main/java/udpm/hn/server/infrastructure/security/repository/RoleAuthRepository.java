@@ -7,10 +7,10 @@ import udpm.hn.server.repository.RoleRepository;
 import java.util.List;
 
 public interface RoleAuthRepository extends RoleRepository {
-    @Query("SELECT r.name FROM Customer c JOIN c.roles r WHERE c.id = :id")
+    @Query("SELECT r.code FROM Customer c JOIN c.roles r WHERE c.id = :id")
     List<String> findRoleByCusId(@Param("id") String id);
 
-    @Query("SELECT r.name FROM Admin a JOIN a.roles r WHERE a.id = :id")
+    @Query("SELECT r.code FROM Admin a JOIN a.roles r WHERE a.id = :id")
     List<String> findRoleByAdminId(@Param("id") String id);
 
 }

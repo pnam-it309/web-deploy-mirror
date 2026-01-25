@@ -5,5 +5,6 @@ import org.springframework.stereotype.Repository;
 import udpm.hn.server.entity.Domain;
 
 @Repository
+@org.springframework.context.annotation.Primary
 public interface DomainRepository extends JpaRepository<Domain, String> {
 }

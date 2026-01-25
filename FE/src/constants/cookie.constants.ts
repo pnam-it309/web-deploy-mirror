@@ -20,3 +20,4 @@ export const COOKIE_2_HOURS: number = 7200
 
 export const SCREEN_COOKIE_NAME: string = 'screen'
 export const ROLE_ADMIN: string = 'ADMIN'
+export const ROLE_CUSTOMER: string = 'CUSTOMER'
