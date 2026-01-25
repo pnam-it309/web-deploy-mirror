@@ -347,7 +347,6 @@ public class AppServiceImpl implements AppService {
             ir.setIsMain(i.getIsMain());
             return ir;
         }).collect(Collectors.toList());
-        }).collect(Collectors.toList());
         res.setImages(imageRes);
 
         // Map Detail
