@@ -9,6 +9,8 @@ import udpm.hn.server.core.customer.like.service.ProductLikeService;
 import udpm.hn.server.infrastructure.constant.MappingConstants;
 import udpm.hn.server.utils.Helper;
 
+import udpm.hn.server.infrastructure.security.user.UserPrincipal;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,12 +28,12 @@ public class CustomerProductLikeController {
                     ResponseObject.errorForward("Unauthorized", org.springframework.http.HttpStatus.UNAUTHORIZED));
         }
 
-        String customerId = authentication.getName(); // Assuming principal is customer ID
-        productLikeService.toggleLike(appId, customerId);
+        String email = authentication.getName(); 
+        boolean isLiked = productLikeService.toggleLikeByEmail(appId, email);
 
         Map<String, Object> response = new HashMap<>();
         response.put("likeCount", productLikeService.getLikeCount(appId));
-        response.put("isLiked", productLikeService.isLikedByCustomer(appId, customerId));
+        response.put("isLiked", isLiked);
 
         return Helper.createResponseEntity(ResponseObject.successForward(response, "Toggled successfully"));
     }
@@ -42,12 +44,21 @@ public class CustomerProductLikeController {
         response.put("likeCount", productLikeService.getLikeCount(appId));
 
         if (authentication != null && authentication.isAuthenticated()) {
-            String customerId = authentication.getName();
-            response.put("isLiked", productLikeService.isLikedByCustomer(appId, customerId));
+            String email = authentication.getName();
+            response.put("isLiked", productLikeService.isLikedByEmail(appId, email));
         } else {
             response.put("isLiked", false);
         }
 
         return Helper.createResponseEntity(ResponseObject.successForward(response, "Success"));
+    }
+    @GetMapping
+    public ResponseEntity<?> getLikedApps(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Helper.createResponseEntity(
+                    ResponseObject.errorForward("Unauthorized", org.springframework.http.HttpStatus.UNAUTHORIZED));
+        }
+        String email = authentication.getName();
+        return Helper.createResponseEntity(ResponseObject.successForward(productLikeService.getLikedAppsByEmail(email), "Success"));
     }
 }

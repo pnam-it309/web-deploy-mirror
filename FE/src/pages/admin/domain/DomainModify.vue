@@ -5,7 +5,7 @@ import { useSidebarStore } from '@/stores/sidebar.store';
 import { DomainService } from '@/services/admin/domain.service';
 import { toast } from 'vue3-toastify';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseTextarea from '@/components/base/BaseTextarea.vue';
@@ -58,16 +58,8 @@ const handleSubmit = async () => {
 
 <template>
   <div class="p-6 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 flex justify-between items-start">
-      <div>
-        <BaseBreadcrumb :items="[
-          { label: 'Admin', to: '/admin' },
-          { label: 'Lĩnh vực', to: '/admin/domains' },
-          { label: isEdit ? 'Cập nhật' : 'Tạo mới' }
-        ]" />
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">
-          {{ isEdit ? 'Cập nhật Lĩnh vực' : 'Thêm Lĩnh vực mới' }}</h1>
-      </div>
+    <div class="mb-6 flex justify-between items-center">
+      <div></div>
       <div class="flex gap-3">
         <BaseButton variant="outline" @click="router.back()">Huỷ bỏ</BaseButton>
         <BaseButton variant="primary" @click="handleSubmit">Lưu lại</BaseButton>

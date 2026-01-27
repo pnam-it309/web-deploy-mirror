@@ -10,8 +10,8 @@ import udpm.hn.server.infrastructure.config.HttpClientConfig;
 @Import(HttpClientConfig.class)
 public class BeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BeApplication.class, args);
+    }
 
 }

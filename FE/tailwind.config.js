@@ -6,6 +6,19 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem',
+        sm: '2rem',
+        lg: '4rem',
+        xl: '5rem',
+        '2xl': '6rem',
+      },
+      screens: {
+        '2xl': '1400px', // Restrict max width to 1400px for consistency on 14" screens
+      }
+    },
     extend: {
       colors: {
         // Premium Modern Palette

@@ -12,5 +12,5 @@ export interface DashboardStats {
 
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   const response = await apiClient.get(`${PREFIX_API_ADMIN}/dashboard/stats`)
-  return response.data.data // Assuming standard ResponseObject wrapper returns data in .data
+  return response.data
 }

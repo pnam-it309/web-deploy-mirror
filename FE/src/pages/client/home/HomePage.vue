@@ -43,7 +43,13 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <DomainCard v-for="domain in domains" :key="domain.id" :domain="domain" class="h-full" />
+                <DomainCard 
+                    v-for="domain in domains" 
+                    :key="domain.id" 
+                    :domain="domain" 
+                    class="h-full" 
+                    @click="navigateToCategory(domain.id)" 
+                />
             </div>
         </section>
 
@@ -145,15 +151,21 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router'; // Import useRouter
 import DomainCard from '@/components/client/domain/DomainCard.vue';
 import ProductCard from '@/components/client/product/ProductCard.vue';
 import TechnologySlider from '@/components/client/home/TechnologySlider.vue';
 import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
 import { getPublicDomains, getPublicFeaturedProducts, getPublicFeaturedVideos, type PublicDomain, type PublicProduct } from '@/services/client/client.service';
 
+const router = useRouter(); // Initialize router
 const domains = ref<PublicDomain[]>([]);
 const featuredProducts = ref<PublicProduct[]>([]);
 const featuredVideos = ref<PublicProduct[]>([]);
+
+const navigateToCategory = (id: string) => {
+    router.push({ path: '/apps', query: { domain: id } });
+};
 
 onMounted(async () => {
     try {
@@ -163,7 +175,7 @@ onMounted(async () => {
             getPublicFeaturedVideos()
         ]);
         domains.value = domainsData || [];
-        featuredProducts.value = productsData?.data || productsData || [];
+        featuredProducts.value = (productsData as any).data || (productsData as any).content || [];
 
         // Map videos data to ensure videoUrl is set from demoUrl
         const videos = videosData || [];

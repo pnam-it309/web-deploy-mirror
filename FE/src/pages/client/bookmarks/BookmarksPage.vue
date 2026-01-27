@@ -4,7 +4,7 @@
             <!-- Header -->
             <div class="mb-12 text-center">
                 <h1 class="text-4xl font-bold font-serif text-gray-900 dark:text-white mb-3">
-                    Sản phẩm đã lưu
+                    Sản phẩm yêu thích
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 text-lg">
                     {{ bookmarks.length }} sản phẩm trong danh sách yêu thích của bạn
@@ -45,9 +45,9 @@
                         <img :src="item.thumbnail || 'https://placehold.co/640x360?text=No+Image'" :alt="item.name"
                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         <!-- Remove Button -->
-                        <button @click="removeBookmark(item.id)"
+                        <button @click="handleRemoveLike(item.id)"
                             class="absolute top-3 right-3 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
-                            title="Xóa khỏi danh sách">
+                            title="Bỏ thích">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12" />
@@ -69,21 +69,34 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Clear All Button -->
-            <div v-if="bookmarks.length > 0" class="mt-8 text-center">
-                <button @click="clearBookmarks"
-                    class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium">
-                    Xóa tất cả sản phẩm đã lưu
-                </button>
-            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { useBookmarks } from '@/composable/data/useBookmarks'
-import { ROUTES_CONSTANTS } from '@/constants/path'
+import { ref, onMounted } from 'vue';
+import { useLikeStore } from '@/stores/like.store';
+import { ROUTES_CONSTANTS } from '@/constants/path';
+import { toast } from 'vue3-toastify';
 
-const { bookmarks, removeBookmark, clearBookmarks } = useBookmarks()
+const likeStore = useLikeStore();
+const bookmarks = ref<any[]>([]);
+
+const fetchBookmarks = async () => {
+    bookmarks.value = await likeStore.getLikedProducts();
+};
+
+const handleRemoveLike = async (id: string) => {
+    try {
+        await likeStore.toggleLike(id);
+        toast.success("Đã bỏ thích sản phẩm");
+        await fetchBookmarks();
+    } catch (error) {
+        toast.error("Có lỗi xảy ra");
+    }
+};
+
+onMounted(() => {
+    fetchBookmarks();
+});
 </script>

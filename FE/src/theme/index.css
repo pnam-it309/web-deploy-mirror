@@ -98,6 +98,37 @@
   .pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+
+  /* Premium Tooltip Component */
+  .has-tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip {
+    @apply invisible absolute z-50 px-3 py-1.5 text-xs font-bold text-white bg-gray-900 dark:bg-gray-800 rounded-lg opacity-0 shadow-xl border border-white/10;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    @apply border-t-gray-900 dark:border-t-gray-800;
+  }
+
+  .has-tooltip:hover .tooltip {
+    @apply visible opacity-100;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* Table Animation Keyframes */

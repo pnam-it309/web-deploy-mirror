@@ -41,4 +41,7 @@ public interface ProductLikeRepository extends JpaRepository<ProductLike, String
            "GROUP BY pl2.app.id " +
            "ORDER BY COUNT(pl2.customer.id) DESC")
     java.util.List<String> findRecommendedAppIds(@Param("customerId") String customerId, Pageable pageable);
+
+    @Query("SELECT pl FROM ProductLike pl JOIN FETCH pl.app a LEFT JOIN FETCH a.domain WHERE pl.customer.id = :customerId")
+    java.util.List<ProductLike> findAllByCustomerId(@Param("customerId") String customerId);
 }

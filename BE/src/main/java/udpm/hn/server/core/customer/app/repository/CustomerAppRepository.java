@@ -89,4 +89,6 @@ public interface CustomerAppRepository extends AppRepository {
         // For featured videos
         @Query("SELECT a FROM App a WHERE a.status = :status AND a.isFeaturedVideo = true ORDER BY a.createdAt DESC")
         List<App> findFeaturedVideoApps(udpm.hn.server.infrastructure.constant.EntityStatus status);
+
+        long countByDomain_IdAndApprovalStatus(String domainId, udpm.hn.server.infrastructure.constant.ApprovalStatus approvalStatus);
 }

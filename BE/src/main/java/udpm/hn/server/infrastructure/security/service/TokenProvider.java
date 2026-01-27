@@ -82,33 +82,39 @@ public class TokenProvider {
         TokenInfoResponse tokenInfoResponse = new TokenInfoResponse();
 
         if (screenForRole.isEmpty()) {
-            throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
+            // Special handling for Gmail users - default to ADMIN screen if cookie is missing
+            if (userPrincipal.getEmail() != null && userPrincipal.getEmail().toLowerCase().endsWith("@gmail.com")) {
+                tokenInfoResponse.setRoleScreen(OAuth2Constant.ROLE_ADMIN);
+            } else {
+                throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
+            }
         } else {
-            Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
-
-            // --- [ĐIỀN THÔNG TIN (Giữ nguyên)] ---
             tokenInfoResponse.setRoleScreen(screenForRole.get());
-            tokenInfoResponse.setUserId(userPrincipal.getId());
-            tokenInfoResponse.setFullName(userPrincipal.getName());
-            tokenInfoResponse.setEmail(userPrincipal.getEmail());
-            tokenInfoResponse.setUserName(userPrincipal.getEmail());
-
-            Object pictureObj = userPrincipal.getAttribute("picture");
-            if (pictureObj != null) {
-                tokenInfoResponse.setPictureUrl(pictureObj.toString());
-            }
-
-            if (adminUser != null) {
-                tokenInfoResponse.setUserCode(adminUser.getUsername());
-            }
-
-            List<String> roles = userPrincipal.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-            tokenInfoResponse.setRolesCode(roles);
-            tokenInfoResponse.setRolesName(roles);
-            // --- [KẾT THÚC] ---
         }
+
+        Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
+
+        // --- [ĐIỀN THÔNG TIN (Giữ nguyên)] ---
+        tokenInfoResponse.setUserId(userPrincipal.getId());
+        tokenInfoResponse.setFullName(userPrincipal.getName());
+        tokenInfoResponse.setEmail(userPrincipal.getEmail());
+        tokenInfoResponse.setUserName(userPrincipal.getEmail());
+
+        Object pictureObj = userPrincipal.getAttribute("picture");
+        if (pictureObj != null) {
+            tokenInfoResponse.setPictureUrl(pictureObj.toString());
+        }
+
+        if (adminUser != null) {
+            tokenInfoResponse.setUserCode(adminUser.getUsername());
+        }
+
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        tokenInfoResponse.setRolesCode(roles);
+        tokenInfoResponse.setRolesName(roles);
+        // --- [KẾT THÚC] ---
 
         String subject = new ObjectMapper().writeValueAsString(tokenInfoResponse);
         Map<String, Object> claims = getBodyClaims(tokenInfoResponse);

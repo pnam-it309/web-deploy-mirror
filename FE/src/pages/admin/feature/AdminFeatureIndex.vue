@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { FeatureService } from '@/services/admin/feature.service';
 import { AppService } from '@/services/admin/app.service';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import FeatureFilter from '@/components/admin/feature/FeatureFilter.vue';
 import FeatureTable from '@/components/admin/feature/FeatureTable.vue';
@@ -88,10 +88,7 @@ const handleReorder = async () => {
 
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 shrink-0">
-      <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Chức năng' }]" />
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">Chức năng dự án</h1>
-    </div>
+
 
     <FeatureFilter :apps="apps" @filter="loadData" @create="handleCreate" />
 

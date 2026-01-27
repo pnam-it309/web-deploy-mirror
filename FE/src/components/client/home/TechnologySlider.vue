@@ -13,7 +13,8 @@
             <div class="marquee-mover flex w-fit" :style="{ '--marquee-duration': duration + 's' }">
                 <div v-for="i in 4" :key="i" class="flex items-center gap-8 marquee-part pr-8" :aria-hidden="i > 1">
                     <div v-for="tech in technologies" :key="tech.id + '-' + i"
-                        class="flex flex-col items-center justify-center p-4 min-w-[120px] h-[120px] bg-gray-50 rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 border border-gray-100 group">
+                        @click="navigateToTech(tech.id)"
+                        class="flex flex-col items-center justify-center p-4 min-w-[120px] h-[120px] bg-gray-50 rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 border border-gray-100 group cursor-pointer">
                         <img v-if="tech.icon" :src="tech.icon" :alt="tech.name"
                             class="w-12 h-12 object-contain mb-3 filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                         <span v-else class="text-2xl font-bold text-gray-400">?</span>
@@ -30,14 +31,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { getTechnologies, type PublicTechnology } from '@/services/client/client.service';
 
+const router = useRouter();
 const technologies = ref<PublicTechnology[]>([]);
 
 const duration = computed(() => {
     // 60s base, add 2s for every item to keep consistent speed
     return 60 + (technologies.value.length * 4);
 });
+
+const navigateToTech = (id: string) => {
+    router.push({ path: '/apps', query: { technology: id } });
+};
 
 onMounted(async () => {
     try {

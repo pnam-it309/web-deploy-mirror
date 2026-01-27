@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { TechnologyService } from '@/services/admin/technology.service';
 import type { Technology } from '@/types/admin.types';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import TechnologyFilter from '@/components/admin/technology/TechnologyFilter.vue';
 import TechnologyTable from '@/components/admin/technology/TechnologyTable.vue';
@@ -35,10 +35,7 @@ const handleDelete = async (id: string) => {
 
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 shrink-0">
-      <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Công nghệ' }]" />
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">Công nghệ</h1>
-    </div>
+
     
     <TechnologyFilter @create="handleCreate" @search="loadData" />
     

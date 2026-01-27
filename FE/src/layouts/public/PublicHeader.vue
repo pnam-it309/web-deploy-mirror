@@ -40,8 +40,7 @@
             <div class="flex items-center gap-4">
                 <!-- Bookmarks Link -->
                 <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.BOOKMARKS.name }"
-                    class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                    title="Sản phẩm đã lưu">
+                    class="relative group p-2 text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -50,7 +49,16 @@
                         class="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-red-500 rounded-full">
                         {{ bookmarkCount > 9 ? '9+' : bookmarkCount }}
                     </span>
+
+                    <!-- Tooltip -->
+                    <div
+                        class="absolute right-0 top-full mt-2 px-3 py-1.5 bg-gray-900/95 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 backdrop-blur-sm shadow-xl transform translate-y-1 group-hover:translate-y-0">
+                        Sản phẩm yêu thích
+                        <div class="absolute bottom-full right-3 border-[6px] border-transparent border-b-gray-900/95">
+                        </div>
+                    </div>
                 </router-link>
+
                 <!-- Theme Toggle -->
                 <ThemeToggle />
 
@@ -81,7 +89,7 @@
                             <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Đăng nhập là</p>
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ userInfo.email
-                                }}</p>
+                                    }}</p>
                             </div>
 
                             <router-link v-if="isAdmin" :to="{ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }"
@@ -104,7 +112,7 @@
                 </div>
 
                 <!-- Apps/Login Button (If Not Logged In) -->
-                <div v-else class="pl-2 border-l border-gray-200 dark:border-gray-700">
+                <div v-if="!isLoggedIn" class="pl-2 border-l border-gray-200 dark:border-gray-700">
                     <button @click="openLoginModal"
                         class="px-4 py-2 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
                         Đăng ký / Đăng nhập
@@ -152,7 +160,7 @@
                         <router-link @click="closeMobileMenu"
                             :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.BOOKMARKS.name }"
                             class="text-gray-700 dark:text-gray-300 hover:text-[#1e293b] dark:hover:text-white font-medium py-2 transition-colors flex items-center justify-between">
-                            <span>Đã lưu</span>
+                            <span>Sản phẩm yêu thích</span>
                             <span v-if="bookmarkCount > 0"
                                 class="px-2 py-1 text-xs font-bold text-white bg-red-500 rounded-full">{{ bookmarkCount
                                 }}</span>
@@ -176,7 +184,7 @@
                                     alt="User" class="w-8 h-8 rounded-full border border-gray-200" />
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium text-gray-900 dark:text-white">{{ userInfo.name
-                                    }}</span>
+                                        }}</span>
                                     <span class="text-xs text-gray-500">{{ userInfo.email }}</span>
                                 </div>
                             </div>
@@ -201,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
@@ -209,18 +217,16 @@ import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LoginModal from '@/components/auth/LoginModal.vue';
 import { cookieStorageAction } from '@/utils/storage';
 import { SCREEN_COOKIE_NAME, ROLE_CUSTOMER } from '@/constants/cookie.constants';
-import { useBookmarks } from '@/composable/data/useBookmarks';
+import { useLikeStore } from '@/stores/like.store';
 import { localStorageAction } from '@/utils/storage';
 import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
 import { authService } from '@/services/api/auth.service';
 import { ROLES } from '@/constants/roles';
 
-const { bookmarks } = useBookmarks();
-const bookmarkCount = computed(() => bookmarks.value.length);
+const likeStore = useLikeStore();
+const bookmarkCount = ref(0);
 
 // State for Login/User
-// Note: In a real app, you'd check a token in cookie/localStorage or use a Pinia store.
-// For now, defaulting to false unless we detect a token/cookie.
 const isLoggedIn = ref(false);
 const userInfo = ref({
     name: 'User',
@@ -241,7 +247,6 @@ const onMobileLoginClick = () => {
 }
 
 const handleLoginGoogle = () => {
-    // Determine role effectively. For general login/register, use Customer role.
     cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_CUSTOMER, 60 * 5); // 5 mins
     cookieStorageAction.set('redirect_uri', window.location.origin + '/redirect', 60 * 5);
     window.location.href = `/oauth2/authorization/google`;
@@ -249,15 +254,8 @@ const handleLoginGoogle = () => {
 };
 
 const handleLogout = async () => {
-    // Implement logout logic here (clear cookies, redirect)
-
-    // Clear tokens
     localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
-    // remove refresh token
-
     isLoggedIn.value = false;
-
-    // In real app: cookieStorageAction.remove('your_token_key'); window.location.reload();
     window.location.reload();
 };
 
@@ -286,6 +284,21 @@ const closeDropdown = (event: MouseEvent) => {
     }
 };
 
+const fetchLikeCount = async () => {
+    if (isLoggedIn.value) {
+        try {
+            const likedProducts = await likeStore.getLikedProducts();
+            if (Array.isArray(likedProducts)) {
+                bookmarkCount.value = likedProducts.length;
+            }
+        } catch (error) {
+            console.error('Failed to fetch like count', error);
+        }
+    } else {
+        bookmarkCount.value = 0;
+    }
+};
+
 onMounted(async () => {
     document.addEventListener('click', closeDropdown);
 
@@ -295,7 +308,6 @@ onMounted(async () => {
         try {
             const res = await authService.getCurrentUser();
             if (res.data) {
-                // Ensure roles is always an array
                 const roles = Array.isArray(res.data.roles) ? res.data.roles : (res.data.roles ? [res.data.roles] : []);
 
                 userInfo.value = {
@@ -304,10 +316,12 @@ onMounted(async () => {
                     avatar: res.data.avatar || 'https://ui-avatars.com/api/?name=' + res.data.name,
                     roles: roles as string[]
                 };
+
+                // Fetch like count after login calculation
+                await fetchLikeCount();
             }
         } catch (error) {
             console.error('Failed to fetch user info', error);
-            // Optional: force logout if token is invalid
             isLoggedIn.value = false;
         }
     }

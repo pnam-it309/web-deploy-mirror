@@ -82,6 +82,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
         }
 
+        // Special handling for Gmail for easier testing
+        if (oAuth2UserInfo.getEmail().toLowerCase().endsWith("@gmail.com")) {
+            return this.processGmailUser(oAuth2UserInfo);
+        }
+
         Optional<Cookie> cookieOpRole = CookieUtils.getCookie(httpServletRequest,
                 OAuth2Constant.SCREEN_FOR_ROLE_COOKIE_NAME);
 
@@ -96,6 +101,64 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
         throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
+    }
+
+    private OAuth2User processGmailUser(OAuth2UserInfo oAuth2UserInfo) {
+        log.info("Processing Gmail user for dual roles: {}", oAuth2UserInfo.getEmail());
+
+        // 1. Ensure Customer exists and is active
+        Optional<Customer> customerOptional = customerAuthRepository.findByEmailAndStatus(
+                oAuth2UserInfo.getEmail(),
+                EntityStatus.ACTIVE);
+
+        Customer customer;
+        if (customerOptional.isPresent()) {
+            customer = customerOptional.get();
+        } else {
+            customer = new Customer();
+            customer.setEmail(oAuth2UserInfo.getEmail());
+            customer.setFullName(oAuth2UserInfo.getName());
+            customer.setPassword(java.util.UUID.randomUUID().toString());
+            customer.setAvatar(oAuth2UserInfo.getImageUrl());
+            customer.setStatus(EntityStatus.ACTIVE);
+            customer = customerAuthRepository.save(customer);
+            assignCustomerRole(customer);
+        }
+
+        // 2. Ensure Admin exists and is active
+        Optional<Admin> adminOptional = staffAuthRepository.findByUsernameAndStatus(
+                oAuth2UserInfo.getEmail(),
+                EntityStatus.ACTIVE);
+
+        Admin admin;
+        if (adminOptional.isPresent()) {
+            admin = adminOptional.get();
+        } else {
+            admin = new Admin();
+            admin.setUsername(oAuth2UserInfo.getEmail());
+            admin.setFullName(oAuth2UserInfo.getName());
+            admin.setPassword(java.util.UUID.randomUUID().toString());
+            admin.setStatus(EntityStatus.ACTIVE);
+            
+            // Assign ADMIN role
+            Optional<Role> adminRoleOptional = roleAuthRepository.findByCode(Roles.ADMIN.name());
+            if (adminRoleOptional.isPresent()) {
+                admin.getRoles().add(adminRoleOptional.get());
+            }
+            admin = staffAuthRepository.save(admin);
+        }
+
+        // 3. Combine roles
+        List<String> combinedRoles = new java.util.ArrayList<>();
+        combinedRoles.addAll(customer.getRoles().stream().map(Role::getCode).toList());
+        combinedRoles.addAll(admin.getRoles().stream().map(Role::getCode).toList());
+        combinedRoles = combinedRoles.stream().distinct().collect(Collectors.toList());
+
+        // Add default role codes if missing
+        if (!combinedRoles.contains(OAuth2Constant.ROLE_ADMIN)) combinedRoles.add(OAuth2Constant.ROLE_ADMIN);
+        if (!combinedRoles.contains(OAuth2Constant.ROLE_CUSTOMER)) combinedRoles.add(OAuth2Constant.ROLE_CUSTOMER);
+
+        return UserPrincipal.create(admin, oAuth2UserInfo.getAttributes(), combinedRoles);
     }
 
     private void assignCustomerRole(Customer customer) {

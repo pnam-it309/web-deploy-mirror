@@ -41,10 +41,10 @@ onMounted(async () => {
 
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 shrink-0">
+    <!-- <div class="mb-6 shrink-0">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight">Tổng quan hệ thống</h1>
           <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Số liệu thống kê thời gian thực của toàn bộ hệ thống</p>
-    </div>
+    </div> -->
 
     <div v-if="isLoading" class="flex-1 flex justify-center items-center">
       <BaseSpinner size="lg" />

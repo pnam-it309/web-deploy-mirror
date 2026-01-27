@@ -15,4 +15,5 @@ public class CustomerDomainResponse {
     private String slug;
     private String description;
     private String icon;
+    private long productCount;
 }

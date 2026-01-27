@@ -65,7 +65,7 @@
                         </li>
                         <li class="flex items-center gap-3">
                             <span class="text-indigo-500">📞</span>
-                            <span>(024) 7300 1955</span>
+                            <span>(0XX) XXX XXXX</span>
                         </li>
                     </ul>
                 </div>

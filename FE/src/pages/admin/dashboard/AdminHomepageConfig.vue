@@ -2,9 +2,9 @@
 import { ref, onMounted } from 'vue';
 import draggable from 'vuedraggable';
 import { AppService } from '@/services/admin/app.service';
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
-import BaseButton from '@/components/base/BaseButton.vue';
+
 import { toast } from 'vue3-toastify';
 
 const featuredApps = ref<any[]>([]);
@@ -17,7 +17,7 @@ const loadData = async () => {
         // Fetch approved apps mostly? Or all? Usually only Approved apps should be featured.
         // But let's fetch all for now, maybe filter by status locally if needed.
         const res = await AppService.getAll({ size: 1000 });
-        const all = res.data || [];
+        const all = res.content || [];
 
         // Filter only approved for homepage?
         // Let's assume we can feature any app, but typically Approved.
@@ -60,12 +60,8 @@ const toggleFeatured = async (app: any) => {
 
 <template>
     <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <div class="mb-6 shrink-0 flex justify-between items-start">
-            <div>
-                <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Cấu hình Trang chủ' }]" />
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight">Cấu hình Sản phẩm nổi bật</h1>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Kéo thả để sắp xếp thứ tự hiển thị trên trang chủ</p>
-            </div>
+        <div class="mb-6 shrink-0 flex justify-between items-center">
+             <div></div>
              <button @click="loadData"
                 class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm uppercase tracking-wide flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>

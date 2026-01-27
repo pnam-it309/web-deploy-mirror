@@ -5,7 +5,7 @@ import { FeatureService } from '@/services/admin/feature.service';
 import { AppService } from '@/services/admin/app.service';
 import { toast } from 'vue3-toastify';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseTextarea from '@/components/base/BaseTextarea.vue';
@@ -78,17 +78,8 @@ const getAppName = computed(() => {
 
 <template>
   <div class="p-4 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-4 flex justify-between items-start">
-      <div>
-        <BaseBreadcrumb :items="[
-          { label: 'Admin', to: '/admin' },
-          { label: 'Chức năng', to: '/admin/features' },
-          { label: isEdit ? 'Cập nhật' : 'Thêm mới' }
-        ]" />
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-1">
-          {{ isEdit ? 'Cập nhật Chức năng' : 'Thêm Chức năng' }}
-        </h1>
-      </div>
+    <div class="mb-4 flex justify-between items-center">
+      <div></div>
       <div class="flex gap-3">
         <BaseButton variant="outline" size="sm" @click="router.back()">Huỷ</BaseButton>
         <BaseButton variant="primary" size="sm" @click="handleSubmit">Lưu lại</BaseButton>

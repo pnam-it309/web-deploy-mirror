@@ -8,7 +8,7 @@ import type { AdminAppCreateRequest, AdminAppUpdateRequest, AppDetailUpdateReque
 import { toast } from 'vue3-toastify';
 
 // Components
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseCard from '@/components/base/BaseCard.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
@@ -282,17 +282,8 @@ const isValidYoutube = (url?: string) => {
 
 <template>
   <div class="p-6 h-full overflow-y-auto custom-scrollbar bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 flex justify-between items-start">
-      <div>
-        <BaseBreadcrumb :items="[
-          { label: 'Admin', to: '/admin' },
-          { label: 'Dự án', to: '/admin/apps' },
-          { label: isEdit ? 'Cập nhật' : 'Tạo mới' }
-        ]" />
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">
-          {{ isEdit ? `Cập nhật: ${form.name}` : 'Thêm Dự án mới' }}
-        </h1>
-      </div>
+    <div class="mb-6 flex justify-between items-center">
+      <div></div>
       <div class="flex gap-3">
         <BaseButton variant="outline" @click="router.back()">Huỷ bỏ</BaseButton>
         <BaseButton v-if="isEdit" variant="primary" class="!bg-blue-600 hover:!bg-blue-700" @click="handlePreview">Xem Preview</BaseButton>
@@ -364,14 +355,14 @@ const isValidYoutube = (url?: string) => {
 
         </BaseCard>
 
-        <BaseCard>
+        <!-- <BaseCard>
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">SEO & Tối ưu hoá</h3>
           <BaseInput v-model="form.metaTitle" label="Meta Title" placeholder="Tiêu đề SEO..." class="mb-4 dark:text-white" />
           <BaseTextarea v-model="form.metaDescription" label="Meta Description" placeholder="Mô tả SEO..." class="mb-4 dark:text-white"
             :rows="3" />
           <BaseInput v-model="form.metaKeywords" label="Meta Keywords"
             placeholder="Từ khoá cách nhau bởi dấu phẩy..." class="dark:text-white" />
-        </BaseCard>
+        </BaseCard> -->
       </div>
 
       <div class="space-y-6">

@@ -6,6 +6,8 @@ import udpm.hn.server.core.customer.domain.model.response.CustomerDomainResponse
 import udpm.hn.server.core.customer.domain.repository.CustomerDomainRepository;
 import udpm.hn.server.core.customer.domain.service.CustomerDomainService;
 import udpm.hn.server.infrastructure.constant.EntityStatus;
+import udpm.hn.server.infrastructure.constant.ApprovalStatus;
+import udpm.hn.server.core.customer.app.repository.CustomerAppRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,13 +17,10 @@ import java.util.stream.Collectors;
 public class CustomerDomainServiceImpl implements CustomerDomainService {
 
     private final CustomerDomainRepository customerDomainRepository;
+    private final CustomerAppRepository customerAppRepository;
 
     @Override
     public List<CustomerDomainResponse> getAllActiveInfo() {
-        // Fetch only active, sort by sortOrder
-        // Assuming repository can do this or filter here.
-        // Using stream sort for simplicity or we should defined a method in repo.
-        // For now, simple filter.
         return customerDomainRepository.findAll().stream()
                 .filter(d -> d.getStatus() == EntityStatus.ACTIVE)
                 .sorted((d1, d2) -> {
@@ -31,8 +30,11 @@ public class CustomerDomainServiceImpl implements CustomerDomainService {
                         return -1;
                     return d1.getSortOrder().compareTo(d2.getSortOrder());
                 })
-                .map(d -> new CustomerDomainResponse(d.getId(), d.getName(), d.getSlug(), d.getDescription(),
-                        d.getIcon()))
+                .map(d -> {
+                    long productCount = customerAppRepository.countByDomain_IdAndApprovalStatus(d.getId(), ApprovalStatus.APPROVED);
+                    return new CustomerDomainResponse(d.getId(), d.getName(), d.getSlug(), d.getDescription(),
+                            d.getIcon(), productCount);
+                })
                 .collect(Collectors.toList());
     }
 }

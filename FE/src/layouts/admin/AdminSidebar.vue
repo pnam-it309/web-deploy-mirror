@@ -96,19 +96,19 @@ const isExpanded = computed(() => sidebarStore.isDesktopExpanded || isHovered.va
 
 const menuItems = [
   { name: 'Tổng quan', path: '/admin/dashboard', icon: Squares2X2Icon },
-  { name: 'Cấu hình Trang chủ', path: '/admin/homepage-config', icon: ComputerDesktopIcon },
+  // { name: 'Cấu hình Trang chủ', path: '/admin/homepage-config', icon: ComputerDesktopIcon },
   { name: 'Sản phẩm', path: '/admin/apps', icon: CubeIcon },
-  { name: 'Kiểm duyệt', path: '/admin/moderation', icon: HandThumbUpIcon },
+  //{ name: 'Kiểm duyệt', path: '/admin/moderation', icon: HandThumbUpIcon },
   { name: 'Lĩnh vực', path: '/admin/domains', icon: FolderIcon },
   { name: 'Công nghệ', path: '/admin/technologies', icon: CpuChipIcon },
   { name: 'Chức năng', path: '/admin/features', icon: PuzzlePieceIcon },
-  { name: 'Thư viện Media', path: '/admin/media-library', icon: PhotoIcon },
-  { name: 'Nhật ký hoạt động', path: '/admin/audit-logs', icon: ClipboardDocumentListIcon },
-  { name: 'Thùng rác', path: '/admin/trash', icon: TrashIcon },
-  { name: 'Webhooks', path: '/admin/webhooks', icon: BoltIcon },
-  { name: 'Đăng ký nhận tin', path: '/admin/subscriptions', icon: EnvelopeIcon },
-  { name: 'Danh sách IP', path: '/admin/ip-whitelist', icon: ShieldCheckIcon },
-  { name: 'Phân tích tìm kiếm', path: '/admin/analytics/search', icon: MagnifyingGlassIcon },
+  //{ name: 'Thư viện Media', path: '/admin/media-library', icon: PhotoIcon },
+  //{ name: 'Nhật ký hoạt động', path: '/admin/audit-logs', icon: ClipboardDocumentListIcon },
+  //{ name: 'Thùng rác', path: '/admin/trash', icon: TrashIcon },
+  //{ name: 'Webhooks', path: '/admin/webhooks', icon: BoltIcon },
+  //{ name: 'Đăng ký nhận tin', path: '/admin/subscriptions', icon: EnvelopeIcon },
+  //{ name: 'Danh sách IP', path: '/admin/ip-whitelist', icon: ShieldCheckIcon },
+  //{ name: 'Phân tích tìm kiếm', path: '/admin/analytics/search', icon: MagnifyingGlassIcon },
 ];
 const isActive = (path: string) => route.path.startsWith(path);
 </script>

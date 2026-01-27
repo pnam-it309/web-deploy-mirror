@@ -9,15 +9,9 @@
             <!-- Overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
             
-            <!-- Bookmark Button -->
-            <div class="absolute top-3 right-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-[-10px] group-hover:translate-y-0">
-                <LikeButton :product-id="product.id" class="!bg-white/90 !backdrop-blur" />
-                <CompareButton
-                    :product="{ id: product.id, name: product.name, thumbnail: product.thumbnail || '', domainName: product.domainName }" 
-                    class="!bg-white/90 !backdrop-blur" />
-                <BookmarkButton
-                    :product="{ id: product.id, name: product.name, thumbnail: product.thumbnail || '', domainName: product.domainName }"
-                    class="!bg-white/90 !backdrop-blur" />
+            <!-- Like Button with tooltip -->
+            <div class="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-[-10px] group-hover:translate-y-0">
+                <LikeButton :product-id="product.id" class="!backdrop-blur shadow-sm" />
             </div>
 
             <!-- Floating Domain Tag -->
@@ -59,8 +53,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ROUTES_CONSTANTS } from '@/constants/path';
-import BookmarkButton from '@/components/common/BookmarkButton.vue';
-import CompareButton from '@/components/common/CompareButton.vue';
 import LikeButton from '@/components/common/LikeButton.vue';
 
 export interface Product {

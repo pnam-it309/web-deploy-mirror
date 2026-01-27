@@ -1,6 +1,7 @@
 <template>
     <div
-        class="advanced-filters bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        class="advanced-filters"
+        :class="embedded ? '' : 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6'">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -45,17 +46,17 @@
         </div>
 
         <!-- Year Filter -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Năm tạo</label>
             <select v-model.number="selectedYear"
                 class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500">
                 <option :value="null">Tất cả</option>
                 <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
             </select>
-        </div>
+        </div> -->
 
         <!-- Team Size Filter -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Số thành viên</label>
             <div class="flex gap-2">
                 <button v-for="size in teamSizes" :key="size.value"
@@ -67,10 +68,10 @@
                     {{ size.label }}
                 </button>
             </div>
-        </div>
+        </div> -->
 
         <!-- Sort -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sắp xếp</label>
             <select v-model="sortBy"
                 class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500">
@@ -79,18 +80,15 @@
                 <option value="popular">Phổ biến nhất</option>
                 <option value="name">Tên A-Z</option>
             </select>
-        </div>
+        </div> -->
 
-        <!-- Apply Button -->
-        <button @click="applyFilters"
-            class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Áp dụng bộ lọc
-        </button>
+        <!-- Apply Button (Removed for auto-apply) -->
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getPublicDomains, getTechnologies } from '@/services/client/client.service'
 
 interface Domain {
@@ -108,6 +106,10 @@ const emit = defineEmits<{
     (e: 'filter', filters: FilterState): void
 }>()
 
+defineProps<{
+    embedded?: boolean
+}>()
+
 interface FilterState {
     domains: string[]
     technologies: string[]
@@ -116,6 +118,7 @@ interface FilterState {
     sortBy: string
 }
 
+const route = useRoute()
 const domains = ref<Domain[]>([])
 const technologies = ref<Technology[]>([])
 
@@ -168,7 +171,7 @@ const clearAllFilters = () => {
     selectedYear.value = null
     selectedTeamSize.value = null
     sortBy.value = 'newest'
-    applyFilters()
+    // Watcher will trigger applyFilters
 }
 
 const applyFilters = () => {
@@ -181,6 +184,11 @@ const applyFilters = () => {
     })
 }
 
+// Auto-apply filters when any state changes
+watch([selectedDomains, selectedTechnologies, selectedYear, selectedTeamSize, sortBy], () => {
+    applyFilters()
+}, { deep: true })
+
 onMounted(async () => {
     try {
         const [domainsRes, techRes] = await Promise.all([
@@ -189,6 +197,22 @@ onMounted(async () => {
         ])
         domains.value = domainsRes
         technologies.value = techRes
+
+        // Sync with URL query
+        if (route.query.domain) {
+             const domainId = route.query.domain as string
+             if (domainsRes.some(d => d.id === domainId)) {
+                 selectedDomains.value = [domainId]
+             }
+        }
+
+        if (route.query.technology) {
+             const techId = route.query.technology as string
+             // Verify it exists in loaded technologies
+             if (techRes.some(t => t.id === techId)) {
+                 selectedTechnologies.value = [techId]
+             }
+        }
     } catch (error) {
         console.error('Failed to load filter options:', error)
     }

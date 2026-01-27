@@ -2,10 +2,7 @@
     <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         <div class="mb-6 shrink-0">
              <div class="flex items-center justify-between mb-4">
-                 <div>
-                    <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Admin / Media</span>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-1">Thư viện Media</h1>
-                 </div>
+                 <div></div>
                 <div class="flex gap-3">
                     <input v-model="searchQuery" @input="debouncedSearch" type="text" placeholder="Tìm kiếm..."
                         class="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none min-w-[240px] shadow-sm" />

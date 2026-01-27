@@ -98,8 +98,8 @@ public class AppServiceImpl implements AppService {
 
         // Publish event for Meilisearch sync
         eventPublisher.publishEvent(
-            new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductCreatedEvent(savedApp)
-        );
+                new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductCreatedEvent(
+                        savedApp));
 
         // 3. Tạo AppDetail mặc định (1-1)
         AppDetail detail = new AppDetail();
@@ -140,8 +140,8 @@ public class AppServiceImpl implements AppService {
 
         // Publish event for Meilisearch sync
         eventPublisher.publishEvent(
-            new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductUpdatedEvent(savedApp)
-        );
+                new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductUpdatedEvent(
+                        savedApp));
 
         // 4. Update Members (Logic Hybrid: User Hệ Thống vs Khách Mời Email)
         if (request.getMembers() != null) {
@@ -224,12 +224,12 @@ public class AppServiceImpl implements AppService {
             // Soft Delete: Just mark status as DELETED
             app.setStatus(EntityStatus.DELETED);
             appRepository.save(app);
-            
+
             // Publish event for Meilisearch sync (remove from search index)
             eventPublisher.publishEvent(
-                new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductDeletedEvent(id)
-            );
-            
+                    new udpm.hn.server.infrastructure.search.listener.ProductSearchSyncListener.ProductDeletedEvent(
+                            id));
+
             System.out.println("Soft deleted App: " + id);
         } catch (Exception e) {
             e.printStackTrace();

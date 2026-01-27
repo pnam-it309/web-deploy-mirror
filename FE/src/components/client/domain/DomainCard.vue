@@ -25,7 +25,7 @@
 
             <!-- Product Count -->
             <span class="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-primary/80 block">
-                {{ domain.productCount || 0 }} products
+                {{ domain.productCount || 0 }} sản phẩm
             </span>
         </div>
     </div>

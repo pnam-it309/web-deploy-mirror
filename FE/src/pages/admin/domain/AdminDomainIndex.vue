@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { DomainService } from '@/services/admin/domain.service';
 import type { Domain } from '@/types/admin.types';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import DomainFilter from '@/components/admin/domain/DomainFilter.vue';
 import DomainTable from '@/components/admin/domain/DomainTable.vue';
@@ -62,10 +62,7 @@ const handleReorder = async () => {
 
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 shrink-0">
-      <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Lĩnh vực' }]" />
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight mt-2">Lĩnh vực</h1>
-    </div>
+
 
     <DomainFilter @create="handleCreate" @search="loadData" />
 

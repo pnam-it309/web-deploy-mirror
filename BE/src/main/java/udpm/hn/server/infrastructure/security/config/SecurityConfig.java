@@ -40,115 +40,115 @@ import static udpm.hn.server.utils.Helper.appendWildcard;
 @org.springframework.core.annotation.Order(1)
 public class SecurityConfig {
 
-        private final CustomOAuth2UserService customOAuth2UserService;
-        private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-        private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-        private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
-        private final TokenProvider tokenProvider;
-        private final CustomUserDetailsService customUserDetailsService;
-        private final GlobalVariables globalVariables;
-        // Bean này được inject vào, đảm bảo bạn đã định nghĩa nó ở 1 file config khác
-        // (GlobalConfig hoặc CorsConfig)
-        @org.springframework.beans.factory.annotation.Qualifier("corsConfigurationSource")
-        private final CorsConfigurationSource corsConfigurationSource;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+    private final TokenProvider tokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final GlobalVariables globalVariables;
+    // Bean này được inject vào, đảm bảo bạn đã định nghĩa nó ở 1 file config khác
+    // (GlobalConfig hoặc CorsConfig)
+    @org.springframework.beans.factory.annotation.Qualifier("corsConfigurationSource")
+    private final CorsConfigurationSource corsConfigurationSource;
 
-        @Bean
-        public TokenAuthenticationFilter tokenAuthenticationFilter() {
-                return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService, globalVariables);
-        }
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter(tokenProvider, customUserDetailsService, globalVariables);
+    }
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-        @Bean(BeanIds.AUTHENTICATION_MANAGER)
-        public AuthenticationManager authenticationManager(
-                        UserDetailsService userDetailsService,
-                        PasswordEncoder passwordEncoder) {
-                DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-                provider.setPasswordEncoder(passwordEncoder);
-                provider.setUserDetailsService(userDetailsService);
-                return new ProviderManager(provider);
-        }
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
+    public AuthenticationManager authenticationManager(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userDetailsService);
+        return new ProviderManager(provider);
+    }
 
-        @Bean
-        protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-                log.info("Initializing security filter chain");
-                log.info("Customer API prefix: {}", MappingConstants.API_CUSTOMER_PREFIX);
-                log.info("Customer API with wildcard: {}", appendWildcard(MappingConstants.API_CUSTOMER_PREFIX));
-                
-                http
-                                .csrf(AbstractHttpConfigurer::disable)
-                                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Sử dụng cấu hình
-                                                                                                 // CORS inject vào
-                                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .formLogin(AbstractHttpConfigurer::disable)
-                                .httpBasic(AbstractHttpConfigurer::disable)
-                                .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
+    @Bean
+    protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.info("Initializing security filter chain");
+        log.info("Customer API prefix: {}", MappingConstants.API_CUSTOMER_PREFIX);
+        log.info("Customer API with wildcard: {}", appendWildcard(MappingConstants.API_CUSTOMER_PREFIX));
 
-                // Add debug filter to log all requests
-                http.addFilterBefore((request, response, chain) -> {
-                        jakarta.servlet.http.HttpServletRequest httpRequest = (jakarta.servlet.http.HttpServletRequest) request;
-                        String requestURI = httpRequest.getRequestURI();
-                        String method = httpRequest.getMethod();
-                        log.debug("Security Filter processing: {} {}", method, requestURI);
-                        
-                        if (requestURI.startsWith("/customer") || requestURI.startsWith("/admin")) {
-                                log.info("API Request detected: {} {}", method, requestURI);
-                        }
-                        
-                        chain.doFilter(request, response);
-                }, org.springframework.security.web.context.SecurityContextHolderFilter.class);
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Sử dụng cấu hình
+                // CORS inject vào
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
 
-                // IMPORTANT: Consolidate ALL authorization rules in ONE place to prevent
-                // fallthrough to static resources
-                http.authorizeHttpRequests(auth -> auth
-                                // 1. Customer API endpoints (FIRST - highest priority)
-                                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
-                                .permitAll()
+        // Add debug filter to log all requests
+        http.addFilterBefore((request, response, chain) -> {
+            jakarta.servlet.http.HttpServletRequest httpRequest = (jakarta.servlet.http.HttpServletRequest) request;
+            String requestURI = httpRequest.getRequestURI();
+            String method = httpRequest.getMethod();
+            log.debug("Security Filter processing: {} {}", method, requestURI);
 
-                                // 2. Admin API endpoints
-                                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
-                                .permitAll()
+            if (requestURI.startsWith("/customer") || requestURI.startsWith("/admin")) {
+                log.info("API Request detected: {} {}", method, requestURI);
+            }
 
-                                // 3. Public/Static Resources and Auth endpoints
-                                .requestMatchers(
-                                                "/",
-                                                "/error",
-                                                "/favicon.ico",
-                                                "/*/*.png",
-                                                "/*/*.gif",
-                                                "/*/*.svg",
-                                                "/*/*.jpg",
-                                                "/*/*.html",
-                                                "/*/*.css",
-                                                "/*/*.js",
-                                                "/auth/**",
-                                                "/oauth2/**",
-                                                "/login/oauth2/code/**",
-                                                appendWildcard(MappingConstants.API_AUTH_PREFIX),
-                                                appendWildcard(MappingConstants.API_COMMON))
-                                .permitAll()
+            chain.doFilter(request, response);
+        }, org.springframework.security.web.context.SecurityContextHolderFilter.class);
 
-                                // 4. Any other request must be authenticated (prevents fallthrough to static
-                                // resources)
-                                .anyRequest().authenticated());
+        // IMPORTANT: Consolidate ALL authorization rules in ONE place to prevent
+        // fallthrough to static resources
+        http.authorizeHttpRequests(auth -> auth
+                // 1. Customer API endpoints (FIRST - highest priority)
+                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
+                .permitAll()
 
-                // OAuth2 configuration
-                http.oauth2Login(oauth2 -> oauth2
-                                .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
-                                .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
-                                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-                                .authorizationEndpoint(
-                                                a -> a.authorizationRequestRepository(
-                                                                httpCookieOAuth2AuthorizationRequestRepository))
-                                .successHandler(oAuth2AuthenticationSuccessHandler)
-                                .failureHandler(oAuth2AuthenticationFailureHandler));
+                // 2. Admin API endpoints
+                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
+                .permitAll()
 
-                // Add token authentication filter
-                http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                // 3. Public/Static Resources and Auth endpoints
+                .requestMatchers(
+                        "/",
+                        "/error",
+                        "/favicon.ico",
+                        "/*/*.png",
+                        "/*/*.gif",
+                        "/*/*.svg",
+                        "/*/*.jpg",
+                        "/*/*.html",
+                        "/*/*.css",
+                        "/*/*.js",
+                        "/auth/**",
+                        "/oauth2/**",
+                        "/login/oauth2/code/**",
+                        appendWildcard(MappingConstants.API_AUTH_PREFIX),
+                        appendWildcard(MappingConstants.API_COMMON))
+                .permitAll()
 
-                return http.build();
-        }
+                // 4. Any other request must be authenticated (prevents fallthrough to static
+                // resources)
+                .anyRequest().authenticated());
+
+        // OAuth2 configuration
+        http.oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(a -> a.baseUri("/oauth2/authorization"))
+                .redirectionEndpoint(r -> r.baseUri("/login/oauth2/code/*"))
+                .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
+                .authorizationEndpoint(
+                        a -> a.authorizationRequestRepository(
+                                httpCookieOAuth2AuthorizationRequestRepository))
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler));
+
+        // Add token authentication filter
+        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 }

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useAppStore } from '@/stores/app.store';
 import { DomainService } from '@/services/admin/domain.service';
 
-import BaseBreadcrumb from '@/components/base/BaseBreadcrumb.vue';
+
 import BasePagination from '@/components/base/BasePagination.vue';
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
@@ -139,9 +139,7 @@ const handleDelete = async () => {
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div class="mb-6 shrink-0">
-      <BaseBreadcrumb :items="[{ label: 'Admin', to: '/admin' }, { label: 'Quản lý Dự án' }]" />
       <div class="flex justify-between items-center mt-2">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight">Danh sách Dự án</h1>
         <div class="flex gap-3">
           <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleImport" />
           <BaseButton variant="outline" @click="triggerImport" title="Import Excel" class="flex items-center gap-2">
