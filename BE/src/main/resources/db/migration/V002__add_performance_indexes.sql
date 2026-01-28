@@ -60,8 +60,10 @@ CALL drop_index_if_exists('idx_app_status', 'apps');
 CREATE INDEX idx_app_status ON apps(status);
 
 -- Index for filtering by domain (common in domain pages)
-CALL drop_index_if_exists('idx_app_domain', 'apps');
-CREATE INDEX idx_app_domain ON apps(domain_id) USING BTREE;
+-- NOTE: Skipped - domain_id already has an index from the FK constraint fk_app_domain
+-- MySQL automatically creates an index for foreign key columns
+-- CALL drop_index_if_exists('idx_app_domain', 'apps');
+-- CREATE INDEX idx_app_domain ON apps(domain_id) USING BTREE;
 
 -- Index for sorting by view count (trending, popular products)
 CALL drop_index_if_exists('idx_app_view_count', 'apps');
