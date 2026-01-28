@@ -4,11 +4,19 @@ import { ROUTES_CONSTANTS } from './path'
 // DOMAIN
 
 const getBackendUrl = () => {
+  // In production Docker, use empty string to let nginx proxy handle routing
+  // In dev, use localhost
+  // In deployed environments (vercel/onrender), use deployed backend URL
   const hostname = window.location.hostname
+  
+  // Check if running in deployed environment
   if (hostname.includes('vercel.app') || hostname.includes('onrender.com')) {
     return 'https://web-deploy-mirror.onrender.com'
   }
-  return 'http://localhost:9999'
+  
+  // For Docker or local dev, return empty string to use relative path (proxy)
+  // This allows nginx to forward requests to the backend service
+  return ''
 }
 
 export const DOMAIN_BACKEND = getBackendUrl()

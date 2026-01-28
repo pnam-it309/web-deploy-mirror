@@ -2,6 +2,10 @@
 FROM node:22-alpine AS build-stage
 WORKDIR /app
 
+# Accept build argument for API URL
+ARG VITE_API_URL
+ENV VITE_API_BASE_URL=$VITE_API_URL
+
 # Copy package files first to leverage caching
 COPY package*.json ./
 

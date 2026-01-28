@@ -11,14 +11,38 @@ DELIMITER $$
 CREATE PROCEDURE drop_index_if_exists_v3(IN idx_name VARCHAR(255), IN tbl_name VARCHAR(255))
 BEGIN
     DECLARE idx_exists INT DEFAULT 0;
+    DECLARE is_fk_index INT DEFAULT 0;
     
+    -- Check if index exists
     SELECT COUNT(*) INTO idx_exists
     FROM information_schema.statistics
     WHERE table_schema = DATABASE() 
     AND table_name = tbl_name 
     AND index_name = idx_name;
 
-    IF idx_exists > 0 THEN
+    -- Check if this index is used by a foreign key constraint
+    -- MySQL automatically creates indexes for FK columns, and you cannot drop them
+    SELECT COUNT(*) INTO is_fk_index
+    FROM information_schema.KEY_COLUMN_USAGE
+    WHERE table_schema = DATABASE()
+    AND table_name = tbl_name
+    AND constraint_name IN (
+        SELECT constraint_name 
+        FROM information_schema.TABLE_CONSTRAINTS 
+        WHERE table_schema = DATABASE() 
+        AND table_name = tbl_name 
+        AND constraint_type = 'FOREIGN KEY'
+    )
+    AND column_name IN (
+        SELECT column_name 
+        FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+        AND table_name = tbl_name
+        AND index_name = idx_name
+    );
+
+    -- Only drop if index exists AND is not part of a foreign key
+    IF idx_exists > 0 AND is_fk_index = 0 THEN
         SET @s = CONCAT('DROP INDEX ', idx_name, ' ON ', tbl_name);
         PREPARE stmt FROM @s;
         EXECUTE stmt;

@@ -33,7 +33,7 @@ request.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
-      window.location.pathname !== ROUTES_CONSTANTS.LOGIN.path
+      window.location.pathname !== ROUTES_CONSTANTS.UNAUTHORIZED.path
       //    &&
       //   window.location.pathname !== ROUTES_CONSTANTS.LOGIN_CUSTOMER.path
     ) {
@@ -42,7 +42,7 @@ request.interceptors.response.use(
       const refreshToken = localStorageAction.get(REFRESH_TOKEN_STORAGE_KEY)
       if (refreshToken) {
         try {
-          const response = (await axios.post(`${PREFIX_API_AUTH}/refresh`, {
+          const response = (await request.post(`${PREFIX_API_AUTH}/refresh`, {
             refreshToken
           })) as AxiosResponse<DefaultResponse<{ accessToken: string; refreshToken: string }>>
           const newAccessToken = response.data.data.accessToken
@@ -64,7 +64,7 @@ request.interceptors.response.use(
     } else if (
       error.response &&
       error.response.status === 403 &&
-      window.location.pathname !== ROUTES_CONSTANTS.LOGIN.path
+      window.location.pathname !== ROUTES_CONSTANTS.UNAUTHORIZED.path
       
     ) {
       // window.location.href = ROUTES_CONSTANTS.FORBIDDEN.path
