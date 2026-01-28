@@ -11,6 +11,10 @@ import udpm.hn.server.infrastructure.config.dbgenerator.repository.DBGAdminRepos
 import udpm.hn.server.infrastructure.config.dbgenerator.repository.DBGRoleRepository;
 import udpm.hn.server.infrastructure.constant.EntityStatus;
 
+import javax.sql.DataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import java.sql.Connection;
 import java.util.Optional;
 
 @Component
@@ -30,12 +34,14 @@ public class DBGenerator {
 
     private final DBGAdminRepository adminRepository;
     private final DBGRoleRepository roleRepository;
+    private final DataSource dataSource;
 
     @PostConstruct
     public void init() {
         if ("true".equals(isGenerated)) {
             generateRole();
             generateData();
+            generateSampleData();
         }
     }
 
@@ -96,6 +102,16 @@ public class DBGenerator {
             } else {
                 System.out.println("Admin " + admin.getUsername() + " already has role " + roleName);
             }
+        }
+    }
+
+    private void generateSampleData() {
+        System.out.println("Executing data.sql...");
+        try (Connection connection = dataSource.getConnection()) {
+            ScriptUtils.executeSqlScript(connection, new ClassPathResource("data.sql"));
+            System.out.println("Executed data.sql successfully.");
+        } catch (Exception e) {
+            System.err.println("Error executing data.sql: " + e.getMessage());
         }
     }
 }

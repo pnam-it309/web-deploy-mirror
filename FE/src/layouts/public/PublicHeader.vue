@@ -304,10 +304,17 @@ onMounted(async () => {
 
     const token = localStorageAction.get(ACCESS_TOKEN_STORAGE_KEY);
     if (token) {
-        isLoggedIn.value = true;
         try {
             const res = await authService.getCurrentUser();
             if (res.data) {
+                // Ensure we have a valid user ID, otherwise treat as guest
+                if (!res.data.id) {
+                    isLoggedIn.value = false;
+                    localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
+                    return;
+                }
+
+                isLoggedIn.value = true;
                 const roles = Array.isArray(res.data.roles) ? res.data.roles : (res.data.roles ? [res.data.roles] : []);
 
                 userInfo.value = {
@@ -323,6 +330,8 @@ onMounted(async () => {
         } catch (error) {
             console.error('Failed to fetch user info', error);
             isLoggedIn.value = false;
+            // Optional: remove token on error if 401
+            // localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
         }
     }
 });

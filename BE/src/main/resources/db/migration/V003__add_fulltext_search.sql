@@ -2,13 +2,39 @@
 -- This migration adds full-text indexes for fast, relevance-ranked search
 -- Expected impact: 50x faster search queries with better relevance
 
+-- ===============================================================
+-- SAFE DROP INDEX PROCEDURE (Handle "IF EXISTS" manually)
+-- ===============================================================
+DROP PROCEDURE IF EXISTS drop_index_if_exists_v3;
+
+DELIMITER $$
+CREATE PROCEDURE drop_index_if_exists_v3(IN idx_name VARCHAR(255), IN tbl_name VARCHAR(255))
+BEGIN
+    DECLARE idx_exists INT DEFAULT 0;
+    
+    SELECT COUNT(*) INTO idx_exists
+    FROM information_schema.statistics
+    WHERE table_schema = DATABASE() 
+    AND table_name = tbl_name 
+    AND index_name = idx_name;
+
+    IF idx_exists > 0 THEN
+        SET @s = CONCAT('DROP INDEX ', idx_name, ' ON ', tbl_name);
+        PREPARE stmt FROM @s;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END $$
+DELIMITER ;
+
 -- ==========================================
 -- APPS TABLE FULL-TEXT SEARCH
 -- ==========================================
 
 -- Add full-text index for product search
 -- Includes name, SKU, and short_description for comprehensive search
--- DROP INDEX ft_app_search ON apps;
+CALL drop_index_if_exists_v3('ft_app_search', 'apps');
+
 ALTER TABLE apps 
 ADD FULLTEXT INDEX ft_app_search (name, sku, short_description);
 
@@ -82,3 +108,8 @@ ADD FULLTEXT INDEX ft_app_search (name, sku, short_description);
 --   AND INDEX_TYPE = 'FULLTEXT'
 -- ORDER BY TABLE_NAME;
 -- ==========================================
+
+-- ==========================================
+-- CLEANUP
+-- ==========================================
+DROP PROCEDURE IF EXISTS drop_index_if_exists_v3;
