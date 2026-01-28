@@ -28,7 +28,7 @@ INSERT INTO `domains` (`id`, `created_at`, `last_modified_date`, `status`, `vers
 -- 2. Insert Technologies
 -- ----------------------------
 -- Deleting by name because unique constraint is on name
-DELETE FROM `technologies` WHERE `name` IN ('Java', 'Spring Boot', 'Vue.js', 'MySQL');
+DELETE FROM `technologies` WHERE `name` IN ('Java', 'Spring Boot', 'Vue.js', 'MySQL', 'Tailwind CSS');
 DELETE FROM `technologies` WHERE `id` IN (
     't0000000-0000-0000-0000-000000000001',
     't0000000-0000-0000-0000-000000000002',
@@ -40,7 +40,8 @@ INSERT INTO `technologies` (`id`, `created_at`, `last_modified_date`, `status`, 
 ('t0000000-0000-0000-0000-000000000001', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Java', 'java-icon'),
 ('t0000000-0000-0000-0000-000000000002', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Spring Boot', 'spring-icon'),
 ('t0000000-0000-0000-0000-000000000003', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Vue.js', 'vue-icon'),
-('t0000000-0000-0000-0000-000000000004', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'MySQL', 'mysql-icon');
+('t0000000-0000-0000-0000-000000000004', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'MySQL', 'mysql-icon'),
+('t0000000-0000-0000-0000-000000000005', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Tailwind CSS', 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg');
 
 -- ----------------------------
 -- 3. Insert Apps
