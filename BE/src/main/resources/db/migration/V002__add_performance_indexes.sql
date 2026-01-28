@@ -120,12 +120,12 @@ CREATE INDEX idx_app_member_customer ON app_members(customer_id);
 -- ==========================================
 
 -- Composite index for technology filtering (most important for many-to-many)
-DROP INDEX idx_app_tech_technology ON app_technologies;
-CREATE INDEX idx_app_tech_technology ON app_technologies(technology_id, app_id);
+-- DROP INDEX idx_app_tech_technology ON app_technologies;
+-- CREATE INDEX idx_app_tech_technology ON app_technologies(technology_id, app_id);
 
 -- Reverse index for app's technologies
-DROP INDEX idx_app_tech_app ON app_technologies;
-CREATE INDEX idx_app_tech_app ON app_technologies(app_id, technology_id);
+-- DROP INDEX idx_app_tech_app ON app_technologies;
+-- CREATE INDEX idx_app_tech_app ON app_technologies(app_id, technology_id);
 
 -- ==========================================
 -- MEDIA_LIBRARY TABLE INDEXES
