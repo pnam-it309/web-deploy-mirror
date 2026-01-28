@@ -1,28 +1,72 @@
 version: "3.8"
 
 services:
-  # Existing PostgreSQL database
-  postgres:
-    image: postgres:15-alpine
-    container_name: udpm-postgres
-    environment:
-      POSTGRES_DB: udpm_catalog
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+  # Frontend - Vue.js Application
+  frontend:
+    build: ./FE
+    container_name: udpm-frontend
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "6789:6789"
+    environment:
+      - VITE_API_URL=http://localhost:9999
+    depends_on:
+      - backend
     networks:
       - app-network
+    restart: always
 
-  # Meilisearch - Open-source search engine
-  meilisearch:
-    image: getmeili/meilisearch:v1.6
+  # Backend - Spring Boot Application
+  backend:
+    build: ./BE
+    container_name: udpm-backend
+    ports:
+      - "9999:9999"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://udpm-mysql:3306/catalog_web?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      MEILI_HOST: http://udpm-meilisearch:7700
+      MEILI_MASTER_KEY: changeme_master_key_for_production
+      spring.data.redis.host: udpm-redis
+      spring.data.redis.port: 6379
+    depends_on:
+      udpm-mysql:
+        condition: service_healthy
+      udpm-redis:
+        condition: service_started
+      udpm-meilisearch:
+        condition: service_started
+    networks:
+      - app-network
+    restart: always
+
+  # Database - MySQL
+  udpm-mysql:
+    image: mysql:8.0
+    container_name: udpm-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: catalog_web
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Meilisearch - Search Engine
+  udpm-meilisearch:
+    image: getmeili/meilisearch:v1.10
     container_name: udpm-meilisearch
     environment:
       MEILI_ENV: development
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-changeme_master_key_for_production}
+      MEILI_MASTER_KEY: changeme_master_key_for_production
       MEILI_NO_ANALYTICS: true
     ports:
       - "7700:7700"
@@ -32,8 +76,8 @@ services:
       - app-network
     restart: unless-stopped
 
-  # Redis for caching (optional but recommended)
-  redis:
+  # Redis - Caching
+  udpm-redis:
     image: redis:7-alpine
     container_name: udpm-redis
     ports:
@@ -45,7 +89,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mysql_data:
   meilisearch_data:
   redis_data:
 

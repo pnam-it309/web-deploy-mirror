@@ -8,7 +8,7 @@
 
 -- Add full-text index for product search
 -- Includes name, SKU, and short_description for comprehensive search
-DROP INDEX ft_app_search ON apps;
+-- DROP INDEX ft_app_search ON apps;
 ALTER TABLE apps 
 ADD FULLTEXT INDEX ft_app_search (name, sku, short_description);
 
