@@ -12,8 +12,8 @@ DROP INDEX idx_app_status ON apps;
 CREATE INDEX idx_app_status ON apps(status);
 
 -- Index for filtering by domain (common in domain pages)
-DROP INDEX idx_app_domain ON apps;
-CREATE INDEX idx_app_domain ON apps(domain_id) USING BTREE;
+-- DROP INDEX idx_app_domain ON apps;
+-- CREATE INDEX idx_app_domain ON apps(domain_id) USING BTREE;
 
 -- Index for sorting by view count (trending, popular products)
 DROP INDEX idx_app_view_count ON apps;
