@@ -249,7 +249,9 @@ const onMobileLoginClick = () => {
 const handleLoginGoogle = () => {
     cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_CUSTOMER, 60 * 5); // 5 mins
     cookieStorageAction.set('redirect_uri', window.location.origin + '/redirect', 60 * 5);
-    window.location.href = `/oauth2/authorization/google`;
+    // Use backend URL for OAuth2 authorization
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:9999';
+    window.location.href = `${backendUrl}/oauth2/authorization/google`;
     closeLoginModal();
 };
 
