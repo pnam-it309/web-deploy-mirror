@@ -24,7 +24,7 @@ public abstract class AuditEntity {
      * - Không thể cập nhật sau khi tạo
      * - Được tự động thiết lập bởi AuditEntityListener
      */
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private Long createdAt;
 
     /**
@@ -32,7 +32,7 @@ public abstract class AuditEntity {
      * - Được tự động cập nhật mỗi khi bản ghi thay đổi
      * - Được quản lý bởi AuditEntityListener
      */
-    @Column
+    @Column(name = "last_modified_date")
     private Long lastModifiedDate;
 
 }
