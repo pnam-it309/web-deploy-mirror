@@ -28,7 +28,7 @@ public class MeilisearchConfig {
     @Value("${meilisearch.host:http://localhost:7700}")
     private String host;
 
-    @Value("${meilisearch.apiKey:changeme_master_key_for_production}")
+    @Value("${meilisearch.apiKey:aeb0835d1729f64c}")
     private String apiKey;
 
     @Bean
