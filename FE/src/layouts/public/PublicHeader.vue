@@ -222,6 +222,7 @@ import { localStorageAction } from '@/utils/storage';
 import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
 import { authService } from '@/services/api/auth.service';
 import { ROLES } from '@/constants/roles';
+import { DOMAIN_BACKEND } from '@/constants/url';
 
 const likeStore = useLikeStore();
 const bookmarkCount = ref(0);
@@ -248,10 +249,10 @@ const onMobileLoginClick = () => {
 
 const handleLoginGoogle = () => {
     cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_CUSTOMER, 60 * 5); // 5 mins
-    cookieStorageAction.set('redirect_uri', window.location.origin + '/redirect', 60 * 5);
-    // Use backend URL for OAuth2 authorization
-    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:9999';
-    window.location.href = `${backendUrl}/oauth2/authorization/google`;
+    const redirectUri = window.location.origin + '/redirect';
+    // Use centralized backend URL logic
+    const backendUrl = DOMAIN_BACKEND || ''; 
+    window.location.href = `${backendUrl}/oauth2/authorization/google?oauth2_redirect_uri=${encodeURIComponent(redirectUri)}`;
     closeLoginModal();
 };
 

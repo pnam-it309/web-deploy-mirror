@@ -87,7 +87,7 @@
                     <div class="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 shrink-0">
                         <div>
                              <h3 class="text-xl font-bold text-gray-900 dark:text-white">Chi tiết thay đổi</h3>
-                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">ID: {{ selectedLog.id }}</p>
+                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">ID: {{ maskId(selectedLog.id) }}</p>
                         </div>
                         <button @click="selectedLog = null" class="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-gray-700 text-gray-500 hover:text-gray-900 dark:hover:text-white shadow-sm hover:shadow transition-all">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,7 +142,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import request from '@/services/request'
-import { formatDateTime } from '@/utils'
+import { formatDateTime, maskId } from '@/utils'
 
 interface AuditLog {
     id: string

@@ -14,4 +14,5 @@ public class FeatureResponse {
     private String status;
     private Integer sortOrder;
     private String appId;
+    private String appName;
 }

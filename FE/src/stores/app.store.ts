@@ -163,6 +163,24 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
+  const downloadTemplate = async () => {
+    isLoading.value = true
+    try {
+      const data = await AppService.downloadTemplate()
+      const url = window.URL.createObjectURL(new Blob([data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `apps_import_template.xlsx`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+    } catch (error) {
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     apps,
     currentApp,
@@ -182,5 +200,6 @@ export const useAppStore = defineStore('app', () => {
     duplicateApp,
     exportApps,
     importApps,
+    downloadTemplate,
   }
 })

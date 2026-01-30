@@ -51,7 +51,13 @@ export const AppService = {
     return response.data
   },
   exportApps: async () => {
-    const response = await apiClient.get('/admin/export/apps', {
+    const response = await apiClient.get('/admin/export/apps/excel', {
+      responseType: 'blob',
+    })
+    return response.data
+  },
+  downloadTemplate: async () => {
+    const response = await apiClient.get('/admin/export/apps/template', {
       responseType: 'blob',
     })
     return response.data
@@ -59,7 +65,7 @@ export const AppService = {
   importApps: async (file: File) => {
     const formData = new FormData()
     formData.append('file', file)
-    const response = await apiClient.post('/admin/import/apps', formData, {
+    const response = await apiClient.post('/admin/export/apps/excel', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

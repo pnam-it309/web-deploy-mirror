@@ -104,31 +104,22 @@ public class SecurityConfig {
         // IMPORTANT: Consolidate ALL authorization rules in ONE place to prevent
         // fallthrough to static resources
         http.authorizeHttpRequests(auth -> auth
-                // 1. Customer API endpoints (FIRST - highest priority)
-                .requestMatchers(appendWildcard(MappingConstants.API_CUSTOMER_PREFIX))
+                // 1. Allow all API endpoints starting with /api/v1/
+                // This covers /api/v1/customer/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/common/**
+                .requestMatchers("/api/v1/**")
                 .permitAll()
 
-                // 2. Admin API endpoints
-                .requestMatchers(appendWildcard(MappingConstants.API_ADMIN_PREFIX))
-                .permitAll()
-
-                // 3. Public/Static Resources and Auth endpoints
+                // 2. Static Resources & Public Endpoints
                 .requestMatchers(
                         "/",
                         "/error",
                         "/favicon.ico",
-                        "/*/*.png",
-                        "/*/*.gif",
-                        "/*/*.svg",
-                        "/*/*.jpg",
-                        "/*/*.html",
-                        "/*/*.css",
-                        "/*/*.js",
+                        "/assets/**",
+                        "/*.png", "/*.gif", "/*.svg", "/*.jpg", 
+                        "/*.html", "/*.css", "/*.js",
                         "/auth/**",
                         "/oauth2/**",
-                        "/login/oauth2/code/**",
-                        appendWildcard(MappingConstants.API_AUTH_PREFIX),
-                        appendWildcard(MappingConstants.API_COMMON))
+                        "/login/oauth2/code/**")
                 .permitAll()
 
                 // 4. Any other request must be authenticated (prevents fallthrough to static

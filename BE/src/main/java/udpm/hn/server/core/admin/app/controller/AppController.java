@@ -87,8 +87,9 @@ public class AppController {
 
     @GetMapping("/github-contributors")
     public ResponseEntity<java.util.List<udpm.hn.server.core.admin.app.dto.response.AppResponse.MemberResponse>> getGithubContributors(
-            @RequestParam("url") String url) {
-        return ResponseEntity.ok(appService.getGithubContributors(url));
+            @RequestParam("url") String url,
+            @RequestParam(value = "token", required = false) String token) {
+        return ResponseEntity.ok(appService.getGithubContributors(url, token));
     }
 
     @PostMapping("/{id}/duplicate")

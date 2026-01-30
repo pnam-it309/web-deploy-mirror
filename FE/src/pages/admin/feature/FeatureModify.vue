@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { FeatureService } from '@/services/admin/feature.service';
 import { AppService } from '@/services/admin/app.service';
 import { toast } from 'vue3-toastify';
+import { decodeId } from '@/utils';
 
 
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -17,6 +18,7 @@ import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
 const route = useRoute();
 const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
+const featureId = computed(() => decodeId(route.params.id as string));
 const apps = ref<any[]>([]);
 
 const form = reactive({
@@ -39,7 +41,7 @@ onMounted(async () => {
     if (isEdit.value) {
       const all = await FeatureService.getAll();
       if (Array.isArray(all)) {
-        const found = all.find((f: any) => f.id === route.params.id);
+        const found = all.find((f: any) => f.id === featureId.value);
         if (found) {
           Object.assign(form, found);
           if (!form.status) form.status = 'ACTIVE';

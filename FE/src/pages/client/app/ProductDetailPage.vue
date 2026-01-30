@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { getProductDetail, incrementViewCount, type ProductDetail } from '@/services/client/client.service';
+import { decodeId, encodeId } from '@/utils';
 import { getRelatedProducts } from '@/services/client/app.service';
 import BaseButton from '@/components/base/BaseButton.vue';
 import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
@@ -16,7 +17,7 @@ const isLoading = ref(true);
 
 const fetchProduct = async () => {
     try {
-        const id = route.params.id as string;
+        const id = decodeId(route.params.id as string);
         if (!id) return;
         const res = await getProductDetail(id);
         if (res) {
@@ -297,7 +298,7 @@ const isVideo = (url?: string) => {
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <router-link v-for="relatedProduct in relatedProducts" :key="relatedProduct.id"
-                        :to="`/products/${relatedProduct.id}`"
+                        :to="`/apps/${encodeId(relatedProduct.id)}`"
                         class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-yellow-500">
                         <div class="aspect-video bg-gray-100 overflow-hidden relative">
                             <img v-if="relatedProduct.thumbnail" :src="relatedProduct.thumbnail"

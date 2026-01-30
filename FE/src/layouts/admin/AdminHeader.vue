@@ -20,11 +20,92 @@
 
     <!-- Right: Actions & Profile -->
     <div class="flex items-center gap-3 sm:gap-6">
-      <button class="p-2.5 text-gray-400 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all relative group">
-        <BellIcon class="w-6 h-6 transition-transform group-hover:rotate-12" />
-        <span
-          class="absolute top-2.5 right-3 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800 transform translate-x-1/2 -translate-y-1/2 shadow-sm"></span>
+      <button @click="themeStore.toggleTheme" class="p-2.5 text-gray-400 hover:text-yellow-500 dark:text-gray-400 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-xl transition-all">
+          <SunIcon v-if="themeStore.theme === 'dark'" class="w-6 h-6" />
+          <MoonIcon v-else class="w-6 h-6" />
       </button>
+
+      <div class="relative" ref="notificationRef">
+        <button @click="toggleNotification" class="p-2.5 text-gray-400 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all relative group">
+          <BellIcon class="w-6 h-6 transition-transform group-hover:rotate-12" />
+          <span
+            v-if="notificationStore.unreadCount > 0"
+            class="absolute top-2.5 right-3 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800 transform translate-x-1/2 -translate-y-1/2 shadow-sm animate-pulse"></span>
+        </button>
+
+        <!-- Notification Dropdown -->
+        <transition enter-active-class="transition ease-out duration-100"
+          enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+          leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
+          leave-to-class="transform opacity-0 scale-95">
+          <div v-if="isNotificationOpen"
+            class="absolute right-0 mt-4 w-80 sm:w-96 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-black/50 overflow-hidden z-50 origin-top-right ring-1 ring-black/5">
+            
+            <div class="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-sm">
+              <h3 class="font-bold text-gray-900 dark:text-white">Thông báo</h3>
+              <button 
+                v-if="notificationStore.unreadCount > 0"
+                @click.stop="notificationStore.markAllAsRead" 
+                class="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline"
+              >
+                Đánh dấu tất cả đã đọc
+              </button>
+            </div>
+
+            <div class="max-h-[400px] overflow-y-auto custom-scrollbar">
+              <div v-if="notificationStore.notifications.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+                <BellIcon class="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p class="text-sm">Không có thông báo nào</p>
+              </div>
+
+              <div 
+                v-for="item in notificationStore.notifications" 
+                :key="item.id"
+                class="group relative p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-50 dark:border-gray-700/50 last:border-0 cursor-pointer"
+                :class="{ 'bg-blue-50/30 dark:bg-blue-900/10': !item.read }"
+                @click="notificationStore.markAsRead(item.id)"
+              >
+                <div class="flex gap-3">
+                  <div class="shrink-0 mt-0.5">
+                    <span 
+                      class="w-8 h-8 flex items-center justify-center rounded-full shadow-sm"
+                      :class="{
+                        'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400': item.type === 'success',
+                        'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400': item.type === 'error',
+                        'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400': item.type === 'warning',
+                        'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': item.type === 'info',
+                      }"
+                    >
+                       <CheckCircleIcon v-if="item.type === 'success'" class="w-5 h-5" />
+                       <XCircleIcon v-if="item.type === 'error'" class="w-5 h-5" />
+                       <ExclamationCircleIcon v-if="item.type === 'warning'" class="w-5 h-5" />
+                       <InformationCircleIcon v-if="item.type === 'info'" class="w-5 h-5" />
+                    </span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-900 dark:text-gray-100 mb-1 leading-snug break-words" :class="{ 'font-semibold': !item.read }">
+                      {{ item.message }}
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                      {{ new Date(item.timestamp).toLocaleString('vi-VN') }}
+                    </p>
+                  </div>
+                  <div v-if="!item.read" class="shrink-0 self-center">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full block ring-2 ring-white dark:ring-gray-800"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+             <div class="p-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 text-center flex justify-center">
+               <button @click.stop="notificationStore.clearAll" class="text-xs text-gray-500 hover:text-red-500 transition-colors w-full py-1 flex items-center justify-center gap-1 group">
+                 <TrashIcon class="w-3 h-3 group-hover:scale-110 transition-transform"/>
+                 Xóa tất cả lịch sử
+               </button>
+             </div>
+          </div>
+        </transition>
+      </div>
 
       <div class="h-8 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
 
@@ -81,14 +162,22 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useSidebarStore } from '@/stores/sidebar.store';
+import { useThemeStore } from '@/stores/theme.store';
+import { useNotificationStore } from '@/stores/notification.store';
 import AdminAvatar from '@/components/admin/AdminAvatar.vue';
-import { BellIcon, ChevronDownIcon, ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
+import { BellIcon, ChevronDownIcon, ArrowRightStartOnRectangleIcon, SunIcon, MoonIcon, CheckCircleIcon, XCircleIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import { authService } from '@/services/api/auth.service';
 
 const sidebarStore = useSidebarStore();
+const themeStore = useThemeStore();
+const notificationStore = useNotificationStore();
+
 const isDropdownOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
+
+const isNotificationOpen = ref(false);
+const notificationRef = ref<HTMLElement | null>(null);
 
 const userInfo = ref({
   name: 'Admin',
@@ -98,16 +187,32 @@ const userInfo = ref({
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
+  if (isDropdownOpen.value) {
+     isNotificationOpen.value = false;
+  }
 };
 
-const closeDropdown = (event: MouseEvent) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+const toggleNotification = () => {
+  isNotificationOpen.value = !isNotificationOpen.value;
+  if (isNotificationOpen.value) {
+     isDropdownOpen.value = false;
+  }
+};
+
+const closeDropdowns = (event: MouseEvent) => {
+  const target = event.target as Node;
+  
+  if (dropdownRef.value && !dropdownRef.value.contains(target)) {
     isDropdownOpen.value = false;
+  }
+  
+  if (notificationRef.value && !notificationRef.value.contains(target)) {
+    isNotificationOpen.value = false;
   }
 };
 
 onMounted(async () => {
-  document.addEventListener('click', closeDropdown);
+  document.addEventListener('click', closeDropdowns);
 
   try {
     const res = await authService.getCurrentUser();
@@ -124,6 +229,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', closeDropdown);
+  document.removeEventListener('click', closeDropdowns);
 });
 </script>

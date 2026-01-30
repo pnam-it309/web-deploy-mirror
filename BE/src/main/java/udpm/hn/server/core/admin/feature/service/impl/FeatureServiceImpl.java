@@ -27,18 +27,32 @@ public class FeatureServiceImpl implements FeatureService {
 
     // --- BỔ SUNG HÀM NÀY ĐỂ HẾT LỖI 500/405 ---
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<FeatureResponse> getAllFeatures() {
         // Lấy tất cả và sắp xếp theo thứ tự hiển thị (sortOrder)
         return featureRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder")).stream()
-                .map(f -> modelMapper.map(f, FeatureResponse.class))
+                .map(f -> {
+                    FeatureResponse res = modelMapper.map(f, FeatureResponse.class);
+                    if (f.getApp() != null) {
+                        res.setAppName(f.getApp().getName());
+                    }
+                    return res;
+                })
                 .collect(Collectors.toList());
     }
     // ------------------------------------------
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<FeatureResponse> getFeaturesByAppId(String appId) {
         return featureRepository.findByAppIdOrderBySortOrderAsc(appId).stream()
-                .map(f -> modelMapper.map(f, FeatureResponse.class))
+                .map(f -> {
+                    FeatureResponse res = modelMapper.map(f, FeatureResponse.class);
+                     if (f.getApp() != null) {
+                        res.setAppName(f.getApp().getName());
+                    }
+                    return res;
+                })
                 .collect(Collectors.toList());
     }
 

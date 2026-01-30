@@ -3,10 +3,13 @@ import axios from 'axios'
 import { localStorageAction } from '@/utils/storage'
 import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey'
 
+import { DOMAIN_BACKEND } from '@/constants/url'
+
 // 2. TẠO AXIOS CLIENT TRUNG TÂM
 const apiClient = axios.create({
-  // baseURL này sẽ được Proxy (vite.config.ts) "bắt" lấy
-  baseURL: '/api/v1',
+  // baseURL này sẽ được Proxy (vite.config.ts) "bắt" lấy ở local
+  // và trỏ thẳng tới backend ở production
+  baseURL: `${DOMAIN_BACKEND}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },

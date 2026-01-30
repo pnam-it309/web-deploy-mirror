@@ -9,11 +9,15 @@ import BasePagination from '@/components/base/BasePagination.vue';
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
-import AppFilter from '@/components/admin/app/AppFilter.vue';
+// import AppFilter from '@/components/admin/app/AppFilter.vue'; // Removed
 import AppTable from '@/components/admin/app/AppTable.vue';
 import type { Domain } from '@/types/admin.types';
 import { toast } from 'vue3-toastify';
+import { encodeId } from '@/utils';
 import { ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/outline';
+import AdminToolbar from '@/components/admin/common/AdminToolbar.vue';
+import BaseSelect from '@/components/base/BaseSelect.vue';
+import { reactive, computed } from 'vue'; // Ensure computed/reactive are imported
 
 const router = useRouter();
 const appStore = useAppStore();
@@ -40,6 +44,39 @@ const loadDomains = async () => {
   } catch (e) { console.error(e); }
 };
 
+const domainOptions = computed(() => domains.value.map(d => ({ label: d.name, value: d.id })));
+
+const statusOptions = [
+  { label: 'Đã duyệt (Approved)', value: 'APPROVED' },
+  { label: 'Chờ duyệt (Pending)', value: 'PENDING' },
+  { label: 'Nháp (Draft)', value: 'DRAFT' },
+  { label: 'Từ chối (Rejected)', value: 'REJECTED' },
+  { label: 'Lưu trữ (Archived)', value: 'ARCHIVED' }
+];
+
+const filter = reactive({
+  keyword: '',
+  domainId: '',
+  status: ''
+});
+
+const handleSearch = () => {
+  appStore.setFilter({ 
+    query: filter.keyword,
+    domainId: filter.domainId || undefined,
+    status: filter.status || undefined,
+    page: 1 // Reset page
+  });
+};
+
+const handleResetFilter = () => {
+  filter.keyword = '';
+  filter.domainId = '';
+  filter.status = '';
+  handleSearch();
+};
+
+
 const handleDuplicate = async (id: string) => {
   try {
     if (confirm('Bạn có chắc chắn muốn nhân bản dự án này?')) {
@@ -57,6 +94,15 @@ const handleExport = async () => {
     toast.success("Export thành công!");
   } catch (error) {
     toast.error("Export thất bại");
+  }
+};
+
+const downloadTemplateData = async () => {
+  try {
+    await appStore.downloadTemplate();
+    toast.success("Tải mẫu thành công!");
+  } catch (error) {
+    toast.error("Tải mẫu thất bại");
   }
 };
 
@@ -106,10 +152,6 @@ const handleBatchStatus = async (status: string) => {
 
 
 // Handlers
-const handleFilter = (filter: any) => {
-  appStore.setFilter(filter);
-};
-
 const handlePageChange = (page: number) => {
   appStore.setFilter({ page });
 };
@@ -118,7 +160,7 @@ const handlePageChange = (page: number) => {
 const navigateToCreate = () => router.push({ name: 'AdminAppCreate' });
 
 // Điều hướng sang trang Edit (AppModify)
-const navigateToEdit = (id: string) => router.push({ name: 'AdminAppEdit', params: { id } });
+const navigateToEdit = (id: string) => router.push({ name: 'AdminAppEdit', params: { id: encodeId(id) } });
 
 const confirmDelete = (id: string) => {
   deleteId.value = id;
@@ -138,9 +180,15 @@ const handleDelete = async () => {
 
 <template>
   <div class="p-6 h-full flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <div class="mb-6 shrink-0">
-      <div class="flex justify-between items-center mt-2">
-        <div class="flex gap-3">
+    <div class="shrink-0 mb-4">
+      <AdminToolbar
+        v-model="filter.keyword"
+        placeholder="Tìm theo tên sản phẩm, mã SKU..."
+        @update:model-value="handleSearch"
+        @create="navigateToCreate"
+        @reset="handleResetFilter"
+      >
+        <template #actions>
           <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleImport" />
           <BaseButton variant="outline" @click="triggerImport" title="Import Excel" class="flex items-center gap-2">
             <ArrowDownTrayIcon class="w-4 h-4" /> Import
@@ -148,8 +196,36 @@ const handleDelete = async () => {
           <BaseButton variant="outline" @click="handleExport" title="Export Excel" class="flex items-center gap-2">
             <ArrowUpTrayIcon class="w-4 h-4" /> Export
           </BaseButton>
+          <BaseButton variant="outline" @click="downloadTemplateData" title="Tải mẫu Import" class="flex items-center gap-2">
+            <ArrowDownTrayIcon class="w-4 h-4" /> Bản mẫu
+          </BaseButton>
+        </template>
+        
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+            Lĩnh vực
+          </label>
+          <BaseSelect
+            v-model="filter.domainId"
+            :options="domainOptions"
+            placeholder="Tất cả lĩnh vực"
+            @update:model-value="handleSearch"
+            class="w-full"
+          />
         </div>
-      </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+            Trạng thái
+          </label>
+          <BaseSelect
+            v-model="filter.status"
+            :options="statusOptions"
+            placeholder="Tất cả trạng thái"
+            @update:model-value="handleSearch"
+            class="w-full"
+          />
+        </div>
+      </AdminToolbar>
     </div>
 
     <!-- Batch Actions Bar -->
@@ -168,10 +244,6 @@ const handleDelete = async () => {
         <BaseButton size="sm" class="bg-gray-500 text-white hover:bg-gray-600 border-gray-500 shadow-sm"
           @click="handleBatchStatus('DRAFT')">Về Nháp</BaseButton>
       </div>
-    </div>
-
-    <div class="shrink-0 mb-6">
-      <AppFilter :domains="domains" @filter="handleFilter" @create="navigateToCreate" />
     </div>
 
     <div v-if="appStore.isLoading" class="flex-1 flex justify-center items-center">

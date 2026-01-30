@@ -21,7 +21,6 @@ export default defineConfig({
       '/api/v1': {
         target: 'http://localhost:9999', // Port Backend (Spring)
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/v1/, ''),
       },
 
       // 2. Làn đường MỚI cho Login Google

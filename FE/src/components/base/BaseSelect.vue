@@ -27,7 +27,7 @@ defineEmits(['update:modelValue']);
                appearance-none cursor-pointer text-sm transition-all duration-300"
         :class="{ 'text-gray-400': !modelValue, 'border-red-500': error }"
       >
-        <option value="" disabled selected>{{ placeholder || 'Chọn một tùy chọn' }}</option>
+        <option value="">{{ placeholder || 'Chọn một tùy chọn' }}</option>
         <option v-for="opt in options" :key="opt.value" :value="opt.value">
           {{ opt.label }}
         </option>

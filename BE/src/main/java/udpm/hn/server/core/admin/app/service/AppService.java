@@ -32,7 +32,7 @@ public interface AppService {
                         java.util.List<udpm.hn.server.core.admin.app.dto.request.HomepageOrderRequest> requests);
 
         java.util.List<udpm.hn.server.core.admin.app.dto.response.AppResponse.MemberResponse> getGithubContributors(
-                        String url);
+                        String url, String token);
 
         AppResponse duplicateApp(String id);
 

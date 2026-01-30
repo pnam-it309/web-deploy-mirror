@@ -13,26 +13,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Explicitly configure static resource locations
-        // This prevents Spring Boot's default resource handler from
-        // intercepting API requests like /customer/apps, /customer/technologies, etc.
+        // 1. Disable default resource handling for generic paths to avoid conflicts with APIs
         
-        registry.addResourceHandler(
-                "/static/**",
-                "/assets/**",
-                "/css/**",
-                "/js/**",
-                "/images/**",
-                "/favicon.ico"
-        )
-        .addResourceLocations(
-                "classpath:/static/",
-                "classpath:/public/",
-                "classpath:/resources/",
-                "classpath:/META-INF/resources/"
-        );
-        
-        // Important: Do NOT add a catch-all /** resource handler
-        // This would cause API paths to be treated as static resources
+        // 2. Explicitly map static resources
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
+                
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations("classpath:/static/assets/");
+                
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:/static/favicon.ico");
+
+        // 3. DO NOT map /** or root paths here. 
+        // Let the DispatcherServlet handle everything else, which will route to Controllers.
     }
 }

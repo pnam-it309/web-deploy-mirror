@@ -33,4 +33,20 @@ export const FeatureService = {
   updateOrder: async (orders: FeatureOrderRequest[] | { id: string; sortOrder: number }[]) => {
     await apiClient.put(`${BASE_URL}/bulk-update-order`, orders)
   },
+  downloadTemplate: async () => {
+    const response = await apiClient.get('/admin/export/features/template', { responseType: 'blob' })
+    return response.data
+  },
+  exportExcel: async () => {
+    const response = await apiClient.get('/admin/export/features/excel', { responseType: 'blob' })
+    return response.data
+  },
+  importExcel: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post('/admin/export/features/excel', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
+  },
 }

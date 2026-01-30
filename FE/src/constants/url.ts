@@ -43,7 +43,8 @@ export const SCREEN_ROLE_CUSTOMER = ROLES.CUSTOMER
 
 // Use proxy in development, direct URL in production
 // Khi dùng axios instance đã có baseURL='/api/v1', ta không cần prefix '/api/v1' ở đây nữa
-export const API_URL = import.meta.env.VITE_API_BASE_URL || ''
+// Update: Ensure API_URL always includes /api/v1 derived from DOMAIN_BACKEND
+export const API_URL = `${DOMAIN_BACKEND}/api/v1`
 
 // AUTH API
 export const PREFIX_API_AUTH = `/auth` as string

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useSidebarStore } from '@/stores/sidebar.store';
 import { DomainService } from '@/services/admin/domain.service';
 import { toast } from 'vue3-toastify';
+import { decodeId } from '@/utils';
 
 
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -32,7 +33,8 @@ onMounted(async () => {
   if (isEdit.value) {
     isLoading.value = true;
     const all = await DomainService.getAll();
-    const found = all.find((d: any) => d.id === route.params.id);
+    const domainId = decodeId(route.params.id as string);
+    const found = all.find((d: any) => d.id === domainId);
     if (found) Object.assign(form, found);
 
     // Nếu dữ liệu cũ chưa có color thì set mặc định

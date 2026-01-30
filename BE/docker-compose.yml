@@ -18,6 +18,10 @@ services:
 
       # App config
       SERVER_PORT: 9999
+
+      # Meilisearch config
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: aeb0835d1729f64c
     depends_on:
       mysqldb:
         condition: service_healthy
@@ -50,7 +54,7 @@ services:
     image: redis:alpine
     container_name: redis-cache
     ports:
-      - "6380:6379"
+      - "6379:6379"
     networks:
       - app-network
     restart: always
@@ -61,7 +65,7 @@ services:
     ports:
       - "7700:7700"
     environment:
-      - MEILI_MASTER_KEY=aeb0835d1729f64c
+      MEILI_MASTER_KEY: aeb0835d1729f64c
     volumes:
       - meilisearch-data:/meili_data
     networks:

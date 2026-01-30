@@ -3,6 +3,7 @@ import { reactive, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { TechnologyService } from '@/services/admin/technology.service';
 import { toast } from 'vue3-toastify';
+import { decodeId } from '@/utils';
 
 
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -17,7 +18,8 @@ const form = reactive({ id: '', name: '', icon: '' });
 onMounted(async () => {
   if (isEdit.value) {
     const all = await TechnologyService.getAll();
-    const found = all.find((d: any) => d.id === route.params.id);
+    const techId = decodeId(route.params.id as string);
+    const found = all.find((d: any) => d.id === techId);
     if (found) Object.assign(form, found);
   }
 });

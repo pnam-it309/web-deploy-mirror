@@ -1,6 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { ROUTES_CONSTANTS } from '@/constants/path'
 
+/**
+ * ID Obfuscation Strategy:
+ * To hide raw database IDs from the URL, we use @/utils/security (encodeId/decodeId).
+ * Components should encode the ID before navigation and decode it when reading route.params.
+ */
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: ROUTES_CONSTANTS.CUSTOMER.path,
@@ -54,12 +60,6 @@ const routes: Array<RouteRecordRaw> = [
         name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name,
         component: () => import('@/pages/admin/dashboard/AdminDashboardView.vue'),
         meta: { title: 'Tổng quan hệ thống' },
-      },
-      {
-        path: 'homepage-config',
-        name: 'AdminHomepageConfig',
-        component: () => import('@/pages/admin/dashboard/AdminHomepageConfig.vue'),
-        meta: { title: 'Cấu hình Trang chủ' },
       },
       {
         path: ROUTES_CONSTANTS.ADMIN.children.APPS.path,

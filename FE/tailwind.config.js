@@ -6,6 +6,13 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      'sm': '640px',
+      'md': '768px',
+      'lg': '900px',
+      'xl': '1150px',
+      '2xl': '1440px',
+    },
     container: {
       center: true,
       padding: {
@@ -16,7 +23,7 @@ export default {
         '2xl': '6rem',
       },
       screens: {
-        '2xl': '1400px', // Restrict max width to 1400px for consistency on 14" screens
+        '2xl': '1400px',
       }
     },
     extend: {

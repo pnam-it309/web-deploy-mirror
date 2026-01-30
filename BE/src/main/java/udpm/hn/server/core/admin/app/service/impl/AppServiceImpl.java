@@ -382,26 +382,53 @@ public class AppServiceImpl implements AppService {
         }
     }
 
+    @org.springframework.beans.factory.annotation.Value("${github.api.token:}")
+    private String githubToken;
+
     @Override
-    public List<AppResponse.MemberResponse> getGithubContributors(String url) {
-        if (url == null || !url.contains("github.com/")) {
+    public List<AppResponse.MemberResponse> getGithubContributors(String url, String passedToken) {
+        if (url == null || !url.contains("github.com")) {
             return new ArrayList<>();
         }
 
         try {
-            // Extract owner and repo: https://github.com/owner/repo
-            String[] parts = url.split("github.com/")[1].split("/");
-            if (parts.length < 2)
-                return new ArrayList<>();
-            String owner = parts[0];
-            String repo = parts[1].replace(".git", ""); // Clean .git extension if present
+            // Robust parsing
+            // Remove protocol
+            String cleanUrl = url.replace("https://", "").replace("http://", "").replace("www.", "");
+            // cleanUrl should be "github.com/owner/repo..."
+            if (!cleanUrl.startsWith("github.com/")) {
+                 return new ArrayList<>();
+            }
+            
+            String[] parts = cleanUrl.split("/");
+            // parts[0] = github.com
+            // parts[1] = owner
+            // parts[2] = repo (possibly with .git)
+            
+            if (parts.length < 3) return new ArrayList<>();
+            
+            String owner = parts[1];
+            String repo = parts[2].replace(".git", "");
+            
+            // Handle query params if any (?)
+            if (repo.contains("?")) {
+                repo = repo.split("\\?")[0];
+            }
 
             String apiUrl = String.format("https://api.github.com/repos/%s/%s/contributors", owner, repo);
 
             org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
-            // Need to set User-Agent as GitHub API requires it
             org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
             headers.set("User-Agent", "Java-App");
+            headers.set("Accept", "application/vnd.github+json");
+            
+            // Priority: Passed Token > System Config Token
+            String tokenToUse = (passedToken != null && !passedToken.isEmpty()) ? passedToken : githubToken;
+
+            if (tokenToUse != null && !tokenToUse.isEmpty()) {
+                headers.set("Authorization", "Bearer " + tokenToUse);
+            }
+
             org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
 
             org.springframework.http.ResponseEntity<java.util.List> response = restTemplate.exchange(
@@ -410,8 +437,7 @@ public class AppServiceImpl implements AppService {
                     entity,
                     java.util.List.class);
 
-            if (response.getBody() == null)
-                return new ArrayList<>();
+            if (response.getBody() == null) return new ArrayList<>();
 
             List<AppResponse.MemberResponse> list = new ArrayList<>();
             for (Object obj : response.getBody()) {
@@ -419,23 +445,27 @@ public class AppServiceImpl implements AppService {
                     java.util.Map<String, Object> map = (java.util.Map<String, Object>) obj;
                     String login = (String) map.get("login");
                     String avatar = (String) map.get("avatar_url");
+                    // String type = (String) map.get("type"); // Could check if User or Bot
 
-                    if (login == null)
-                        continue;
+                    if (login == null) continue;
 
                     AppResponse.MemberResponse member = new AppResponse.MemberResponse();
-                    // We map login as the input for guest email/id
-                    member.setCustomerId(null); // Guest
+                    member.setCustomerId(null);
                     member.setIsGuest(true);
                     member.setFullName(login);
-                    member.setEmail(login + "@github.com"); // Dummy email as unique ID
+                    member.setEmail(login + "@github.com");
                     member.setAvatar(avatar);
                     member.setRole("MEMBER");
                     list.add(member);
                 }
             }
             return list;
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            System.err.println("GitHub API Error for URL " + url + ": " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+             // e.g., 403 Rate Limit, 404 Not Found
+            return new ArrayList<>();
         } catch (Exception e) {
+            System.err.println("Error fetching GitHub contributors: " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }

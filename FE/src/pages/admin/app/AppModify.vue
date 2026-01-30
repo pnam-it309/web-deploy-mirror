@@ -6,6 +6,7 @@ import { DomainService } from '@/services/admin/domain.service';
 import { TechnologyService } from '@/services/admin/technology.service';
 import type { AdminAppCreateRequest, AdminAppUpdateRequest, AppDetailUpdateRequest, Domain, Technology } from '@/types/admin.types';
 import { toast } from 'vue3-toastify';
+import { decodeId } from '@/utils';
 
 // Components
 
@@ -20,12 +21,13 @@ import AppFormImages from '@/components/admin/app/AppFormImages.vue';
 import MediaUpload from '@/components/common/MediaUpload.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
 import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
+import BaseSpinner from '@/components/base/BaseSpinner.vue';
 
 const route = useRoute();
 const router = useRouter();
 const appStore = useAppStore();
 
-const appId = route.params.id as string;
+const appId = decodeId(route.params.id as string);
 const isEdit = computed(() => !!appId);
 const domains = ref<Domain[]>([]);
 const technologies = ref<Technology[]>([]);
@@ -141,43 +143,62 @@ const validateURLs = () => {
   return true;
 };
 
+const githubToken = ref('');
+const githubError = ref('');
+const isFetchingGithub = ref(false);
+
 const fetchGithubContributors = async (url: string) => {
   if (!url || !url.includes('github.com')) return;
+  isFetchingGithub.value = true;
+  githubError.value = '';
 
   try {
-    const res = await apiClient.get('/admin/apps/github-contributors', {
-      params: { url }
-    });
+    const params: any = { url };
+    if (githubToken.value) {
+      params.token = githubToken.value;
+    }
+
+    const res = await apiClient.get('/admin/apps/github-contributors', { params });
 
     if (res.data && res.data.length > 0) {
       const newMembers = res.data.map((m: any) => ({
-        customerId: m.fullName + "@github.com", // Unique ID strategy
+        customerId: m.fullName + "@github.com",
         role: 'MEMBER',
         _tempName: m.fullName,
         _tempEmail: m.email,
         _tempAvatar: m.avatar
       }));
 
-      // Merge unique members
       const currentIds = new Set(form.members.map(m => m.customerId));
       const toAdd = newMembers.filter((m: any) => !currentIds.has(m.customerId));
 
       if (toAdd.length > 0) {
         form.members = [...form.members, ...toAdd];
         toast.success(`Đã tự động thêm ${toAdd.length} thành viên từ GitHub!`);
+      } else {
+         toast.info("Đã tìm thấy repo nhưng không có thành viên mới (hoặc đã có trong danh sách).");
       }
+    } else {
+        // Empty list usually means empty repo or no contributors found (or private without token but API returned 200 empty?)
+        // Actually our backend returns empty list on error.
+        githubError.value = "Không tìm thấy thành viên. Nếu repo Private, hãy nhập Token.";
     }
-  } catch (e) {
+  } catch (e: any) {
     console.error("Failed to fetch contributors", e);
+    githubError.value = "Không thể truy cập. Repo Private cần Token cá nhân (nếu Token hệ thống không đủ quyền).";
+  } finally {
+    isFetchingGithub.value = false;
   }
 };
 
 // Debounce the fetch action to avoid spamming while typing
-const debouncedFetch = _.debounce(fetchGithubContributors, 1000);
+const debouncedFetch = _.debounce((url) => fetchGithubContributors(url), 1000);
 
 watch(() => form.sourceUrl, (newVal) => {
   if (newVal && newVal.includes('github.com')) {
     debouncedFetch(newVal);
+  } else {
+    githubError.value = '';
   }
 });
 
@@ -253,16 +274,23 @@ const showPreviewModal = ref(false);
 const previewUrl = ref('');
 
 const handlePreview = async () => {
-  if (!appId) {
+  const currentAppId = route.params.id as string;
+  if (!currentAppId) {
     toast.error("Chưa lưu dự án. Vui lòng lưu trước khi xem preview.");
     return;
   }
   try {
-    const res = await apiClient.post(`/admin/preview/${appId}/generate-token`);
-    const token = res.data.token;
-    previewUrl.value = `${window.location.origin}/preview/${token}`;
-    showPreviewModal.value = true;
+    const res = await apiClient.post(`/admin/preview/${currentAppId}/generate-token`);
+    const token = res.data.token || (res.data.data && res.data.data.token);
+    
+    if (token) {
+        previewUrl.value = `${window.location.origin}/preview/${token}`;
+        showPreviewModal.value = true;
+    } else {
+        toast.error("Không nhận được token preview từ server.");
+    }
   } catch (error) {
+    console.error(error);
     toast.error("Không thể tạo preview link");
   }
 };
@@ -343,7 +371,55 @@ const isValidYoutube = (url?: string) => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <BaseInput v-model="form.demoUrl" label="Link Demo (URL)" placeholder="https://..." class="dark:text-white" />
-            <BaseInput v-model="form.sourceUrl" label="Source Code (Git)" placeholder="https://github.com/..." class="dark:text-white" />
+            <div class="space-y-2">
+              <BaseInput v-model="form.sourceUrl" label="Source Code (Git)" placeholder="https://github.com/..." class="dark:text-white" />
+              
+              <!-- GitHub Private Repo Handler -->
+              <div v-if="githubError" class="mt-3 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg animate-fade-in-down">
+                <div class="flex gap-3 mb-3">
+                   <div class="flex-shrink-0 text-orange-500 mt-0.5">
+                     <i class='bx bx-lock-alt text-xl'></i>
+                   </div>
+                   <div>
+                     <p class="text-sm font-semibold text-orange-800 dark:text-orange-200">
+                       Repo này có thể là Riêng tư (Private)
+                     </p>
+                     <p class="text-xs text-orange-600 dark:text-orange-300 mt-1">
+                       Chúng tôi không tìm thấy thành viên. Vui lòng cung cấp Access Token để truy cập.
+                     </p>
+                   </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                   <input 
+                     v-model="githubToken"
+                     type="password" 
+                     placeholder="Dán GitHub Token..." 
+                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-sm"
+                   />
+                   <div class="flex justify-end">
+                     <button 
+                       @click="() => fetchGithubContributors(form.sourceUrl)"
+                       :disabled="isFetchingGithub"
+                       class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex items-center justify-center gap-2"
+                     >
+                       <i v-if="isFetchingGithub" class='bx bx-loader-alt animate-spin'></i>
+                       {{ isFetchingGithub ? 'Đang thử...' : 'Thử lại' }}
+                     </button>
+                   </div>
+                </div>
+                
+                <div class="mt-2 text-right">
+                  <a href="https://github.com/settings/tokens" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+                    Cách lấy Token? <i class='bx bx-link-external'></i>
+                  </a>
+                </div>
+              </div>
+              <div v-else-if="isFetchingGithub" class="text-xs text-blue-500 flex items-center gap-1 mt-1 pl-1">
+                 <BaseSpinner size="sm" class="w-3 h-3" />
+                 Đang tải thành viên từ GitHub...
+              </div>
+            </div>
           </div>
 
           <BaseTextarea v-model="form.longDescription" label="Bài viết chi tiết" :rows="6"

@@ -1,15 +1,15 @@
 package udpm.hn.server.infrastructure.constant;
 
 public final class MappingConstants {
-    public static final String API_AUTH_PREFIX = "/auth";
+    public static final String API_AUTH_PREFIX = "/api/v1/auth";
 
     // Các tiền tố GỐC của ứng dụng
-    public static final String ADMIN = "/admin";
-    public static final String CUSTOMER = "/customer";
+    public static final String ADMIN = "/api/v1/admin";
+    public static final String CUSTOMER = "/api/v1/customer";
 
     public static final String API_ADMIN_PREFIX = ADMIN;
     public static final String API_CUSTOMER_PREFIX = CUSTOMER;
-    public static final String API_COMMON = "/common";
+    public static final String API_COMMON = "/api/v1/common";
 
     // --- ADMIN MODULES ---
     public static final String API_ADMIN_DOMAIN = API_ADMIN_PREFIX + "/domains";

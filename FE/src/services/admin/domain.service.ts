@@ -34,4 +34,20 @@ export const DomainService = {
   updateOrder: async (orders: DomainOrderRequest[] | { id: string; sortOrder: number }[]) => {
     await apiClient.put(`${BASE_URL}/bulk-update-order`, orders)
   },
+  downloadTemplate: async () => {
+    const response = await apiClient.get('/admin/export/domains/template', { responseType: 'blob' })
+    return response.data
+  },
+  exportExcel: async () => {
+    const response = await apiClient.get('/admin/export/domains/excel', { responseType: 'blob' })
+    return response.data
+  },
+  importExcel: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await apiClient.post('/admin/export/domains/excel', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
+  },
 }

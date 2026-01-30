@@ -14,7 +14,13 @@ const list = computed({
 
 const onDragChange = () => emit('reorder');
 
-const getAppName = (appId: string, apps: any[]) => {
+const getAppName = (item: any, apps: any[]) => {
+  if (item.appName) return item.appName;
+  if (item.app && item.app.name) return item.app.name;
+  
+  const appId = item.appId || (item.app && item.app.id);
+  if (!appId) return 'Unknown';
+
   const app = apps.find(a => a.id === appId);
   return app ? app.name : 'Unknown';
 };
@@ -46,7 +52,7 @@ const getAppName = (appId: string, apps: any[]) => {
               <div class="font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{{ item.name }}</div>
               <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{{ item.description }}</div>
             </td>
-            <td class="py-4 px-6 text-sm text-primary font-medium whitespace-nowrap">{{ getAppName(item.appId, apps) }}</td>
+            <td class="py-4 px-6 text-sm text-primary font-medium whitespace-nowrap">{{ getAppName(item, apps) }}</td>
             <td class="py-4 px-6 whitespace-nowrap">
               <span v-if="item.status === 'INACTIVE'"
                 class="inline-flex px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-full text-[10px] font-bold uppercase tracking-wider">

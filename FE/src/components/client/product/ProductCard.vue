@@ -54,6 +54,7 @@
 import { useRouter } from 'vue-router';
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import LikeButton from '@/components/common/LikeButton.vue';
+import { encodeId } from '@/utils';
 
 export interface Product {
     id: string;
@@ -73,7 +74,7 @@ const router = useRouter();
 const navigateToDetail = () => {
     router.push({
         name: ROUTES_CONSTANTS.CUSTOMER.children.APP_DETAIL.name,
-        params: { id: props.product.id }
+        params: { id: encodeId(props.product.id) }
     });
 };
 </script>

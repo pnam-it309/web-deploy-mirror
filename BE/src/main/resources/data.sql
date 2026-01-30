@@ -37,10 +37,10 @@ DELETE FROM `technologies` WHERE `id` IN (
 );
 
 INSERT INTO `technologies` (`id`, `created_at`, `last_modified_date`, `status`, `version`, `name`, `icon`) VALUES
-('t0000000-0000-0000-0000-000000000001', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Java', 'java-icon'),
-('t0000000-0000-0000-0000-000000000002', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Spring Boot', 'spring-icon'),
-('t0000000-0000-0000-0000-000000000003', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Vue.js', 'vue-icon'),
-('t0000000-0000-0000-0000-000000000004', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'MySQL', 'mysql-icon'),
+('t0000000-0000-0000-0000-000000000001', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Java', 'https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg'),
+('t0000000-0000-0000-0000-000000000002', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Spring Boot', 'https://upload.wikimedia.org/wikipedia/commons/4/44/Spring_Framework_Logo_2018.svg'),
+('t0000000-0000-0000-0000-000000000003', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Vue.js', 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg'),
+('t0000000-0000-0000-0000-000000000004', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'MySQL', 'https://upload.wikimedia.org/wikipedia/en/d/dd/MySQL_logo.svg'),
 ('t0000000-0000-0000-0000-000000000005', UNIX_TIMESTAMP()*1000, UNIX_TIMESTAMP()*1000, 0, 0, 'Tailwind CSS', 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg');
 
 -- ----------------------------

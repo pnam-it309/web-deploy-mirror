@@ -15,6 +15,8 @@ export * from './color/contrast'
 // Storage utilities
 export { localStorageAction, sessionStorageAction, cookieStorageAction } from './storage'
 
-// Store utilities
 // Format utilities
 export * from './format'
+
+// Security utilities
+export * from './security'
