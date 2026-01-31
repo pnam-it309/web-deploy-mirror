@@ -6,7 +6,7 @@ services:
     build: 
       context: ./FE
       args:
-        - VITE_API_URL=http://localhost:9999
+        - VITE_API_URL=
     container_name: udpm-frontend
     ports:
       - "6789:6789"

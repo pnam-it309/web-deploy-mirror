@@ -27,21 +27,7 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(() => {
-    const state = route.query.state as string;
-    if (state) {
-        try {
-            const decodedState = JSON.parse(atob(state));
-            if (decodedState.accessToken && decodedState.refreshToken) {
-                localStorageAction.set(ACCESS_TOKEN_STORAGE_KEY, decodedState.accessToken);
-                localStorageAction.set(REFRESH_TOKEN_STORAGE_KEY, decodedState.refreshToken);
-
-                // Redirect to remove query params and refresh state
-                window.location.href = '/';
-            }
-        } catch (e) {
-            console.error('Failed to parse OAuth2 state', e);
-        }
-    }
+    // Normal mounted logic can go here if needed
 });
 </script>
 

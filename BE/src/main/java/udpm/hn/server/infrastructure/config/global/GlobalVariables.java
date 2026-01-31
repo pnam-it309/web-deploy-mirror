@@ -1,26 +1,25 @@
 package udpm.hn.server.infrastructure.config.global;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Setter
-@Getter
 @Component
 public class GlobalVariables {
 
-    private Map<String, Object> globalVariable = new HashMap<>();
-
+    private static final ThreadLocal<Map<String, Object>> threadLocalVariables = 
+        ThreadLocal.withInitial(HashMap::new);
 
     public void setGlobalVariable(String key, Object value) {
-        globalVariable.put(key, value);
+        threadLocalVariables.get().put(key, value);
     }
 
     public Object getGlobalVariable(String key) {
-        return globalVariable.get(key);
+        return threadLocalVariables.get().get(key);
     }
 
+    public void clear() {
+        threadLocalVariables.get().clear();
+    }
 }

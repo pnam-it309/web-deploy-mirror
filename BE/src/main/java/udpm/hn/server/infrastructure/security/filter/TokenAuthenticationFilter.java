@@ -41,36 +41,55 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
-
-            log.info("request nhân vào trong dofiletr :{} ", request.toString());
+            // Clean state for current thread
+            globalVariables.clear();
+            
+            String requestURI = request.getRequestURI();
+            if (requestURI.startsWith("/api/v1/customer") || requestURI.startsWith("/api/v1/admin")) {
+                log.debug("Processing request: {} {}", request.getMethod(), requestURI);
+                // Log all headers for debugging 401 issues in deployed environment
+                java.util.Enumeration<String> headerNames = request.getHeaderNames();
+                if (headerNames != null) {
+                    while (headerNames.hasMoreElements()) {
+                        String name = headerNames.nextElement();
+                        log.trace("Header: {} = {}", name, request.getHeader(name));
+                    }
+                }
+            }
 
             String jwt = getJwtFromRequest(request);
 
-            log.info("doFilterInternal==>jwt = {}", jwt);
+            if (StringUtils.hasText(jwt)) {
+                log.info("doFilterInternal==>jwt found, length={}", jwt.length());
+                if (tokenProvider.validateToken(jwt)) {
+                    String userId = tokenProvider.getUserIdFromToken(jwt);
+                    String userEmail = tokenProvider.getEmailFromToken(jwt);
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
+                    List<Role> roleCode = tokenProvider.getRolesCodesFromToken(jwt);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String userId = tokenProvider.getUserIdFromToken(jwt);
-                String userEmail = tokenProvider.getEmailFromToken(jwt);
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(userEmail);
-                // String facilityId = tokenProvider.getIdFacilityFromToken(jwt);
-                // String roleCode = tokenProvider.getRolesFromToken(jwt);
-                List<Role> roleCode = tokenProvider.getRolesCodesFromToken(jwt);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_USER_ID, userId);
+                    globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_ROLE_CODE, roleCode);
 
-                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_USER_ID, userId);
-                globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_ROLE_CODE, roleCode);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Successfully authenticated user: {}", userEmail);
+                } else {
+                    log.warn("Invalid JWT token provided");
+                    SecurityContextHolder.clearContext();
+                }
+            } else {
+                // No token found
+                SecurityContextHolder.clearContext();
             }
         } catch (Exception ex) {
             log.error("Could not set user authentication in security context", ex);
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }

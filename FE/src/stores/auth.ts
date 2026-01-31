@@ -58,7 +58,8 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Use backend OAuth2 endpoint - backend will handle the OAuth2 flow
-      const backendUrl = `${import.meta.env.VITE_BASE_URL_SERVER}/oauth2/authorization/google?redirect_uri=${encodeURIComponent(window.location.origin)}`
+      // Use relative path - Nginx/Vite proxy will handle this
+      const backendUrl = `/oauth2/authorization/google?redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
 
       console.log('Redirecting to backend OAuth2 authorization:', backendUrl)
       window.location.href = backendUrl
@@ -75,53 +76,34 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       console.log('OAuth callback received:', { code, state })
 
-      // Try to get current user info from localStorage first
-      const existingUser = localStorageAction.get(USER_INFO_STORAGE_KEY)
-      const existingToken = localStorageAction.get(ACCESS_TOKEN_STORAGE_KEY)
+      // If no valid token, try to get user info from backend profile
+      console.log('Attempting to get user info from backend')
 
-      if (existingUser && existingToken) {
-        console.log('Found existing auth data, checking token validity')
-
-        // Check if token is still valid
-        try {
-          const expire = getExpireTime(existingToken)
-          if (Date.now() < expire * 1000) {
-            console.log('Token still valid, using existing auth data')
-            return { user: existingUser }
-          }
-        } catch (e) {
-          console.log('Token expired or invalid')
-        }
-      }
-
-      // If no valid token, try to get user info from backend session/profile
-      console.log('Attempting to get user info from backend session')
-
-      // Try to get user info from a protected endpoint using session cookies
+      // Try to get user info from a protected endpoint
       try {
-        const userResponse = await fetch(`${import.meta.env.VITE_BASE_URL_SERVER}/api/admin/profile`, {
-          credentials: 'include' // Include cookies
+        const userResponse = await fetch(`/api/v1/auth/me`, {
+          headers: accessToken.value ? { 'Authorization': `Bearer ${accessToken.value}` } : {}
         })
 
         if (userResponse.ok) {
           const userData = await userResponse.json()
-          console.log('Got user data from session:', userData)
+          console.log('Got user data:', userData)
 
-          // Create user object from session data
+          // Create user object normalized
           const sessionUserData: UserInformation = {
             userId: userData.id || '',
             userCode: userData.code || userData.id || '',
             fullName: userData.name || '',
             email: userData.email || '',
-            pictureUrl: userData.picture || '',
-            rolesNames: userData.roles?.map((r: any) => r.name) || [],
-            rolesCodes: userData.roles?.map((r: any) => r.code) || [],
-            roleScreen: userData.roleScreen || 'ADMIN',
+            pictureUrl: userData.avatar || userData.picture || '',
+            rolesNames: userData.roles || [],
+            rolesCodes: userData.roles || [],
+            roleScreen: userData.roles?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER',
             idFacility: userData.idFacility,
             roleSwitch: userData.roleSwitch
           }
 
-          // Save user data (but no tokens since using session)
+          // Save user data
           user.value = sessionUserData
           localStorageAction.set(USER_INFO_STORAGE_KEY, sessionUserData)
 
@@ -133,29 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
           return { user: sessionUserData }
         }
       } catch (error) {
-        console.log('Could not get user data from session:', error)
-      }
-
-      // If that doesn't work, try with Authorization header if we have existing token
-      if (existingToken) {
-        try {
-          const userResponse = await fetch(`${import.meta.env.VITE_BASE_URL_SERVER}/api/admin/profile`, {
-            headers: {
-              'Authorization': `Bearer ${existingToken}`,
-            }
-          })
-
-          if (userResponse.ok) {
-            const userData = await userResponse.json()
-            console.log('Got user data from existing token:', userData)
-
-            if (existingUser) {
-              return { user: existingUser }
-            }
-          }
-        } catch (error) {
-          console.log('Could not get user data from existing token:', error)
-        }
+        console.log('Could not get user data:', error)
       }
 
       console.log('OAuth callback failed - no valid authentication found')
