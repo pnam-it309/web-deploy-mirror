@@ -13,25 +13,36 @@ public class EnvConfig {
 
     @PostConstruct
     public void loadEnvFile() {
-        try {
-            // Try to load .env file from the current working directory
-            String currentDir = System.getProperty("user.dir");
-            String envFilePath = Paths.get(currentDir, ".env").toString();
+        String currentDir = System.getProperty("user.dir");
+        java.io.File envFile = new java.io.File(currentDir, ".env");
 
-            try (InputStream input = new FileInputStream(envFilePath)) {
+        // If not found in current dir, check parent (common in IDEs)
+        if (!envFile.exists()) {
+            java.io.File parentEnv = new java.io.File(new java.io.File(currentDir).getParent(), ".env");
+            if (parentEnv.exists()) {
+                envFile = parentEnv;
+            }
+        }
+
+        if (envFile.exists()) {
+            System.out.println(">>> EnvConfig: Loading environment variables from " + envFile.getAbsolutePath());
+            try (InputStream input = new FileInputStream(envFile)) {
                 Properties props = new Properties();
                 props.load(input);
 
-                // Set system properties for Spring Boot to use
                 props.forEach((key, value) -> {
                     if (value != null && !value.toString().trim().isEmpty()) {
-                        System.setProperty(key.toString(), value.toString());
+                        String k = key.toString();
+                        String v = value.toString();
+                        System.setProperty(k, v);
                     }
                 });
+                System.out.println(">>> EnvConfig: Successfully loaded " + props.size() + " variables.");
+            } catch (IOException e) {
+                System.err.println(">>> EnvConfig: Error loading .env file: " + e.getMessage());
             }
-        } catch (IOException e) {
-            // .env file not found or couldn't be loaded, use existing environment variables
-            // This is fine - Spring Boot will use existing env vars or defaults from application.properties
+        } else {
+            System.out.println(">>> EnvConfig: .env file NOT found in " + currentDir + " or its parent.");
         }
     }
 }

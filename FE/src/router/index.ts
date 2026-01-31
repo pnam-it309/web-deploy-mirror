@@ -190,6 +190,11 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
+    path: '/redirect',
+    name: 'Redirect',
+    component: () => import('@/router/guard/Redirect.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: ROUTES_CONSTANTS.CUSTOMER.path,
   },

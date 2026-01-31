@@ -27,7 +27,11 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(() => {
-    // Normal mounted logic can go here if needed
+    const state = route.query.state as string;
+    if (state) {
+        // If state exists on root path, redirect to /redirect to handle it properly
+        router.push({ path: '/redirect', query: { state } });
+    }
 });
 </script>
 

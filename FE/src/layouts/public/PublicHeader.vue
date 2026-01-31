@@ -209,7 +209,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
@@ -222,7 +222,7 @@ import { localStorageAction } from '@/utils/storage';
 import { ACCESS_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
 import { authService } from '@/services/api/auth.service';
 import { ROLES } from '@/constants/roles';
-import { DOMAIN_BACKEND } from '@/constants/url';
+import { useAuthStore } from '@/stores/auth';
 
 const likeStore = useLikeStore();
 const bookmarkCount = ref(0);
@@ -247,12 +247,11 @@ const onMobileLoginClick = () => {
     openLoginModal();
 }
 
-const handleLoginGoogle = () => {
+const authStore = useAuthStore();
+
+const handleLoginGoogle = async () => {
     cookieStorageAction.set(SCREEN_COOKIE_NAME, ROLE_CUSTOMER, 60 * 5); // 5 mins
-    const redirectUri = window.location.origin + '/redirect';
-    // Use centralized backend URL logic
-    const backendUrl = DOMAIN_BACKEND || ''; 
-    window.location.href = `${backendUrl}/oauth2/authorization/google?oauth2_redirect_uri=${encodeURIComponent(redirectUri)}`;
+    await authStore.loginWithGoogle();
     closeLoginModal();
 };
 

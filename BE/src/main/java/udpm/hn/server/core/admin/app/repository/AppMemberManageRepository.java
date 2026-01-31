@@ -15,4 +15,7 @@ public interface AppMemberManageRepository extends JpaRepository<AppMember, Stri
     @Transactional
     @Query("DELETE FROM AppMember e WHERE e.app.id = :appId")
     void deleteByAppId(String appId);
+
+    @Query("SELECT COUNT(DISTINCT e.memberEmail) FROM AppMember e")
+    long countUniqueMembers();
 }

@@ -21,6 +21,7 @@ public class DashboardService { // Không cần Interface vì logic đơn giản
     private final TechnologyManageRepository technologyRepository;
     private final FeatureManageRepository featureRepository;
     private final CustomerRepository customerRepository;
+    private final udpm.hn.server.core.admin.app.repository.AppMemberManageRepository appMemberRepository;
 
     @Cacheable(value = "dashboard:stats", unless = "#result == null")
     public udpm.hn.server.core.admin.dashboard.dto.response.DashboardResponse getDashboardStatistics() {
@@ -31,7 +32,7 @@ public class DashboardService { // Không cần Interface vì logic đơn giản
         long totalApps = appRepository.count();
         long totalDomains = domainRepository.count();
         long totalTechnologies = technologyRepository.count();
-        long totalStudents = customerRepository.count();
+        long totalStudents = appMemberRepository.countUniqueMembers();
         long totalFeatures = featureRepository.count();
 
         // View count sum

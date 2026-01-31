@@ -38,7 +38,9 @@ public class RateLimitFilter implements Filter {
             return;
         }
 
-        String key = clientIp + ":" + path.split("/")[1]; // Group by IP and first path segment
+        String[] pathSegments = path.split("/");
+        String pathKey = pathSegments.length > 1 ? pathSegments[1] : "root";
+        String key = clientIp + ":" + pathKey; // Group by IP and first path segment
 
         RateLimitInfo info = rateLimitMap.computeIfAbsent(key, k -> new RateLimitInfo());
 

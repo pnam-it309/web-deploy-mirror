@@ -67,7 +67,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 log.info("Found redirect URI from cookie: " + targetUrl);
             } else {
                 // Fallback to default target URL if redirect URI cookie is not found
-                targetUrl = getDefaultTargetUrl();
+                targetUrl = DEFAULT_TARGET_URL_TUTOR_CLIENT + "/redirect";
                 log.warn("Redirect URI cookie not found, using default target URL: " + targetUrl);
             }
 
