@@ -9,6 +9,8 @@ import { defineStore } from 'pinia'
 import { getExpireTime } from '@/utils/token.helper'
 import { computed, ref } from 'vue'
 
+import { DOMAIN_BACKEND, API_URL } from '@/constants/url'
+
 export const useAuthStore = defineStore('auth', () => {
   // State
   const user = ref<UserInformation | null>(localStorageAction.get(USER_INFO_STORAGE_KEY) || null)
@@ -58,8 +60,8 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Use backend OAuth2 endpoint - backend will handle the OAuth2 flow
-      // Use relative path - Nginx/Vite proxy will handle this
-      const backendUrl = `/oauth2/authorization/google?redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
+      // Use absolute path in production, relative in dev
+      const backendUrl = `${DOMAIN_BACKEND}/oauth2/authorization/google?redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
 
       console.log('Redirecting to backend OAuth2 authorization:', backendUrl)
       window.location.href = backendUrl
@@ -81,7 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Try to get user info from a protected endpoint
       try {
-        const userResponse = await fetch(`/api/v1/auth/me`, {
+        const userResponse = await fetch(`${API_URL}/auth/me`, {
           headers: accessToken.value ? { 'Authorization': `Bearer ${accessToken.value}` } : {}
         })
 
@@ -130,7 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Call backend logout if needed
       if (accessToken.value) {
-        await fetch(`${import.meta.env.VITE_BASE_URL_SERVER}/auth/logout`, {
+        await fetch(`${DOMAIN_BACKEND}/auth/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${accessToken.value}`
