@@ -32,6 +32,8 @@ services:
       MEILI_MASTER_KEY: aeb0835d1729f64c
       spring.data.redis.host: udpm-redis
       spring.data.redis.port: 6379
+    env_file:
+      - ./BE/.env
     depends_on:
       udpm-mysql:
         condition: service_healthy
