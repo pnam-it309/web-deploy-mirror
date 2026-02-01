@@ -14,13 +14,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { ROUTES_CONSTANTS } from '@/constants/path'
 import { ROLES } from '@/constants/roles'
 import { useAuthStore } from '@/stores/auth'
+import type { UserInformation } from '@/types/auth.type'
 import {
   ACCESS_TOKEN_STORAGE_KEY,
   REFRESH_TOKEN_STORAGE_KEY,
   USER_INFO_STORAGE_KEY
 } from '@/constants/storagekey'
 import { localStorageAction } from '@/utils/storage'
-import { toast } from 'vue3-toastify'
 import { jwtDecode } from 'jwt-decode'
 
 const route = useRoute()
@@ -44,13 +44,18 @@ const processOAuthCallback = async () => {
     // Decode JWT for user info
     const decodedToken: any = jwtDecode(accessToken)
     
-    // Normalize user object to match what app expects
-    const user = {
-      id: decodedToken.userId || decodedToken.sub,
+    // Normalize user object to match what app expects (UserInformation interface)
+    const user: UserInformation = {
+      userId: decodedToken.userId || decodedToken.sub,
+      userCode: decodedToken.userCode || decodedToken.email,
+      fullName: decodedToken.fullName || decodedToken.name,
       email: decodedToken.email,
-      name: decodedToken.fullName || decodedToken.name,
+      rolesNames: decodedToken.rolesNames || [],
+      rolesCodes: decodedToken.rolesCodes || [],
       roleScreen: decodedToken.roleScreen || ROLES.CUSTOMER,
-      avatar: decodedToken.pictureUrl || decodedToken.picture
+      pictureUrl: decodedToken.pictureUrl || decodedToken.picture,
+      idFacility: decodedToken.idFacility || null,
+      roleSwitch: decodedToken.roleSwitch || null
     }
 
     // Store in localStorage
@@ -64,14 +69,10 @@ const processOAuthCallback = async () => {
     authStore.user = user
     authStore.accessToken = accessToken
     authStore.refreshToken = refreshToken || null
-    authStore.setUserRole(user.roleScreen)
+    authStore.userRole = user.roleScreen || null
 
-    // Immediate redirect
-    const redirectTo = user.roleScreen === ROLES.ADMIN 
-      ? { name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }
-      : { name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }
-    
-    router.push(redirectTo)
+    // Always redirect to customer home page after login as requested
+    router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name })
   } catch (err) {
     console.error('Login error:', err)
     error.value = 'Đăng nhập thất bại. Vui lòng thử lại.'

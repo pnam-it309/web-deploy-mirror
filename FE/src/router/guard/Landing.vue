@@ -20,7 +20,7 @@ onMounted(() => {
   console.log('Landing mounted, accessToken:', accessToken)
   if (!accessToken) {
     console.log('No accessToken, redirecting to login')
-    router.push({ name: ROUTES_CONSTANTS.LOGIN.name })
+    router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name })
     return
   }
 
@@ -31,13 +31,13 @@ onMounted(() => {
 
   if (dayjs().isAfter(expire)) {
     console.log('Token expired, redirecting to login')
-    router.push({ name: ROUTES_CONSTANTS.LOGIN.name })
+    router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name })
     return
   }
 
-  // Nếu đã xác thực, chuyển hướng vào trang chính (ví dụ: admin)
+  // Always redirect to customer home page as requested
   setTimeout(() => {
-    router.push({ name: ROUTES_CONSTANTS.ADMIN.children.DASHBOARD.name }) // hoặc route nào bạn muốn
+    router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name })
   }, 300)
 })
 </script>
