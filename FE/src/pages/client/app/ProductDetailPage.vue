@@ -68,7 +68,7 @@ const isVideo = (url?: string) => {
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
     </div>
 
-    <div v-else-if="product" class="min-h-screen bg-white pb-20">
+    <div v-else-if="product" class="min-h-screen bg-white dark:bg-gray-900 pb-20 transition-colors duration-300">
         <!-- Hero Section -->
         <section class="relative bg-secondary text-white pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
             <div class="absolute inset-0 z-0">
@@ -145,7 +145,7 @@ const isVideo = (url?: string) => {
 
                     <!-- Overview -->
                     <div class="bg-white dark:bg-dark-light rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white font-serif mb-6 flex items-center gap-3">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:!text-white font-serif mb-6 flex items-center gap-3">
                             <span class="w-10 h-1.5 bg-primary block rounded-full"></span>
                             Tổng quan
                         </h2>
@@ -168,7 +168,7 @@ const isVideo = (url?: string) => {
 
                     <!-- Features -->
                     <div v-if="sortedFeatures.length > 0">
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white font-serif mb-10 flex items-center gap-3">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:!text-white font-serif mb-10 flex items-center gap-3">
                             <span class="w-10 h-1.5 bg-primary block rounded-full"></span>
                             Chức năng nổi bật
                         </h2>
@@ -185,7 +185,7 @@ const isVideo = (url?: string) => {
                                             class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-primary text-xs font-bold tracking-widest uppercase">Feature
                                             {{ idx + 1 }}</span>
                                     </div>
-                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{{ feature.name }}</h3>
+                                    <h3 class="text-2xl font-bold text-gray-900 dark:!text-white mb-4">{{ feature.name }}</h3>
                                     <p class="text-gray-500 dark:text-gray-400 leading-relaxed text-lg mb-6">{{ feature.description }}</p>
 
                                     <div>
@@ -233,8 +233,8 @@ const isVideo = (url?: string) => {
                 <div class="space-y-8">
 
                     <!-- Team Card -->
-                    <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 sticky top-24">
-                        <h3 class="text-lg font-bold text-gray-900 mb-6 border-b border-gray-50 pb-3">Thành viên thực
+                    <div class="bg-white dark:bg-dark-light rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 sticky top-24">
+                        <h3 class="text-lg font-bold text-gray-900 dark:!text-white mb-6 border-b border-gray-50 dark:border-gray-800 pb-3">Thành viên thực
                             hiện
                         </h3>
 
@@ -246,7 +246,7 @@ const isVideo = (url?: string) => {
                                     {{ member.fullName.charAt(0) }}
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-gray-900">{{ member.fullName }}</h4>
+                                    <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ member.fullName }}</h4>
                                     <p class="text-xs"
                                         :class="member.role === 'LEADER' ? 'text-yellow-600 font-bold' : 'text-gray-500'">
                                         {{ member.role === 'LEADER' ? 'Project Leader' : 'Member' }}
@@ -259,22 +259,22 @@ const isVideo = (url?: string) => {
                             </div>
                         </div>
 
-                        <div class="mt-6 pt-6 border-t border-gray-50">
-                            <h3 class="text-sm font-bold text-gray-900 mb-3">Thông tin thêm</h3>
+                        <div class="mt-6 pt-6 border-t border-gray-50 dark:border-gray-800">
+                            <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Thông tin thêm</h3>
                             <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-500">Lượt xem</span>
-                                <span class="font-bold text-gray-900">{{ product.viewCount || 0 }}</span>
+                                <span class="text-gray-500 dark:text-gray-400">Lượt xem</span>
+                                <span class="font-bold text-gray-900 dark:text-white">{{ product.viewCount || 0 }}</span>
                             </div>
                             <div class="flex justify-between text-sm mb-2">
-                                <span class="text-gray-500">Mã dự án</span>
-                                <span class="font-bold text-gray-900">{{ product.sku || 'N/A' }}</span>
+                                <span class="text-gray-500 dark:text-gray-400">Mã dự án</span>
+                                <span class="font-bold text-gray-900 dark:text-white">{{ product.sku || 'N/A' }}</span>
                             </div>
                         </div>
 
                         <!-- Share Buttons (Mock) -->
                         <div class="mt-6">
                             <button
-                                class="w-full py-2 border border-gray-200 rounded text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                                class="w-full py-2 border border-gray-200 dark:border-gray-700 rounded text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                 Chia sẻ dự án
                             </button>
                         </div>
@@ -290,7 +290,7 @@ const isVideo = (url?: string) => {
 
             <!-- Related Products Section -->
             <div v-if="relatedProducts.length > 0" class="max-w-6xl mx-auto mt-24 px-4 pb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white font-serif mb-12 text-center flex items-center justify-center gap-3">
+                <h2 class="text-3xl font-bold text-gray-900 dark:!text-white font-serif mb-12 text-center flex items-center justify-center gap-3">
                     <span class="w-12 h-1 bg-primary block rounded-full"></span>
                     Sản phẩm liên quan
                     <span class="w-12 h-1 bg-primary block rounded-full"></span>
@@ -299,7 +299,7 @@ const isVideo = (url?: string) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <router-link v-for="relatedProduct in relatedProducts" :key="relatedProduct.id"
                         :to="`/apps/${encodeId(relatedProduct.id)}`"
-                        class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-yellow-500">
+                        class="group bg-white dark:bg-dark-light rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-yellow-500">
                         <div class="aspect-video bg-gray-100 overflow-hidden relative">
                             <img v-if="relatedProduct.thumbnail" :src="relatedProduct.thumbnail"
                                 :alt="relatedProduct.name"
@@ -322,10 +322,10 @@ const isVideo = (url?: string) => {
                                 {{ relatedProduct.domainName }}
                             </div>
                             <h3
-                                class="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-yellow-600 transition-colors">
+                                class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-yellow-600 transition-colors">
                                 {{ relatedProduct.name }}
                             </h3>
-                            <p class="text-sm text-gray-500 line-clamp-2 mb-4">
+                            <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
                                 {{ relatedProduct.shortDescription }}
                             </p>
 

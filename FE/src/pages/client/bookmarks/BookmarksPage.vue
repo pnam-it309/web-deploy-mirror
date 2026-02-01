@@ -3,7 +3,7 @@
         <div class="container mx-auto px-4">
             <!-- Header -->
             <div class="mb-12 text-center">
-                <h1 class="text-4xl font-bold font-serif text-gray-900 dark:text-white mb-3">
+                <h1 class="text-4xl font-bold font-serif text-gray-900 dark:!text-white mb-3">
                     Sản phẩm yêu thích
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 text-lg">

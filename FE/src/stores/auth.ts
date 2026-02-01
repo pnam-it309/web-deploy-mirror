@@ -178,14 +178,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (storedUser && storedToken) {
         console.log('Restoring authentication state from localStorage')
-        user.value = storedUser
-        accessToken.value = storedToken
-        refreshToken.value = storedRefreshToken
-        userRole.value = storedRole
+        user.value = storedUser as UserInformation
+        accessToken.value = storedToken as string
+        refreshToken.value = storedRefreshToken as string | null
+        userRole.value = storedRole as string | null
 
         // Verify token is still valid
         try {
-          const expire = getExpireTime(storedToken)
+          const expire = getExpireTime(storedToken as string)
           const isValid = Date.now() < expire * 1000
 
           if (isValid) {

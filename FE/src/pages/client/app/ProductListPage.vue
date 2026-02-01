@@ -2,7 +2,7 @@
     <div>
         <div class="container mx-auto px-4 py-12">
             <div class="mb-10 text-center lg:text-left">
-                <h1 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:text-white mb-3">Danh sách Ứng dụng</h1>
+                <h1 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:!text-white mb-3">Danh sách Ứng dụng</h1>
                 <p class="text-gray-500 dark:text-gray-400 text-lg">Khám phá tất cả các dự án và ứng dụng từ sinh viên</p>
             </div>
     

@@ -38,7 +38,7 @@
         <!-- Domains Section -->
         <section class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:text-white mb-4">Lĩnh vực hoạt động</h2>
+                <h2 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:!text-white mb-4">Lĩnh vực hoạt động</h2>
                 <div class="w-24 h-1.5 bg-primary mx-auto rounded-full"></div>
             </div>
 
@@ -60,7 +60,7 @@
         <section id="featured" class="container mx-auto px-4">
             <div class="flex items-end justify-between mb-12 border-b border-gray-100 dark:border-gray-800 pb-4">
                 <div>
-                    <h2 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:text-white mb-3">Sản phẩm Nổi bật</h2>
+                    <h2 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:!text-white mb-3">Sản phẩm Nổi bật</h2>
                     <p class="text-gray-500 dark:text-gray-400 text-lg">Các dự án được đánh giá cao và có tính ứng dụng thực tế</p>
                 </div>
                 <router-link to="/products"
@@ -84,8 +84,8 @@
         <!-- Featured Videos Section -->
         <section v-if="hasFeaturedVideos" class="container mx-auto px-4">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Video Nổi Bật</h2>
-                <p class="text-gray-500">Khám phá các demo video từ những dự án xuất sắc</p>
+                <h2 class="text-3xl font-bold text-gray-900 dark:!text-white mb-4">Video Nổi Bật</h2>
+                <p class="text-gray-500 dark:text-gray-400">Khám phá các demo video từ những dự án xuất sắc</p>
                 <div class="w-20 h-1 bg-yellow-500 mx-auto rounded mt-4"></div>
             </div>
 
@@ -94,7 +94,7 @@
                     class="group cursor-pointer transform transition-all hover:-translate-y-2"
                     @click="$router.push(`/products/${video.id}`)">
                     <div
-                        class="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow">
+                        class="bg-white dark:bg-dark-light rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-shadow">
                         <!-- Video Embed -->
                         <div class="relative aspect-video bg-gray-900">
                             <YouTubeEmbed :url="video.videoUrl!" :title="video.name" class="w-full h-full"
@@ -116,12 +116,12 @@
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-3">
                                 <h3
-                                    class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                    class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors line-clamp-2">
                                     {{ video.name }}
                                 </h3>
                             </div>
 
-                            <p class="text-sm text-gray-500 mb-4 line-clamp-2">
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">
                                 {{ video.shortDescription || video.description }}
                             </p>
 
