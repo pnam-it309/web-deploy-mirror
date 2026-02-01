@@ -43,6 +43,10 @@ Thumbs.db
 .env.local
 .env.*.local
 *.local
+BE/.env
+BE/.env.production
+FE/.env.production
+FE/.env.stage
 
 # ===== Testing =====
 coverage/
