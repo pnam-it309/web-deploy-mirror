@@ -174,17 +174,33 @@ onMounted(async () => {
             getPublicFeaturedProducts({ sort: 'FEATURED' }),
             getPublicFeaturedVideos()
         ]);
+        
+        // Handle domains safety
         domains.value = domainsData || [];
-        featuredProducts.value = (productsData as any).data || (productsData as any).content || [];
+        
+        // Handle products safety - check if it's a paginated response or direct array
+        if (productsData) {
+            featuredProducts.value = (productsData as any).data || (productsData as any).content || (Array.isArray(productsData) ? productsData : []);
+        } else {
+            featuredProducts.value = [];
+        }
 
-        // Map videos data to ensure videoUrl is set from demoUrl
+        // Handle videos safety
         const videos = videosData || [];
-        featuredVideos.value = videos.map((v: any) => ({
-            ...v,
-            videoUrl: v.demoUrl // The backend now provides this in demoUrl
-        }));
+        if (Array.isArray(videos)) {
+            featuredVideos.value = videos.map((v: any) => ({
+                ...v,
+                videoUrl: v.demoUrl || v.videoUrl // Fallback if videoUrl already exists
+            }));
+        } else {
+            featuredVideos.value = [];
+        }
     } catch (error) {
         console.error("Failed to load home data", error);
+        // Ensure refs are at least empty arrays on error
+        domains.value = [];
+        featuredProducts.value = [];
+        featuredVideos.value = [];
     }
 });
 </script>
