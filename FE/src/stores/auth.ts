@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Use backend OAuth2 endpoint - backend will handle the OAuth2 flow
       // Use absolute path in production, relative in dev
-      const backendUrl = `${DOMAIN_BACKEND}/oauth2/authorization/google?redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
+      const backendUrl = `${DOMAIN_BACKEND}/oauth2/authorization/google?oauth2_redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
 
       console.log('Redirecting to backend OAuth2 authorization:', backendUrl)
       window.location.href = backendUrl

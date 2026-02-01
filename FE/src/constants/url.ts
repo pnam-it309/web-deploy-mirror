@@ -3,9 +3,20 @@ import { ROLES } from './roles'
 // DOMAIN
 
 const getBackendUrl = () => {
-  // Use environment variable if provided, otherwise default to relative path
-  // This allows for "local paths" (relative URLs) while still being configurable
-  return import.meta.env.VITE_BASE_URL_SERVER || ''
+  // Support multiple common environment variable names
+  let url = import.meta.env.VITE_BASE_URL_SERVER || import.meta.env.VITE_API_BASE_URL || ''
+  
+  // Clean up if the user mistakenly included /api/v1 in the base URL
+  if (url.endsWith('/api/v1')) {
+    url = url.replace('/api/v1', '')
+  }
+  
+  // Clean trailing slashes
+  if (url.endsWith('/')) {
+    url = url.slice(0, -1)
+  }
+
+  return url
 }
 
 export const DOMAIN_BACKEND = getBackendUrl()
