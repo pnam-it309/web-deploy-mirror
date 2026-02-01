@@ -32,4 +32,17 @@ public class CommonController {
         return ResponseEntity.ok("Server is awake!");
     }
 
+    @GetMapping("/keep-alive")
+    public ResponseEntity<Map<String, Object>> keepAlive() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "message", "Server is staying awake",
+                "timestamp", System.currentTimeMillis()
+        ));
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("OK");
+    }
 }
