@@ -38,11 +38,11 @@
             <!-- Tech Stack -->
             <div class="flex items-center gap-2 mt-auto pt-4 border-t border-gray-100">
                 <div class="flex -space-x-2">
-                    <img v-for="(tech, idx) in product.technologies?.slice(0, 3)" :key="idx" :src="tech.icon"
+                    <img v-for="(tech, idx) in safeTechnologies.slice(0, 3)" :key="idx" :src="tech.icon"
                         :title="tech.name" class="w-8 h-8 rounded-full border-2 border-white bg-gray-50 object-cover" />
-                    <div v-if="(product.technologies?.length || 0) > 3"
+                    <div v-if="technologiesCount > 3"
                         class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
-                        +{{ product.technologies!.length - 3 }}
+                        +{{ technologiesCount - 3 }}
                     </div>
                 </div>
             </div>
@@ -52,6 +52,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 import { ROUTES_CONSTANTS } from '@/constants/path';
 import LikeButton from '@/components/common/LikeButton.vue';
 import { encodeId } from '@/utils';
@@ -68,6 +69,12 @@ export interface Product {
 const props = defineProps<{
     product: Product
 }>();
+
+const safeTechnologies = computed(() => {
+    return Array.isArray(props.product.technologies) ? props.product.technologies : [];
+});
+
+const technologiesCount = computed(() => safeTechnologies.value.length);
 
 const router = useRouter();
 

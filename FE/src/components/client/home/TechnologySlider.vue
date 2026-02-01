@@ -39,7 +39,8 @@ const technologies = ref<PublicTechnology[]>([]);
 
 const duration = computed(() => {
     // 60s base, add 2s for every item to keep consistent speed
-    return 60 + (technologies.value.length * 4);
+    const count = Array.isArray(technologies.value) ? technologies.value.length : 0;
+    return 60 + (count * 4);
 });
 
 const navigateToTech = (id: string) => {
@@ -49,9 +50,10 @@ const navigateToTech = (id: string) => {
 onMounted(async () => {
     try {
         const res = await getTechnologies();
-        technologies.value = res;
+        technologies.value = Array.isArray(res) ? res : [];
     } catch (error) {
         console.error("Failed to load technologies", error);
+        technologies.value = [];
     }
 });
 </script>

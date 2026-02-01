@@ -82,7 +82,7 @@
         </section>
 
         <!-- Featured Videos Section -->
-        <section v-if="featuredVideos.length > 0" class="container mx-auto px-4">
+        <section v-if="hasFeaturedVideos" class="container mx-auto px-4">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-900 mb-4">Video Nổi Bật</h2>
                 <p class="text-gray-500">Khám phá các demo video từ những dự án xuất sắc</p>
@@ -150,7 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'; // Import useRouter
 import DomainCard from '@/components/client/domain/DomainCard.vue';
 import ProductCard from '@/components/client/product/ProductCard.vue';
@@ -162,6 +162,10 @@ const router = useRouter(); // Initialize router
 const domains = ref<PublicDomain[]>([]);
 const featuredProducts = ref<PublicProduct[]>([]);
 const featuredVideos = ref<PublicProduct[]>([]);
+
+const hasFeaturedVideos = computed(() => {
+    return Array.isArray(featuredVideos.value) && featuredVideos.value.length > 0;
+});
 
 const navigateToCategory = (id: string) => {
     router.push({ path: '/apps', query: { domain: id } });
