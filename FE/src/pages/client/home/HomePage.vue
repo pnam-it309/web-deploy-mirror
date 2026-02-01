@@ -23,7 +23,7 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                    <router-link to="/products"
+                    <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
                         class="px-8 py-4 bg-primary hover:bg-primary-hover text-white font-bold rounded-lg transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 transform hover:-translate-y-1">
                         Xem tất cả sản phẩm
                     </router-link>
@@ -63,7 +63,7 @@
                     <h2 class="text-3xl lg:text-4xl font-bold font-serif text-gray-900 dark:!text-white mb-3">Sản phẩm Nổi bật</h2>
                     <p class="text-gray-500 dark:text-gray-400 text-lg">Các dự án được đánh giá cao và có tính ứng dụng thực tế</p>
                 </div>
-                <router-link to="/products"
+                <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
                     class="hidden md:flex items-center text-primary font-bold hover:text-primary-hover transition-colors gap-2 px-4 py-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20">
                     Xem thêm <span class="text-xl">&rarr;</span>
                 </router-link>
@@ -75,7 +75,7 @@
 
             <!-- Mobile View More -->
             <div class="mt-8 text-center md:hidden">
-                <router-link to="/products" class="inline-flex items-center text-blue-600 font-medium">
+                <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }" class="inline-flex items-center text-blue-600 font-medium">
                     Xem tất cả sản phẩm &rarr;
                 </router-link>
             </div>
@@ -92,7 +92,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div v-for="video in featuredVideos" :key="video.id"
                     class="group cursor-pointer transform transition-all hover:-translate-y-2"
-                    @click="$router.push(`/products/${video.id}`)">
+                    @click="$router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.APP_DETAIL.name, params: { id: encodeId(video.id) } })">
                     <div
                         class="bg-white dark:bg-dark-light rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-shadow">
                         <!-- Video Embed -->
@@ -151,12 +151,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router'; // Import useRouter
+import { useRouter } from 'vue-router';
+import { ROUTES_CONSTANTS } from '@/constants/path';
 import DomainCard from '@/components/client/domain/DomainCard.vue';
 import ProductCard from '@/components/client/product/ProductCard.vue';
 import TechnologySlider from '@/components/client/home/TechnologySlider.vue';
 import YouTubeEmbed from '@/components/common/YouTubeEmbed.vue';
 import { getPublicDomains, getPublicFeaturedProducts, getPublicFeaturedVideos, type PublicDomain, type PublicProduct } from '@/services/client/client.service';
+import { encodeId } from '@/utils';
 
 const router = useRouter(); // Initialize router
 const domains = ref<PublicDomain[]>([]);
@@ -168,7 +170,7 @@ const hasFeaturedVideos = computed(() => {
 });
 
 const navigateToCategory = (id: string) => {
-    router.push({ path: '/apps', query: { domain: id } });
+    router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name, query: { domain: id } });
 };
 
 onMounted(async () => {
