@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex flex-col bg-white">
+    <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         <PublicHeader />
 
         <main class="flex-1">
@@ -20,8 +20,6 @@ import PublicFooter from './PublicFooter.vue';
 import CompareFloatButton from '@/components/common/CompareFloatButton.vue';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { localStorageAction } from '@/utils/storage';
-import { ACCESS_TOKEN_STORAGE_KEY, REFRESH_TOKEN_STORAGE_KEY } from '@/constants/storagekey';
 
 const route = useRoute();
 const router = useRouter();

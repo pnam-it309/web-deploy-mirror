@@ -1,14 +1,14 @@
 <template>
     <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
-        <div v-if="icon || $slots.icon" class="mb-4 bg-gray-50 p-4 rounded-full">
+        <div v-if="icon || $slots.icon" class="mb-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-full transition-colors">
             <slot name="icon">
-                <component :is="icon" class="w-12 h-12 text-gray-400" />
+                <component :is="icon" class="w-12 h-12 text-gray-400 dark:text-gray-500" />
             </slot>
         </div>
 
-        <h3 class="text-lg font-medium text-gray-900 mb-1">{{ title }}</h3>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">{{ title }}</h3>
 
-        <p v-if="description" class="text-gray-500 max-w-sm mb-6">
+        <p v-if="description" class="text-gray-500 dark:text-gray-400 max-w-sm mb-6">
             {{ description }}
         </p>
 

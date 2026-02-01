@@ -1,8 +1,8 @@
 <template>
     <div class="container mx-auto px-4 py-8">
         <div class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-[#1e293b] mb-2">Lĩnh vực hoạt động</h1>
-            <p class="text-gray-500 max-w-2xl mx-auto">
+            <h1 class="text-3xl font-bold text-[#1e293b] dark:text-white mb-2 transition-colors">Lĩnh vực hoạt động</h1>
+            <p class="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
                 Khám phá các lĩnh vực công nghệ đa dạng mà sinh viên FPL đang nghiên cứu và phát triển sản phẩm.
             </p>
         </div>
@@ -32,8 +32,8 @@
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
-            <h3 class="text-lg font-medium text-gray-900">Không tìm thấy kết quả</h3>
-            <p class="text-gray-500 mt-1">Vui lòng thử từ khóa khác</p>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Không tìm thấy kết quả</h3>
+            <p class="text-gray-500 dark:text-gray-400 mt-1">Vui lòng thử từ khóa khác</p>
         </div>
     </div>
 </template>

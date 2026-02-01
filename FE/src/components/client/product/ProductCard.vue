@@ -39,9 +39,9 @@
             <div class="flex items-center gap-2 mt-auto pt-4 border-t border-gray-100">
                 <div class="flex -space-x-2">
                     <img v-for="(tech, idx) in safeTechnologies.slice(0, 3)" :key="idx" :src="tech.icon"
-                        :title="tech.name" class="w-8 h-8 rounded-full border-2 border-white bg-gray-50 object-cover" />
+                        :title="tech.name" class="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 bg-gray-50 dark:bg-gray-700 object-cover transition-colors" />
                     <div v-if="technologiesCount > 3"
-                        class="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                        class="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
                         +{{ technologiesCount - 3 }}
                     </div>
                 </div>
