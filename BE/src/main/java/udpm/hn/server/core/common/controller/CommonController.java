@@ -2,6 +2,7 @@ package udpm.hn.server.core.common.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import udpm.hn.server.core.common.service.MediaService;
@@ -18,6 +19,8 @@ public class CommonController {
 
     private final MediaService mediaService;
 
+    private final JdbcTemplate jdbcTemplate;
+
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
@@ -27,9 +30,20 @@ public class CommonController {
             return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
         }
     }
+
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("Server is awake!");
+    }
+
+    @GetMapping("/ping-db")
+    public ResponseEntity<String> pingDb() {
+        try {
+            jdbcTemplate.execute("SELECT 1");
+            return ResponseEntity.ok("Database is connected!");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Database connection failed: " + e.getMessage());
+        }
     }
 
     @GetMapping("/keep-alive")
