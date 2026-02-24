@@ -17,7 +17,10 @@
     
                 <!-- Products State -->
                 <div v-else-if="products.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <ProductCard v-for="product in products" :key="product.id" :product="product" />
+                    <div v-for="(product, idx) in products" :key="product.id"
+                         :style="`animation: card-slide-up 0.5s ease ${idx * 60}ms both`">
+                        <ProductCard :product="product" />
+                    </div>
                 </div>
     
                 <!-- Empty State -->

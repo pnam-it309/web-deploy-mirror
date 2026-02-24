@@ -48,11 +48,19 @@ const handleDelete = async (id: string) => {
     try {
       await DomainService.deleteDomain(id);
       toast.success("Xoá thành công!");
-      loadData();
+      await loadData();
     } catch (e: any) {
-      // Backend returns error if constraints failed
-      const msg = e.response?.data?.message || "Không thể xoá. Có thể danh mục này đang chứa sản phẩm.";
-      toast.error(msg);
+      // Nếu backend trả về 409 (đang có sản phẩm liên kết)
+      const status = e.response?.status;
+      const msg = e.response?.data?.message || e.response?.data?.error;
+      if (status === 409) {
+        toast.error(msg || "Không thể xoá. Lĩnh vực này đang được sử dụng.");
+      } else if (status === 404) {
+        toast.error("Không tìm thấy lĩnh vực này.");
+        await loadData(); // Refresh để cập nhật danh sách
+      } else {
+        toast.error(msg || "Không thể xoá. Có thể lĩnh vực này đang chứa sản phẩm.");
+      }
     }
   }
 };

@@ -1,6 +1,6 @@
 <template>
     <header
-        class="h-16 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 transition-colors duration-300">
+        class="h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-white/20 dark:border-gray-700/20 sticky top-0 z-50 transition-all duration-300 shadow-lg shadow-black/5 dark:shadow-black/20">
         <div class="container mx-auto px-4 h-full flex items-center justify-between">
             <!-- Logo -->
             <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }" class="flex items-center gap-2">
@@ -85,7 +85,7 @@
                         leave-from-class="transform opacity-100 scale-100"
                         leave-to-class="transform opacity-0 scale-95">
                         <div v-if="isDropdownOpen"
-                            class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg py-1 z-50 origin-top-right">
+                            class="absolute right-0 mt-2 w-56 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 rounded-xl shadow-2xl shadow-black/10 dark:shadow-black/30 py-1 z-50 origin-top-right">
                             <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Đăng nhập là</p>
                                 <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ userInfo.email
@@ -134,7 +134,7 @@
             enter-to-class="translate-x-0" leave-active-class="transition ease-in duration-200"
             leave-from-class="translate-x-0" leave-to-class="translate-x-full">
             <div v-if="isMobileMenuOpen"
-                class="fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl z-50 md:hidden overflow-y-auto">
+                class="fixed top-0 right-0 h-full w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl shadow-black/20 dark:shadow-black/40 z-50 md:hidden overflow-y-auto">
                 <div class="p-4">
                     <div class="flex justify-between items-center mb-6">
                         <span class="font-bold text-lg text-gray-800 dark:text-white">Menu</span>

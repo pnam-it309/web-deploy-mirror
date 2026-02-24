@@ -18,7 +18,7 @@ public class Technology extends PrimaryEntity implements Serializable {
     @Version
     private Long version;
 
-    @Column(nullable = false, unique = true, length = EntityProperties.LENGTH_NAME)
+    @Column(nullable = false, length = EntityProperties.LENGTH_NAME)
     private String name;
 
     @Column(length = EntityProperties.LENGTH_CODE)

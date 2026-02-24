@@ -202,7 +202,54 @@ watch(() => form.sourceUrl, (newVal) => {
   }
 });
 
+const formErrors = reactive({
+  sku: '',
+  demoUrl: '',
+  sourceUrl: '',
+  longDescription: '',
+  members: ''
+});
+
+const validateAppForm = (): boolean => {
+  // Reset errors
+  Object.keys(formErrors).forEach(k => (formErrors as any)[k] = '');
+
+  let valid = true;
+
+  if (!form.name || !form.name.trim()) {
+    toast.error('Tên dự án không được để trống');
+    valid = false;
+  }
+  if (!form.sku || !form.sku.trim()) {
+    formErrors.sku = 'Mã SKU không được để trống';
+    valid = false;
+  }
+  if (!form.demoUrl || !form.demoUrl.trim()) {
+    formErrors.demoUrl = 'Link Demo (URL) không được để trống';
+    valid = false;
+  }
+  if (!form.sourceUrl || !form.sourceUrl.trim()) {
+    formErrors.sourceUrl = 'Source Code (Git) không được để trống';
+    valid = false;
+  }
+  if (!form.longDescription || !form.longDescription.trim()) {
+    formErrors.longDescription = 'Bài viết chi tiết không được để trống';
+    valid = false;
+  }
+  const validMembers = form.members.filter(m => m.customerId && m.customerId.trim() !== '');
+  if (validMembers.length === 0) {
+    formErrors.members = 'Phải có ít nhất 1 thành viên nhóm';
+    valid = false;
+  }
+  return valid;
+};
+
 const handleSubmit = async () => {
+  if (!validateAppForm()) {
+    toast.error('Vui lòng điền đầy đủ các trường bắt buộc!');
+    return;
+  }
+
   // ... existing logic ...
   if (!validateURLs()) return;
 
@@ -252,9 +299,10 @@ const handleSubmit = async () => {
 
     toast.success(isEdit.value ? "Cập nhật thành công!" : "Tạo mới thành công!");
     router.push('/admin/apps');
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    toast.error("Có lỗi xảy ra. Vui lòng kiểm tra lại console.");
+    const msg = e.response?.data?.message || e.response?.data?.error;
+    toast.error(msg || "Có lỗi xảy ra. Vui lòng kiểm tra lại console.");
   }
 };
 
@@ -328,7 +376,7 @@ const isValidYoutube = (url?: string) => {
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Thông tin chung</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <BaseInput v-model="form.name" label="Tên dự án (*)" placeholder="Nhập tên dự án..." class="dark:text-white" />
-            <BaseInput v-model="form.sku" label="Mã SKU" placeholder="VD: PROJ-001" class="dark:text-white" />
+            <BaseInput v-model="form.sku" label="Mã SKU (*)" placeholder="VD: PROJ-001" class="dark:text-white" :error="formErrors.sku" />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -370,9 +418,9 @@ const isValidYoutube = (url?: string) => {
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <BaseInput v-model="form.demoUrl" label="Link Demo (URL)" placeholder="https://..." class="dark:text-white" />
+            <BaseInput v-model="form.demoUrl" label="Link Demo (URL) (*)" placeholder="https://..." class="dark:text-white" :error="formErrors.demoUrl" />
             <div class="space-y-2">
-              <BaseInput v-model="form.sourceUrl" label="Source Code (Git)" placeholder="https://github.com/..." class="dark:text-white" />
+              <BaseInput v-model="form.sourceUrl" label="Source Code (Git) (*)" placeholder="https://github.com/..." class="dark:text-white" :error="formErrors.sourceUrl" />
               
               <!-- GitHub Private Repo Handler -->
               <div v-if="githubError" class="mt-3 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg animate-fade-in-down">
@@ -422,13 +470,13 @@ const isValidYoutube = (url?: string) => {
             </div>
           </div>
 
-          <BaseTextarea v-model="form.longDescription" label="Bài viết chi tiết" :rows="6"
-            placeholder="Mô tả chi tiết về chức năng, công nghệ, hướng dẫn cài đặt..." class="dark:text-white" />
+          <BaseTextarea v-model="form.longDescription" label="Bài viết chi tiết (*)" :rows="6"
+            placeholder="Mô tả chi tiết về chức năng, công nghệ, hướng dẫn cài đặt..." class="dark:text-white" :error="formErrors.longDescription" />
         </BaseCard>
 
         <BaseCard>
           <AppFormMembers v-model="form.members" />
-
+          <p v-if="formErrors.members" class="text-xs text-red-500 mt-2">{{ formErrors.members }}</p>
         </BaseCard>
 
         <!-- <BaseCard>

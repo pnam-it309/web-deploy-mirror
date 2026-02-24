@@ -19,7 +19,7 @@ defineEmits(['update:modelValue']);
 
 <template>
   <div class="flex flex-col gap-1.5">
-    <label v-if="label" class="text-sm font-semibold text-dark uppercase tracking-wider text-[11px]">
+    <label v-if="label" class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
       {{ label }}
     </label>
     

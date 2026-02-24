@@ -27,6 +27,7 @@ public class Review extends PrimaryEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"technologies", "features", "appDetail", "hibernateLazyInitializer", "handler"})
     private App app;
 
     @Column(name = "moderation_status")

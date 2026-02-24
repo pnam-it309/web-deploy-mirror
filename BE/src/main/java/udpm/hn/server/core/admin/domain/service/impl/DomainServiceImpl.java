@@ -35,7 +35,13 @@ public class DomainServiceImpl implements DomainService {
     public List<DomainResponse> getAllDomains() {
         log.debug("Cache MISS: Fetching all domains from database");
         return domainRepository.findAll().stream()
-                .filter(d -> d.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)
+                .filter(d -> d.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED
+                        && d.getStatus() != null)
+                .sorted((a, b) -> {
+                    int orderA = a.getSortOrder() != null ? a.getSortOrder() : Integer.MAX_VALUE;
+                    int orderB = b.getSortOrder() != null ? b.getSortOrder() : Integer.MAX_VALUE;
+                    return Integer.compare(orderA, orderB);
+                })
                 .map(d -> modelMapper.map(d, DomainResponse.class))
                 .collect(Collectors.toList());
     }
@@ -59,11 +65,13 @@ public class DomainServiceImpl implements DomainService {
     @CacheEvict(value = "domains", allEntries = true)
     public DomainResponse createDomain(DomainRequest request) {
         log.info("Creating domain: name={}", request.getName());
-        if (domainRepository.existsByName(request.getName())) {
+        // Chỉ kiểm tra tên với các bản ghi chưa bị xóa mềm
+        if (domainRepository.existsByNameAndStatusNot(request.getName(), udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)) {
             throw new IllegalArgumentException("Tên lĩnh vực đã tồn tại");
         }
         Domain domain = modelMapper.map(request, Domain.class);
         domain.setSlug(slugify.slugify(request.getName()));
+        domain.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.ACTIVE);
 
         DomainResponse response = modelMapper.map(domainRepository.save(domain), DomainResponse.class);
         log.info("Domain created successfully: id={}, evicting cache", response.getId());
@@ -77,7 +85,8 @@ public class DomainServiceImpl implements DomainService {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Domain not found"));
 
-        if (domainRepository.existsByNameAndIdNot(request.getName(), id)) {
+        // Chỉ kiểm tra tên với các bản ghi chưa bị xóa mềm (loại trừ chính nó)
+        if (domainRepository.existsByNameAndIdNotAndStatusNot(request.getName(), id, udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)) {
             throw new IllegalArgumentException("Tên lĩnh vực đã tồn tại");
         }
 
@@ -94,23 +103,16 @@ public class DomainServiceImpl implements DomainService {
     @CacheEvict(value = "domains", allEntries = true)
     public void deleteDomain(String id) {
         log.info("Soft deleting domain: id={}", id);
-        try {
-            Domain domain = domainRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Domain not found"));
+        Domain domain = domainRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Domain not found: id={}", id);
+                    return new EntityNotFoundException("Không tìm thấy lĩnh vực với id=" + id);
+                });
 
-            // Check logic kept for reference but not blocking soft delete
-            if (appRepository.existsByDomainId(id)) {
-                // Soft delete allows this
-            }
-
-            // Soft Delete
-            domain.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);
-            domainRepository.save(domain);
-            log.info("Domain soft deleted successfully, evicting cache");
-        } catch (Exception e) {
-            log.error("Failed to delete domain: id={}, error={}", id, e.getMessage(), e);
-            throw e;
-        }
+        // Soft Delete – set status to DELETED
+        domain.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);
+        domainRepository.save(domain);
+        log.info("Domain soft deleted successfully: id={}, evicting cache", id);
     }
 
     @Override

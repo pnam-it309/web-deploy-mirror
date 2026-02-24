@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.core.admin.technology.dto.request.TechnologyRequest;
 import udpm.hn.server.core.admin.technology.service.TechnologyService;
 import udpm.hn.server.infrastructure.constant.MappingConstants;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(MappingConstants.API_ADMIN_TECHNOLOGY)
@@ -28,12 +29,12 @@ public class TechnologyController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createTechnology(@RequestBody TechnologyRequest request) {
+    public ResponseEntity<?> createTechnology(@Valid @RequestBody TechnologyRequest request) {
         return ResponseEntity.ok(technologyService.createTechnology(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTechnology(@PathVariable String id, @RequestBody TechnologyRequest request) {
+    public ResponseEntity<?> updateTechnology(@PathVariable String id, @Valid @RequestBody TechnologyRequest request) {
         return ResponseEntity.ok(technologyService.updateTechnology(id, request));
     }
 

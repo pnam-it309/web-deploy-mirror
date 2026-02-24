@@ -24,14 +24,36 @@ onMounted(async () => {
   }
 });
 
+const errors = reactive({ name: '', icon: '' });
+
+const validateForm = (): boolean => {
+  errors.name = '';
+  errors.icon = '';
+  let valid = true;
+  if (!form.name || !form.name.trim()) {
+    errors.name = 'Tên công nghệ không được để trống';
+    valid = false;
+  }
+  if (!form.icon || !form.icon.trim()) {
+    errors.icon = 'URL Logo / Icon không được để trống';
+    valid = false;
+  }
+  return valid;
+};
+
 const handleSubmit = async () => {
+  if (!validateForm()) {
+    toast.error('Vui lòng điền đầy đủ các trường bắt buộc!');
+    return;
+  }
   try {
     if (isEdit.value) await TechnologyService.update(form.id, form);
     else await TechnologyService.create(form);
     toast.success(isEdit.value ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
     router.push({ name: 'admin-technologies' });
-  } catch (e) {
-    toast.error('Lỗi khi lưu dữ liệu!');
+  } catch (e: any) {
+    const msg = e.response?.data?.message || e.response?.data?.error;
+    toast.error(msg || 'Lỗi khi lưu dữ liệu!');
   }
 };
 </script>
@@ -50,8 +72,8 @@ const handleSubmit = async () => {
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
         <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">Thông tin</h3>
         <div class="space-y-6">
-          <BaseInput v-model="form.name" label="Tên công nghệ (*)" placeholder="VD: Java, React..." required class="dark:text-white" />
-          <BaseInput v-model="form.icon" label="URL Logo / Icon" placeholder="Link ảnh logo..." class="dark:text-white" />
+          <BaseInput v-model="form.name" label="Tên công nghệ (*)" placeholder="VD: Java, React..." required class="dark:text-white" :error="errors.name" />
+          <BaseInput v-model="form.icon" label="URL Logo / Icon (*)" placeholder="Link ảnh logo..." class="dark:text-white" :error="errors.icon" />
         </div>
       </div>
 

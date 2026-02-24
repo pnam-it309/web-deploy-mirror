@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
+import { ref, onMounted, computed } from 'vue';
 import BaseSpinner from '@/components/base/BaseSpinner.vue';
 import {
   CubeIcon,
@@ -8,66 +7,25 @@ import {
   UserGroupIcon,
   EyeIcon,
   SparklesIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  ArrowTrendingUpIcon,
+  ArrowPathIcon,
+  StarIcon,
+  PlusIcon,
 } from '@heroicons/vue/24/outline';
 import { getDashboardStats, type DashboardStats } from '@/services/admin/dashboard.service';
-
 import draggable from 'vuedraggable';
 import { AppService } from '@/services/admin/app.service';
-
-
 import { toast } from 'vue3-toastify';
+import { useRouter } from 'vue-router';
+import { useThemeStore } from '@/stores/theme.store';
 
+const router = useRouter();
+const themeStore = useThemeStore();
 const featuredApps = ref<any[]>([]);
 const otherApps = ref<any[]>([]);
-
-const loadData = async () => {
-  isLoading.value = true;
-  try {
-    // Fetch approved apps mostly? Or all? Usually only Approved apps should be featured.
-    // But let's fetch all for now, maybe filter by status locally if needed.
-    const res = await AppService.getAll({ size: 1000 });
-    const all = res.content || [];
-
-    // Filter only approved for homepage?
-    // Let's assume we can feature any app, but typically Approved.
-
-    featuredApps.value = all.filter((a: any) => a.isFeatured).sort((a: any, b: any) => (a.homepageSortOrder || 0) - (b.homepageSortOrder || 0));
-    otherApps.value = all.filter((a: any) => !a.isFeatured);
-  } catch (e) {
-    console.error(e);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-onMounted(loadData);
-
-const onDragEnd = async () => {
-  try {
-    const payload = featuredApps.value.map((app, index) => ({
-      id: app.id,
-      homepageSortOrder: index + 1
-    }));
-    await AppService.updateHomepageOrder(payload);
-    toast.success("Đã cập nhật thứ tự hiển thị!");
-  } catch (e) {
-    toast.error("Lỗi cập nhật thứ tự");
-  }
-};
-
-const toggleFeatured = async (app: any) => {
-  try {
-    await AppService.toggleFeatured(app.id);
-    const isNowFeatured = !app.isFeatured;
-    toast.success(isNowFeatured ? "Đã thêm vào Hot!" : "Đã bỏ khỏi Hot!");
-    loadData();
-  } catch (e) {
-    toast.error("Lỗi cập nhật trạng thái");
-  }
-};
-
 const isLoading = ref(false);
+
 const stats = ref<DashboardStats>({
   totalApps: 0,
   totalDomains: 0,
@@ -77,302 +35,317 @@ const stats = ref<DashboardStats>({
   totalFeatures: 0
 });
 
+// Sparkline mock data for chart (7-day view trend)
+const chartData = ref([420, 680, 550, 890, 740, 1020, 1205]);
+const chartMax = computed(() => Math.max(...chartData.value));
+const chartPoints = computed(() => {
+  const w = 280, h = 80;
+  return chartData.value.map((v, i) => {
+    const x = (i / (chartData.value.length - 1)) * w;
+    const y = h - (v / chartMax.value) * h * 0.85 - h * 0.05;
+    return `${x},${y}`;
+  }).join(' ');
+});
+
+const loadData = async () => {
+  isLoading.value = true;
+  try {
+    const res = await AppService.getAll({ size: 1000 });
+    const all = res.content || [];
+    featuredApps.value = all
+      .filter((a: any) => a.isFeatured)
+      .sort((a: any, b: any) => (a.homepageSortOrder || 0) - (b.homepageSortOrder || 0));
+    otherApps.value = all.filter((a: any) => !a.isFeatured);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 onMounted(async () => {
   isLoading.value = true;
   try {
-    const res = await getDashboardStats();
-    if (res) {
-      stats.value = res;
-    }
+    const [statsRes] = await Promise.all([getDashboardStats(), loadData()]);
+    if (statsRes) stats.value = statsRes;
   } catch (e) {
-    console.error(e)
+    console.error(e);
   } finally {
     isLoading.value = false;
   }
 });
+
+const onDragEnd = async () => {
+  try {
+    const payload = featuredApps.value.map((app, index) => ({
+      id: app.id,
+      homepageSortOrder: index + 1
+    }));
+    await AppService.updateHomepageOrder(payload);
+    toast.success('Đã cập nhật thứ tự hiển thị!');
+  } catch {
+    toast.error('Lỗi cập nhật thứ tự');
+  }
+};
+
+const toggleFeatured = async (app: any) => {
+  try {
+    await AppService.toggleFeatured(app.id);
+    const isNowFeatured = !app.isFeatured;
+    toast.success(isNowFeatured ? 'Đã thêm vào Hot! 🔥' : 'Đã bỏ khỏi Hot!');
+    loadData();
+  } catch {
+    toast.error('Lỗi cập nhật trạng thái');
+  }
+};
+
+const statCards = computed(() => [
+  {
+    label: 'Dự án',
+    value: stats.value.totalApps,
+    icon: CubeIcon,
+    trend: '+12%',
+    trendUp: true,
+    hint: 'so với tháng trước',
+    color: '#8b5cf6',
+    bg: 'rgba(139, 92, 246, 0.12)',
+    glow: 'rgba(139, 92, 246, 0.3)',
+  },
+  {
+    label: 'Sinh viên',
+    value: stats.value.totalStudents,
+    icon: UserGroupIcon,
+    trend: '+5%',
+    trendUp: true,
+    hint: 'tài khoản đăng ký',
+    color: '#06b6d4',
+    bg: 'rgba(6, 182, 212, 0.12)',
+    glow: 'rgba(6, 182, 212, 0.3)',
+  },
+  {
+    label: 'Lượt xem',
+    value: stats.value.totalViews,
+    icon: EyeIcon,
+    trend: '+24%',
+    trendUp: true,
+    hint: 'tổng lượt xem',
+    color: '#10b981',
+    bg: 'rgba(16, 185, 129, 0.12)',
+    glow: 'rgba(16, 185, 129, 0.3)',
+  },
+  {
+    label: 'Lĩnh vực',
+    value: stats.value.totalDomains,
+    icon: FolderIcon,
+    trend: null,
+    trendUp: null,
+    hint: 'đang hoạt động',
+    color: '#f59e0b',
+    bg: 'rgba(245, 158, 11, 0.12)',
+    glow: 'rgba(245, 158, 11, 0.3)',
+  },
+  {
+    label: 'Công nghệ',
+    value: stats.value.totalTechnologies,
+    icon: CpuChipIcon,
+    trend: null,
+    trendUp: null,
+    hint: 'trong hệ thống',
+    color: '#f43f5e',
+    bg: 'rgba(244, 63, 94, 0.12)',
+    glow: 'rgba(244, 63, 94, 0.3)',
+  },
+  {
+    label: 'Chức năng',
+    value: stats.value.totalFeatures,
+    icon: SparklesIcon,
+    trend: null,
+    trendUp: null,
+    hint: 'tính năng hệ thống',
+    color: '#6366f1',
+    bg: 'rgba(99, 102, 241, 0.12)',
+    glow: 'rgba(99, 102, 241, 0.3)',
+  },
+]);
 </script>
-<style scoped>
-.ghost {
-  opacity: 0.5;
-  background: #fff7ed;
-  border: 1px dashed #f97316;
-}
-</style>
 
 <template>
-  <div class="flex flex-col min-h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!-- STATS SECTION -->
-    <div class="p-6 flex flex-col">
-      <!-- <div class="mb-6 shrink-0">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white font-serif uppercase tracking-tight">Tổng quan hệ thống</h1>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Số liệu thống kê thời gian thực của toàn bộ hệ thống</p>
-      </div> -->
+  <div class="dashboard-root min-h-full py-8 transition-colors duration-300"
+    :class="themeStore.theme === 'dark' ? 'root-dark' : 'root-light'">
+    
+    <!-- ── BACKGROUND BLOBS (Dark Mode Only) ── -->
+    <div class="dashboard-blobs" v-if="themeStore.theme === 'dark'">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
 
-      <div v-if="isLoading" class="flex justify-center items-center py-10">
-        <BaseSpinner size="lg" />
+    <!-- ── HEADER ── -->
+    <div class="px-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+      <div>
+        <h1 class="header-title text-3xl font-black tracking-tight uppercase">Hệ thống Thống kê</h1>
+        <p class="header-subtitle text-sm font-medium mt-1">Sản phẩm kỹ thuật & Đo lường tăng trưởng</p>
       </div>
-
-      <div v-else
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-fade-in">
-
-        <!-- 1. Projects -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-300">
-              <CubeIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Dự án</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {{ stats?.totalApps || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span
-              class="text-xs text-green-500 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-              +12%
-            </span>
-            <span class="text-xs text-gray-400">so với tháng trước</span>
-          </div>
-        </div>
-
-        <!-- 2. Domains -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition-transform duration-300">
-              <FolderIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Lĩnh vực</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">
-                {{ stats?.totalDomains || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span class="text-xs text-gray-400">Đang hoạt động</span>
-          </div>
-        </div>
-
-        <!-- 3. Students -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform duration-300">
-              <UserGroupIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Sinh viên</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                {{ stats?.totalStudents || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span
-              class="text-xs text-green-500 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-              +5%
-            </span>
-            <span class="text-xs text-gray-400">so với tháng trước</span>
-          </div>
-        </div>
-
-        <!-- 4. Technologies -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300">
-              <CpuChipIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Công nghệ</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                {{ stats?.totalTechnologies || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span class="text-xs text-gray-400">Mới cập nhật</span>
-          </div>
-        </div>
-
-        <!-- 5. Views -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform duration-300">
-              <EyeIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Lượt xem</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-                {{ stats?.totalViews || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span
-              class="text-xs text-green-500 font-bold bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-              +24%
-            </span>
-            <span class="text-xs text-gray-400">Total views</span>
-          </div>
-        </div>
-
-        <!-- 6. Features -->
-        <div
-          class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div class="flex items-center gap-5">
-            <div
-              class="p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform duration-300">
-              <SparklesIcon class="w-8 h-8" />
-            </div>
-            <div>
-              <p class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Chức năng</p>
-              <p
-                class="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                {{ stats?.totalFeatures || 0 }}</p>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span class="text-xs text-gray-400">Tính năng hệ thống</span>
-          </div>
-        </div>
-
+      <div class="flex items-center gap-4">
+        <button @click="loadData"
+          class="btn-secondary group flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm">
+          <ArrowPathIcon class="w-4.5 h-4.5 group-hover:rotate-180 transition-transform duration-500" :class="isLoading ? 'animate-spin' : ''" />
+          <span>Đồng bộ</span>
+        </button>
+        <button @click="router.push('/admin/apps')"
+          class="btn-primary flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
+          <PlusIcon class="w-4.5 h-4.5 stroke-[3]" />
+          <span>Tạo sản phẩm mới</span>
+        </button>
       </div>
     </div>
 
-    <!-- FEATURED / OTHER APPS SECTION -->
-    <div class="p-6 flex flex-col bg-gray-50 dark:bg-gray-900">
-      <div class="mb-6 flex justify-between items-center">
-        <div></div>
-        <button @click="loadData"
-          class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm text-sm uppercase tracking-wide flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Làm mới
-        </button>
-      </div>
-
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
-        <BaseSpinner size="lg" />
-      </div>
-
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8 h-[700px]">
-        <!-- FEATURED LIST -->
-        <div
-          class="flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden h-full">
-          <div
-            class="p-4 border-b border-gray-100 dark:border-gray-700 bg-orange-50 dark:bg-orange-900/10 flex justify-between items-center shrink-0">
-            <h3 class="font-bold text-orange-800 dark:text-orange-400 flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-              Đang hiển thị ({{ featuredApps.length }})
-            </h3>
-            <span
-              class="text-[10px] font-bold uppercase tracking-wide text-orange-600 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded">Draggable</span>
+    <!-- ── HERO CHART SECTION ── -->
+    <div class="px-8 mb-8 relative z-10">
+      <div class="chart-card-shell relative overflow-hidden rounded-3xl p-8 border backdrop-blur-md">
+        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12">
+          <div class="lg:w-80 flex-shrink-0 text-center lg:text-left">
+            <p class="chart-label text-[10px] font-black uppercase tracking-[0.2em] mb-2">Chỉ số truy cập (7D)</p>
+            <div class="chart-value text-6xl font-black tracking-tighter flex items-end justify-center lg:justify-start gap-2">
+              {{ stats.totalViews.toLocaleString() }}
+              <span class="text-xs font-bold opacity-40 mb-2 uppercase">Lượt</span>
+            </div>
+            <div class="mt-5 flex items-center justify-center lg:justify-start gap-3">
+              <span class="trend-badge flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-full">
+                <ArrowTrendingUpIcon class="w-3.5 h-3.5" />
+                +24.8%
+              </span>
+              <span class="chart-subtext text-xs opacity-60">Tăng trưởng ổn định</span>
+            </div>
           </div>
 
-          <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-gray-50/50 dark:bg-gray-900/50 h-full">
-            <draggable v-model="featuredApps" item-key="id" @end="onDragEnd" ghost-class="ghost"
-              class="space-y-3 min-h-[100px]">
+          <div class="flex-1 w-full min-h-[160px] flex flex-col">
+            <div class="flex justify-between text-[11px] chart-subtext font-black mb-6 px-2 opacity-50 uppercase tracking-widest">
+              <span v-for="d in ['Thứ 2','Thứ 3','Thứ 4','Thứ 5','Thứ 6','Thứ 7','Chủ nhật']" :key="d" class="hidden sm:inline">{{ d }}</span>
+              <span v-for="d in ['T2','T3','T4','T5','T6','T7','CN']" :key="d" class="sm:hidden">{{ d }}</span>
+            </div>
+            <svg viewBox="0 0 280 90" class="w-full flex-1 filter-drop-shadow" style="overflow: visible">
+              <defs>
+                <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#8b5cf6" />
+                  <stop offset="50%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+                <filter id="glow-line">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <path :d="`M0,90 ${chartPoints} L280,90 Z`" fill="url(#lineGrad)" fill-opacity="0.05" />
+              <polyline :points="chartPoints" fill="none" stroke="url(#lineGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-line)" />
+              <circle v-for="(pt, i) in chartPoints.split(' ')" :key="i" :cx="pt.split(',')[0]" :cy="pt.split(',')[1]" r="5" class="chart-dot" fill="white" stroke="url(#lineGrad)" stroke-width="3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="px-8 mb-10 relative z-10">
+      <div v-if="isLoading" class="flex justify-center py-12">
+        <BaseSpinner size="xl" />
+      </div>
+      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+        <div v-for="(card, i) in statCards" :key="card.label"
+          class="stat-card group relative overflow-hidden rounded-3xl p-6 transition-all duration-500 hover:-translate-y-2"
+          :style="`--item-color: ${card.color}; --item-bg: ${card.bg}; --item-glow: ${card.glow}; animation-delay: ${i * 80}ms`">
+          <div class="stat-surface absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity"></div>
+          <div class="stat-glow absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative z-10">
+            <div class="stat-icon-box w-12 h-12 rounded-2xl flex items-center justify-center mb-5 transition-all group-hover:rotate-6 group-hover:scale-110 shadow-lg"
+              :style="`background: ${card.bg}; color: ${card.color}`">
+              <component :is="card.icon" class="w-6 h-6 stroke-[2]" />
+            </div>
+            <p class="stat-val text-3xl font-black leading-none tracking-tight">{{ card.value.toLocaleString() }}</p>
+            <p class="stat-label text-[10px] font-black uppercase tracking-[0.1em] mt-3 opacity-60">{{ card.label }}</p>
+            <div v-if="card.trend" class="mt-4 flex items-center gap-1.5" :class="card.trendUp ? 'text-emerald-500' : 'text-rose-500'">
+              <div class="w-1.5 h-1.5 rounded-full bg-current animate-pulse"></div>
+              <span class="text-[10px] font-black">{{ card.trend }}</span>
+              <ArrowTrendingUpIcon class="w-3.5 h-3.5" v-if="card.trendUp" />
+            </div>
+            <p v-else class="stat-hint text-[10px] font-medium mt-4 whitespace-nowrap">{{ card.hint }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOWER PANELS ── -->
+    <div class="px-8 pb-10 relative z-10">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-10 h-[700px]">
+        <div class="panel flex flex-col rounded-3xl overflow-hidden border backdrop-blur-lg">
+          <div class="panel-header featured flex items-center justify-between px-8 py-6 shrink-0 border-b">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shadow-inner">
+                <StarIcon class="w-6 h-6 text-amber-500" />
+              </div>
+              <div>
+                <h3 class="font-black text-sm uppercase tracking-tight panel-title">Trang chủ Highlights</h3>
+                <p class="text-[10px] opacity-50 font-bold uppercase tracking-widest mt-0.5">Thứ tự hiển thị ({{ featuredApps.length }})</p>
+              </div>
+            </div>
+            <span class="drag-badge text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border">Manual Sort</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 panel-scrollbar">
+            <draggable v-model="featuredApps" item-key="id" @end="onDragEnd" ghost-class="ghost" class="space-y-4">
               <template #item="{ element }">
-                <div
-                  class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 cursor-move hover:border-orange-300 dark:hover:border-orange-500 transition-all hover:shadow-md group">
-                  <div class="font-bold text-gray-400 w-6 text-center text-sm">#{{ featuredApps.indexOf(element) + 1 }}
-                  </div>
-                  <div
-                    class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 dark:border-gray-700">
-                    <img :src="element.thumbnail" class="w-full h-full object-cover bg-gray-100 dark:bg-gray-700" />
+                <div class="app-row featured-row group flex items-center gap-5 p-5 rounded-2xl cursor-grab active:cursor-grabbing transition-all border">
+                  <span class="app-rank w-8 text-center text-sm font-black opacity-20 group-hover:opacity-40">#{{ featuredApps.indexOf(element) + 1 }}</span>
+                  <div class="w-14 h-14 rounded-2xl overflow-hidden shrink-0 shadow-lg border-2 border-transparent group-hover:border-amber-400/50 transition-all">
+                    <img :src="element.thumbnail" class="w-full h-full object-cover" />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="font-bold text-gray-900 dark:text-white truncate">{{ element.name }}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-0.5">
-                      {{ element.domainName }}
-                      <span class="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                      <span class="text-orange-500 font-bold">Featured</span>
-                    </div>
+                    <p class="app-name font-black text-base truncate group-hover:text-amber-500 transition-colors">{{ element.name }}</p>
+                    <p class="app-domain text-xs font-bold opacity-40 truncate mt-0.5">{{ element.domainName }}</p>
                   </div>
-                  <button
-                    class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                    @click.stop="toggleFeatured(element)" title="Bỏ đính ghim">
+                  <button @click.stop="toggleFeatured(element)" class="btn-remove opacity-0 group-hover:opacity-100 p-2.5 rounded-xl transition-all hover:scale-110 active:scale-90">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
               </template>
             </draggable>
-
-            <div v-if="featuredApps.length === 0"
-              class="h-full flex flex-col items-center justify-center text-center p-8 text-gray-400 dark:text-gray-500 italic border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-              <p>Chưa có sản phẩm nào được ghim.</p>
-              <p class="text-xs mt-2">Chọn sản phẩm từ danh sách bên phải để thêm vào đây.</p>
-            </div>
           </div>
         </div>
 
-        <!-- OTHER APPS -->
-        <div
-          class="flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden h-full">
-          <div
-            class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30 flex justify-between items-center shrink-0">
-            <h3 class="font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-              <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              Danh sách sản phẩm khác ({{ otherApps.length }})
-            </h3>
+        <div class="panel flex flex-col rounded-3xl overflow-hidden border backdrop-blur-lg">
+          <div class="panel-header flex items-center justify-between px-8 py-6 shrink-0 border-b">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shadow-inner">
+                <CubeIcon class="w-6 h-6 text-indigo-500" />
+              </div>
+              <div>
+                <h3 class="font-black text-sm uppercase tracking-tight panel-title">Tất cả sản phẩm</h3>
+                <p class="text-[10px] opacity-50 font-bold uppercase tracking-widest mt-0.5">Kho lưu trữ ({{ otherApps.length }})</p>
+              </div>
+            </div>
           </div>
-          <div class="flex-1 overflow-y-auto p-4 custom-scrollbar h-full">
-            <div class="space-y-2">
-              <div v-for="app in otherApps" :key="app.id"
-                class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all group">
-                <div
-                  class="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-gray-100 dark:border-gray-700">
-                  <img :src="app.thumbnail" class="w-full h-full object-cover bg-gray-100 dark:bg-gray-700" />
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <div class="font-bold text-gray-900 dark:text-white truncate">{{ app.name }}</div>
-                  <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <span>{{ app.domainName }}</span>
-                    <span v-if="app.approvalStatus !== 'APPROVED'"
-                      class="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">{{
-                        app.approvalStatus
-                      }}</span>
+          <div class="flex-1 overflow-y-auto p-6 panel-scrollbar">
+            <div class="space-y-3">
+              <div v-for="app in otherApps" :key="app.id" class="app-row group flex items-center gap-5 p-4 rounded-2xl border transition-all">
+                 <div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border group-hover:border-indigo-500/30 transition-all">
+                    <img v-if="app.thumbnail" :src="app.thumbnail" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full bg-indigo-500/5 flex items-center justify-center">
+                      <CubeIcon class="w-6 h-6 text-indigo-300" />
+                    </div>
                   </div>
-                </div>
-
-                <button @click="toggleFeatured(app)"
-                  class="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-bold hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-200 dark:hover:border-orange-500/50 transition-colors shadow-sm uppercase tracking-wide">
-                  + Ghim
-                </button>
+                  <div class="flex-1 min-w-0">
+                    <p class="app-name font-black text-sm truncate group-hover:text-indigo-500 transition-colors">{{ app.name }}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <p class="app-domain text-xs font-bold opacity-30 truncate">{{ app.domainName }}</p>
+                      <span v-if="app.approvalStatus !== 'APPROVED'" class="status-pill text-[9px] font-black uppercase px-2 py-0.5 rounded-full border">
+                        {{ app.approvalStatus }}
+                      </span>
+                    </div>
+                  </div>
+                  <button @click="toggleFeatured(app)" class="btn-pin hover:scale-105 active:scale-95 transition-all text-[10px] font-black tracking-widest uppercase px-5 py-2.5 rounded-xl shadow-md">
+                    Ghim Hot
+                  </button>
               </div>
             </div>
           </div>
@@ -381,3 +354,69 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* ── Layout & Blobs ── */
+.dashboard-root { position: relative; overflow-x: hidden; }
+.root-light { background: #ffffff; }
+.root-dark { background: #05040d; }
+
+.dashboard-blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.blob { position: absolute; filter: blur(120px); border-radius: 50%; opacity: 0.15; }
+.blob-1 { width: 600px; height: 600px; background: #7c3aed; top: -200px; right: -100px; }
+.blob-2 { width: 500px; height: 500px; background: #3b82f6; bottom: -100px; left: -100px; }
+.blob-3 { width: 400px; height: 400px; background: #ec4899; top: 40%; left: 30%; filter: blur(150px); opacity: 0.08; }
+
+.root-light .header-title { color: #0f172a; }
+.root-dark .header-title { color: white; text-shadow: 0 0 30px rgba(124, 58, 237, 0.4); }
+.root-light .header-subtitle { color: #64748b; }
+.root-dark .header-subtitle { color: #94a3b8; }
+
+/* ── Buttons ── */
+.btn-secondary { background: white; border: 1px solid #e2e8f0; color: #475569; }
+.root-dark .btn-secondary { background: rgba(124, 58, 237, 0.05); border-color: rgba(124, 58, 237, 0.2); color: #a78bfa; }
+
+.btn-primary { background: linear-gradient(135deg, #7c3aed, #6366f1); }
+
+/* ── Hero Chart Card ── */
+.root-light .chart-card-shell { background: white; border-color: #f1f5f9; box-shadow: 0 20px 50px rgba(0,0,0,0.04); }
+.root-dark .chart-card-shell { background: rgba(15, 12, 35, 0.6); border-color: rgba(124, 58, 237, 0.2); box-shadow: 0 30px 100px rgba(0,0,0,0.5); }
+
+.root-light .chart-value { color: #0f172a; }
+.root-dark .chart-value { color: white; }
+.root-light .chart-label { color: #7c3aed; }
+.root-dark .chart-label { color: #c084fc; }
+
+.trend-badge { background: #f0fdf4; color: #16a34a; }
+.root-dark .trend-badge { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+/* ── Stat Cards ── */
+.stat-card { background: white; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.02); animation: slide-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.root-dark .stat-card { background: rgba(124, 58, 237, 0.03); border-color: rgba(124, 58, 237, 0.1); }
+.stat-glow { background: radial-gradient(circle at 50% 0%, var(--item-glow), transparent 70%); }
+.root-light .stat-val { color: #0f172a; }
+.root-dark .stat-val { color: white; }
+
+/* ── Panels ── */
+.root-light .panel { background: white; border-color: #f1f5f9; }
+.root-dark .panel { background: rgba(15, 12, 35, 0.4); border-color: rgba(124, 58, 237, 0.1); }
+.root-light .panel-header { background: rgba(255,255,255,0.8); border-bottom-color: #f1f5f9; }
+.root-dark .panel-header { background: rgba(124, 58, 237, 0.05); border-bottom-color: rgba(124, 58, 237, 0.15); }
+
+.root-light .app-row:hover { background: #f8fafc; border-color: #e2e8f0; }
+.root-dark .app-row:hover { background: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.2); }
+
+.root-light .app-name { color: #1e293b; }
+.root-dark .app-name { color: #f1f5f9; }
+
+.btn-remove { background: #fee2e2; color: #dc2626; }
+.btn-pin { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
+.root-dark .btn-pin { background: rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.4); color: #c084fc; }
+
+/* ── Animations ── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.filter-drop-shadow { filter: drop-shadow(0 0 12px rgba(99, 102, 241, 0.3)); }
+</style>

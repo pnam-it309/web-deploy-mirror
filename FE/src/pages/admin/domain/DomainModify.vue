@@ -46,14 +46,46 @@ onMounted(async () => {
   }
 });
 
+const errors = reactive({
+  name: '',
+  icon: '',
+  description: ''
+});
+
+const validateForm = (): boolean => {
+  errors.name = '';
+  errors.icon = '';
+  errors.description = '';
+
+  let valid = true;
+  if (!form.name || !form.name.trim()) {
+    errors.name = 'Tên lĩnh vực không được để trống';
+    valid = false;
+  }
+  if (!form.icon || !form.icon.trim()) {
+    errors.icon = 'Biểu tượng không được để trống';
+    valid = false;
+  }
+  if (!form.description || !form.description.trim()) {
+    errors.description = 'Mô tả ngắn không được để trống';
+    valid = false;
+  }
+  return valid;
+};
+
 const handleSubmit = async () => {
+  if (!validateForm()) {
+    toast.error('Vui lòng điền đầy đủ các trường bắt buộc!');
+    return;
+  }
   try {
     if (isEdit.value) await DomainService.update(form.id, form);
     else await DomainService.create(form);
     toast.success(isEdit.value ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
     router.push({ name: 'admin-domains' });
-  } catch (e) {
-    toast.error('Lỗi khi lưu dữ liệu!');
+  } catch (e: any) {
+    const msg = e.response?.data?.message || e.response?.data?.error;
+    toast.error(msg || 'Lỗi khi lưu dữ liệu!');
   }
 };
 </script>
@@ -75,10 +107,10 @@ const handleSubmit = async () => {
       <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
         <h3 class="text-sm font-bold text-gray-900 dark:text-white uppercase mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">Thông tin nhập liệu</h3>
         <div class="space-y-6">
-          <BaseInput v-model="form.name" label="Tên lĩnh vực (*)" placeholder="VD: E-commerce" required class="dark:text-white" />
+          <BaseInput v-model="form.name" label="Tên lĩnh vực (*)" placeholder="VD: E-commerce" required class="dark:text-white" :error="errors.name" />
 
           <div class="grid grid-cols-2 gap-5">
-            <BaseIconPicker v-model="form.icon" label="Biểu tượng" class="dark:text-white" />
+            <BaseIconPicker v-model="form.icon" label="Biểu tượng" class="dark:text-white" :error="errors.icon" />
 
             <div class="flex flex-col gap-2">
               <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Màu chủ đạo</label>
@@ -117,7 +149,7 @@ const handleSubmit = async () => {
           </div>
 
           <BaseTextarea v-model="form.description" label="Mô tả ngắn" placeholder="Mô tả về lĩnh vực này..."
-            :rows="4" class="dark:text-white" />
+            :rows="4" class="dark:text-white" :error="errors.description" />
         </div>
       </div>
 

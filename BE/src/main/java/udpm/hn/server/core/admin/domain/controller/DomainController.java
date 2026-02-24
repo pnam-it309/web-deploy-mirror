@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import udpm.hn.server.core.admin.domain.dto.request.DomainRequest;
 import udpm.hn.server.core.admin.domain.service.DomainService;
 import udpm.hn.server.infrastructure.constant.MappingConstants;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(MappingConstants.API_ADMIN_DOMAIN)
@@ -32,12 +33,12 @@ public class DomainController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createDomain(@RequestBody DomainRequest request) {
+    public ResponseEntity<?> createDomain(@Valid @RequestBody DomainRequest request) {
         return ResponseEntity.ok(domainService.createDomain(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateDomain(@PathVariable String id, @RequestBody DomainRequest request) {
+    public ResponseEntity<?> updateDomain(@PathVariable String id, @Valid @RequestBody DomainRequest request) {
         return ResponseEntity.ok(domainService.updateDomain(id, request));
     }
 

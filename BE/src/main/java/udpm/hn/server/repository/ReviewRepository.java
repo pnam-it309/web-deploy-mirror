@@ -43,12 +43,17 @@ public interface ReviewRepository extends JpaRepository<Review, String>, JpaSpec
     boolean existsByAppIdAndUserEmail(String appId, String userEmail);
 
     /**
-     * Moderation query - can also use ReviewSpecification.hasStatus()
+     * Moderation query - fetches the 'app' relation eagerly to avoid LazyInitializationException
      */
+    @Override
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"app", "app.domain"})
+    org.springframework.data.domain.Page<Review> findAll(org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * Moderation query - fetches the 'app' relation eagerly to avoid LazyInitializationException
+     */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"app", "app.domain"})
     org.springframework.data.domain.Page<Review> findByModerationStatus(
             udpm.hn.server.infrastructure.constant.ModerationStatus status,
             org.springframework.data.domain.Pageable pageable);
-
-    // Removed: findApprovedByAppId - use ReviewSpecification.approvedForApp()
-    // instead
 }

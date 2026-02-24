@@ -33,7 +33,9 @@ public class TechnologyServiceImpl implements TechnologyService {
     public List<TechnologyResponse> getAllTechnologies() {
         log.debug("Cache MISS: Fetching all technologies from database");
         return technologyRepository.findAll().stream()
-                .filter(t -> t.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)
+                .filter(t -> t.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED
+                        && t.getStatus() != null)
+                .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
                 .map(t -> modelMapper.map(t, TechnologyResponse.class))
                 .collect(Collectors.toList());
     }
@@ -48,13 +50,20 @@ public class TechnologyServiceImpl implements TechnologyService {
     @CacheEvict(value = "technologies", allEntries = true)
     public TechnologyResponse createTechnology(TechnologyRequest request) {
         log.info("Creating technology: name={}", request.getName());
+
+        // Kiểm tra tên trùng (chỉ với records chưa bị xóa mềm)
+        if (technologyRepository.existsByNameAndStatusNot(request.getName(), udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)) {
+            throw new IllegalArgumentException("Tên công nghệ '" + request.getName() + "' đã tồn tại");
+        }
+
         Technology tech = modelMapper.map(request, Technology.class);
-        
+        tech.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.ACTIVE);
+
         // Auto generate slug if empty
         if (tech.getSlug() == null || tech.getSlug().isEmpty()) {
             tech.setSlug(udpm.hn.server.utils.SlugUtils.toSlug(tech.getName()));
         }
-        
+
         TechnologyResponse response = modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
         log.info("Technology created successfully: id={}, evicting cache", response.getId());
         return response;
@@ -66,7 +75,16 @@ public class TechnologyServiceImpl implements TechnologyService {
         log.info("Updating technology: id={}, name={}", id, request.getName());
         Technology tech = technologyRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
+
+        // Kiểm tra tên trùng (chỉ với records chưa bị xóa mềm, loại trừ chính nó)
+        if (technologyRepository.existsByNameAndIdNotAndStatusNot(request.getName(), id, udpm.hn.server.infrastructure.constant.EntityStatus.DELETED)) {
+            throw new IllegalArgumentException("Tên công nghệ '" + request.getName() + "' đã tồn tại");
+        }
+
         modelMapper.map(request, tech);
+        // Regenerate slug
+        tech.setSlug(udpm.hn.server.utils.SlugUtils.toSlug(tech.getName()));
+
         TechnologyResponse response = modelMapper.map(technologyRepository.save(tech), TechnologyResponse.class);
         log.info("Technology updated successfully, evicting cache");
         return response;

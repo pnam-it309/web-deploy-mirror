@@ -88,3 +88,34 @@
 [x] Là Developer, tôi muốn webhook	Trigger event khi có sản phẩm mới publish
 [x] Là Developer, tôi muốn GraphQL API	Query linh hoạt thay vì REST cứng nhắc
 [x] Là Developer, tôi muốn SDK	Client library cho JS/Python để dễ tích hợp
+
+lỗi
+
+[ ] SP_01	Lỗi phông chữ	Admin	Sản phẩm	Phông chữ màn sản phẩm bị lỗi, chữ to chữ bé không đồng đều
+[x] SP_02	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Thêm mới sản phẩm Mã SKU bỏ trống mà vẫn thêm được
+[x] SP_03	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Thêm mới sản phẩm Link Demo (URL) bỏ trống mà vẫn thêm được
+[x] SP_04	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Thêm mới sản phẩm Bài viết chi tiết bỏ trống mà vẫn thêm được
+[x] SP_05	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Thêm mới sản phẩm Source Code (Git) bỏ trống mà vẫn thêm được
+[x] SP_06	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Thêm mới sản phẩm Thành viên nhóm bỏ trống mà vẫn thêm được
+[x] SP_07	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Tên dự án (*) bỏ trống mà vẫn thêm được
+[x] SP_08	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Mã SKU bỏ trống mà vẫn thêm được
+[x] SP_09	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Link Demo (URL) bỏ trống mà vẫn thêm được
+[x] SP_10	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Bài viết chi tiết bỏ trống mà vẫn thêm được
+[x] SP_11	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Source Code (Git) bỏ trống mà vẫn thêm được
+[x] SP_12	Lỗi bỏ trống	Admin	Sản phẩm	Khi click button Cây bút sản phẩm Thành viên nhóm bỏ trống mà vẫn thêm được
+[x] LV_01	Lỗi hiện thị thứ tự 	Admin	Lĩnh vực	Tại màn Lĩnh vực, khi thêm mới một Lĩnh vực và nhập Thứ tự hiển thị = 1, sau khi Lưu lại thì Lĩnh vực mới không hiển thị đúng vị trí theo thứ tự đã chọn, dẫn đến danh sách sắp xếp sai.
+[x] LV_02	Lỗi hiển thị label các ô nhập liệu không đồng nhất	Admin	Lĩnh vực	Tại màn hình Thêm mới Lĩnh vực, các tiêu đề của ô nhập liệu như: Tên lĩnh vực (*),  Biểu tượng,  Màu chủ đạo, Thứ tự hiển thị, Trạng thái,  Mô tả ngắn đang hiển thị không đồng nhất về kích thước chữ và độ đậm
+[x] LV_03	Lỗi không validate trường bắt buộc	Admin	Lĩnh vực	Tại màn Lĩnh vực, khi người dùng chọn thêm mới và không nhập Tên lĩnh vực (*) , nhưng vẫn nhấn được Lưu lại mà hệ thống vẫn cho phép Thêm mới thành công mà không hiện thị thông báo lỗi
+[x] LV_04	Lỗi không validate trường bắt buộc	Admin	Lĩnh vực	Tại màn Lĩnh vực, khi người dùng chọn thêm mới và không nhập Biểu tượng , nhưng vẫn nhấn được Lưu lại mà hệ thống vẫn cho phép Thêm mới thành công mà không hiện thị thông báo lỗi
+[x] LV_05	Lỗi không validate trường bắt buộc	Admin	Lĩnh vực	Tại màn Lĩnh vực, khi người dùng chọn thêm mới và không nhập Mô tả ngắn, nhưng vẫn nhấn được Lưu lại mà hệ thống vẫn cho phép Thêm mới thành công mà không hiện thị thông báo lỗi
+[x] LV_06	Không đồng bộ màu button khi chuyển đổi theme	Admin	Lĩnh vực	Tại màn Lĩnh vực , sau khi chuyển đổi chế độ màu (Light,Dark) button Tìm kiếm thay đổi màu theo theme, còn các button Import, Export, Bản mẫu không thay đổi theo 
+[x] LV_07	 Lỗi ô combobox không đồng bộ màu khi chuyển đổi theme	Admin	Lĩnh vực	Tại màn Thêm mới Lĩnh vực, sau khi chuyển đổi chế độ màu (Light,Dark) combobox Biểu tượng không thay đổi màu theo theme
+[x] LV_08	 Lỗi input không đồng bộ màu khi chuyển đổi theme	Admin	Lĩnh vực	Tại màn Thêm mới Lĩnh vực, sau khi chuyển đổi chế độ màu (Light,Dark) ô input Mô tả ngắn không thay đổi màu theo theme
+[x] LV_09	Hiển thị thông báo lỗi khi xóa thành công	Admin	Lĩnh vực	Tại màn Lĩnh vực , sau khi xóa Lĩnh vực hệ thống hiện thị thông báo "Đã xảy ra lỗi không xác định", Tuy nhiên sau khi tải lại trang hoặc chuyển sang trang khác , Lĩnh vực mới được xóa thành công
+[x] LV_10	Không thể thêm mới Lĩnh vực với tên đã xóa	Admin	Lĩnh vực	Sau khi xóa một Lĩnh vực, người dùng không thể thêm mới Lĩnh vực khác với cùng tên. Hệ thống "Đã xảy ra lỗi không xác định" không cho thêm, mặc dù bản ghi cũ đã bị xóa khỏi danh sách.
+[x] LV_11	Lỗi chỉnh sửa thứ tự hiện tự	Admin	Lĩnh vực	Tại màn Chỉnh sửa Lĩnh vực, sau khi thay đổi thứ tự hiện thị từ 1 => 3 hệ thống thông báo "Cập nhật thành công" Tuy nhiên thứ tự vẫn không thay đổi  
+[x] CN_01	Không đồng bộ màu button khi chuyển đổi theme	Admin	Công nghệ	Tại màn Công nghệ, sau khi chuyển đổi chế độ màu (Light,Dark) button Tìm kiếm thay đổi màu theo theme, còn các button Import, Export, Bản mẫu không thay đổi theo 
+[x] CN_02	Lỗi không validate trường bắt buộc	Admin	Công nghệ	Tại màn Công nghệ, khi người dùng chọn thêm mới và không nhập Tên công nghệ (*), nhưng vẫn nhấn được Lưu lại mà hệ thống vẫn cho phép Thêm mới thành công mà không hiện thị thông báo lỗi
+[x] CN_03	Lỗi không validate trường bắt buộc	Admin	Công nghệ	Tại màn Công nghệ, khi người dùng chọn thêm mới và không nhập URL Logo / Icon , nhưng vẫn nhấn được Lưu lại mà hệ thống vẫn cho phép Thêm mới thành công mà không hiện thị thông báo lỗi
+[x] CN_04	Lỗi không hiện thị thông báo xóa thành công 	Admin	Công nghệ	Tại màn Công nghệ, sau khi xóa Công nghệ hệ thống không hiện thị thông báo, Tuy nhiên sau khi tải lại trang hoặc chuyển sang trang khác , Công nghệ mới được xóa thành công
+[x] CN_05	Không thể thêm mới Công nghệ với tên đã xóa	Admin	Công nghệ	Sau khi xóa một Công nghệ, người dùng không thể thêm mới Công nghệ khác với cùng tên. Hệ thống "Đã xảy ra lỗi không xác định" không cho thêm, mặc dù bản ghi cũ đã bị xóa khỏi danh sách.

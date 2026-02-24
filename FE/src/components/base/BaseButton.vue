@@ -28,7 +28,7 @@ const classes = computed(() => {
   const variants = {
     primary: "bg-primary text-white hover:bg-primary-hover shadow-lg shadow-primary/30 hover:shadow-primary/40 focus:ring-primary",
     secondary: "bg-secondary text-white hover:bg-secondary-light shadow-md shadow-secondary/30 focus:ring-secondary",
-    outline: "bg-white text-secondary border border-gray-200 hover:border-primary hover:text-primary hover:bg-primary-50 focus:ring-gray-200",
+    outline: "bg-white dark:bg-gray-800 text-secondary dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary hover:bg-primary-50 dark:hover:bg-primary/10 focus:ring-gray-200 dark:focus:ring-gray-700",
     danger: "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/30 focus:ring-red-500 border border-transparent",
   };
 

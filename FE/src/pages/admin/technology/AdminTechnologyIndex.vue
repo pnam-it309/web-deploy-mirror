@@ -41,7 +41,21 @@ onMounted(loadData);
 const handleCreate = () => router.push({ name: 'AdminTechnologyCreate' });
 const handleEdit = (item: Technology) => router.push({ name: 'AdminTechnologyEdit', params: { id: encodeId(item.id) } });
 const handleDelete = async (id: string) => {
-  if (confirm('Xoá công nghệ này?')) { await TechnologyService.deleteTechnology(id); loadData(); }
+  if (confirm('Bạn có chắc muốn xoá công nghệ này?')) {
+    try {
+      await TechnologyService.deleteTechnology(id);
+      toast.success("Xoá thành công!");
+      await loadData();
+    } catch (e: any) {
+      const status = e.response?.status;
+      const msg = e.response?.data?.message || e.response?.data?.error;
+      if (status === 409) {
+        toast.error(msg || "Không thể xoá. Công nghệ này đang được sử dụng bởi sản phẩm khác.");
+      } else {
+        toast.error(msg || "Xoá thất bại. Vui lòng thử lại.");
+      }
+    }
+  }
 };
 
 const fileInput = ref<HTMLInputElement | null>(null);

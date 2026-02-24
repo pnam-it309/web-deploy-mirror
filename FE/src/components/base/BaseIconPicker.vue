@@ -53,34 +53,34 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
 
 <template>
   <div class="flex flex-col gap-1.5 relative" ref="containerRef">
-    <label v-if="label" class="text-[11px] font-bold text-dark uppercase tracking-wider">
+    <label v-if="label" class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
       {{ label }}
     </label>
 
     <div 
       @click="isOpen = !isOpen"
-      class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-sm cursor-pointer flex items-center gap-3 hover:border-primary transition-colors"
-      :class="{'ring-1 ring-primary/50 border-primary': isOpen}"
+      class="w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer flex items-center gap-3 hover:border-primary dark:hover:border-primary transition-colors shadow-sm"
+      :class="{'ring-2 ring-primary/30 border-primary dark:border-primary': isOpen}"
     >
-      <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center text-xl text-dark shrink-0">
+      <div class="w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl text-gray-700 dark:text-gray-200 shrink-0">
         <i v-if="modelValue" :class="modelValue"></i>
-        <span v-else class="text-xs text-gray-400">?</span>
+        <span v-else class="text-xs text-gray-400 dark:text-gray-500">?</span>
       </div>
       
-      <span v-if="modelValue" class="text-sm font-medium text-dark">{{ modelValue }}</span>
-      <span v-else class="text-sm text-gray-400">Chọn biểu tượng...</span>
+      <span v-if="modelValue" class="text-sm font-medium text-gray-900 dark:text-white">{{ modelValue }}</span>
+      <span v-else class="text-sm text-gray-400 dark:text-gray-500">Chọn biểu tượng...</span>
 
-      <div class="ml-auto text-gray-400">
+      <div class="ml-auto text-gray-400 dark:text-gray-500">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
       </div>
     </div>
 
-    <div v-if="isOpen" class="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 shadow-xl rounded-sm z-50 p-3">
+    <div v-if="isOpen" class="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl rounded-lg z-50 p-3">
       <input 
         v-model="searchQuery"
         type="text" 
         placeholder="Tìm kiếm icon (vd: home, user...)" 
-        class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm mb-3 focus:outline-none focus:border-primary"
+        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-lg mb-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
       />
 
       <div class="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
@@ -88,17 +88,18 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside));
           v-for="icon in filteredIcons" 
           :key="icon"
           @click="selectIcon(icon)"
-          class="aspect-square flex items-center justify-center rounded cursor-pointer hover:bg-primary/10 hover:text-primary transition-colors text-xl text-gray-600"
-          :class="{'bg-primary text-white hover:bg-primary hover:text-white': modelValue === icon}"
+          class="aspect-square flex items-center justify-center rounded-md cursor-pointer hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 transition-colors text-xl text-gray-600 dark:text-gray-400"
+          :class="{'bg-primary text-white hover:bg-primary hover:text-white dark:bg-primary': modelValue === icon}"
           :title="icon"
         >
           <i :class="icon"></i>
         </div>
       </div>
       
-      <div v-if="filteredIcons.length === 0" class="text-center text-xs text-gray-400 py-2">
+      <div v-if="filteredIcons.length === 0" class="text-center text-xs text-gray-400 dark:text-gray-500 py-2">
         Không tìm thấy icon nào.
       </div>
     </div>
+    <span v-if="error" class="text-xs text-red-500 mt-1">{{ error }}</span>
   </div>
 </template>
