@@ -137,7 +137,7 @@ const menuGroups = [
   {
     label: 'Tổng quan',
     items: [
-      { name: 'Dashboard', path: '/admin/dashboard', icon: Squares2X2Icon },
+      { name: 'Tổng quan', path: '/admin/dashboard', icon: Squares2X2Icon },
     ]
   },
   {
