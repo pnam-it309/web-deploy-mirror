@@ -27,8 +27,8 @@
     <div class="sidebar-logo relative z-10 h-16 flex items-center justify-between px-5 flex-shrink-0">
       <div class="flex items-center gap-3 transition-all duration-300 whitespace-nowrap overflow-hidden"
         :class="[isExpanded ? 'w-full opacity-100' : 'w-0 opacity-0']">
-        <div class="logo-icon w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
-          <span class="font-serif italic text-lg font-bold">U</span>
+        <div class="logo-icon w-9 h-9 p-1.5 rounded-xl flex items-center justify-center bg-white shadow-lg flex-shrink-0">
+          <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
         </div>
         <span class="logo-text font-serif tracking-tight text-xl font-bold">
           UDPM <span class="highlight">Admin</span>
@@ -36,8 +36,8 @@
       </div>
 
       <div v-if="!isExpanded" class="w-full flex justify-center">
-        <div class="logo-icon w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg">
-          <span class="font-serif italic text-lg font-bold">U</span>
+        <div class="logo-icon w-9 h-9 p-1.5 rounded-xl flex items-center justify-center bg-white shadow-lg">
+          <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
         </div>
       </div>
 

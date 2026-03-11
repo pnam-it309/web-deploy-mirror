@@ -14,10 +14,14 @@ import udpm.hn.server.infrastructure.constant.EntityStatus;
 
 import java.util.Optional;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+
 @Component
 @RequiredArgsConstructor
 @Transactional
-public class DBGCustomerGenerator {
+@Order(3)
+public class DBGCustomerGenerator implements CommandLineRunner {
 
     private final DBGCustomerRepository customerRepository;
     private final DBGRoleRepository roleRepository;
@@ -34,16 +38,16 @@ public class DBGCustomerGenerator {
     @Value("${db.generator.customer.name}")
     private String customerName;
 
-    @PostConstruct
-    public void init() {
+    @Override
+    public void run(String... args) {
         if ("true".equals(isGenerated)) {
+            System.out.println("=== Starting DBGCustomerGenerator ===");
             generateCustomerData();
+            System.out.println("=== DBGCustomerGenerator Finished ===");
         }
     }
 
     private void generateCustomerData() {
-        ensureRolesExist();
-
         Optional<Customer> customerOptional = customerRepository.findByEmail(customerEmail);
         Customer customer;
         if (customerOptional.isEmpty()) {
@@ -68,30 +72,18 @@ public class DBGCustomerGenerator {
         addRoleToCustomer(customer, Roles.CUSTOMER.name());
     }
 
-    private void ensureRolesExist() {
-        String roleCode = Roles.CUSTOMER.name();
-        String roleName = "Customer";
 
-        if (roleRepository.findByCode(roleCode).isEmpty()) {
-            Role role = new Role();
-            role.setCode(roleCode);
-            role.setName(roleName);
-            role.setStatus(EntityStatus.ACTIVE);
-            roleRepository.save(role);
-        }
-    }
 
     private void addRoleToCustomer(Customer customer, String roleName) {
         Optional<Role> roleOptional = roleRepository.findByCode(roleName);
 
         if (roleOptional.isPresent()) {
             Role role = roleOptional.get();
-            boolean exists = customer.getRoles().stream().anyMatch(r -> r.getCode().equals(roleName));
-
-            if (!exists) {
-                customer.getRoles().add(role);
-                customerRepository.save(customer);
-                System.out.println("Role " + roleName + " added to customer " + customer.getEmail());
+            try {
+                customerRepository.insertCustomerRole(customer.getId(), role.getId());
+                System.out.println("✅ Role " + roleName + " assigned to customer " + customer.getEmail());
+            } catch (Exception e) {
+                System.out.println("Role " + roleName + " already exists or could not be assigned to " + customer.getEmail());
             }
         }
     }

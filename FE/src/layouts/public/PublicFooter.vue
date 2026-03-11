@@ -5,8 +5,8 @@
                 <!-- Brand Column -->
                 <div class="col-span-1 md:col-span-1">
                     <div class="flex items-center gap-2 mb-6">
-                        <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-                            <span class="text-white font-bold text-xl">U</span>
+                        <div class="w-8 h-8 bg-white p-1 rounded-lg flex items-center justify-center">
+                            <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
                         </div>
                         <span class="text-xl font-bold">UDPM Catalog</span>
                     </div>

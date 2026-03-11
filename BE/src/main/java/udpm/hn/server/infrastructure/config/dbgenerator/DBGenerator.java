@@ -17,9 +17,13 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
 import java.sql.Connection;
 import java.util.Optional;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 @Component
 @RequiredArgsConstructor
-public class DBGenerator {
+@org.springframework.core.annotation.Order(2)
+public class DBGenerator implements CommandLineRunner {
     @Value("${db.generator.is-generated}")
     private String isGenerated;
 
@@ -36,12 +40,13 @@ public class DBGenerator {
     private final DBGRoleRepository roleRepository;
     private final DataSource dataSource;
 
-    @PostConstruct
-    public void init() {
+    @Override
+    public void run(String... args) {
         if ("true".equals(isGenerated)) {
-            generateRole();
+            System.out.println("=== Starting DBGenerator ===");
             generateData();
             generateSampleData();
+            System.out.println("=== DBGenerator Finished ===");
         }
     }
 
@@ -67,40 +72,18 @@ public class DBGenerator {
         addRoleToUser(admin, Roles.CUSTOMER.name());
     }
 
-    private void generateRole() {
-        createRoleIfNotExist(Roles.ADMIN.name(), Roles.getVietnameseNameByRole(Roles.ADMIN.name()));
-        createRoleIfNotExist(Roles.CUSTOMER.name(), Roles.getVietnameseNameByRole(Roles.CUSTOMER.name()));
-    }
 
-    private void createRoleIfNotExist(String roleCode, String roleName) {
-        if (roleRepository.findByCode(roleCode).isEmpty()) {
-            Role role = new Role();
-            role.setCode(roleCode);
-            role.setName(roleName);
-            role.setStatus(EntityStatus.ACTIVE);
-            roleRepository.save(role);
-        }
-    }
 
     private void addRoleToUser(Admin admin, String roleName) {
         Optional<Role> roleOptional = roleRepository.findByCode(roleName);
 
         if (roleOptional.isPresent()) {
             Role role = roleOptional.get();
-            // Initialize roles collection if null
-            if (admin.getRoles() == null) {
-                admin.setRoles(new java.util.HashSet<>());
-            }
-
-            boolean alreadyHasRole = admin.getRoles().stream()
-                    .anyMatch(r -> r.getCode().equals(roleName));
-
-            if (!alreadyHasRole) {
-                admin.getRoles().add(role);
-                adminRepository.save(admin);
-                System.out.println("Role " + roleName + " added to admin " + admin.getUsername());
-            } else {
-                System.out.println("Admin " + admin.getUsername() + " already has role " + roleName);
+            try {
+                adminRepository.insertAdminRole(admin.getId(), role.getId());
+                System.out.println("✅ Role " + roleName + " assigned to admin " + admin.getUsername());
+            } catch (Exception e) {
+                System.out.println("Role " + roleName + " already exists or could not be assigned to " + admin.getUsername());
             }
         }
     }

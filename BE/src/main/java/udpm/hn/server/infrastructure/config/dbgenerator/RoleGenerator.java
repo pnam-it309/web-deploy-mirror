@@ -10,15 +10,20 @@ import udpm.hn.server.infrastructure.constant.Roles;
 
 import java.util.Optional;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
 @Component
 @RequiredArgsConstructor
-public class RoleGenerator {
+@Order(1)
+public class RoleGenerator implements CommandLineRunner {
 
     private final DBGRoleRepository roleRepository;
 
-    @PostConstruct
-    public void generate() {
-        System.out.println("=== RoleGenerator generate() called ===");
+    @Override
+    public void run(String... args) {
+        System.out.println("=== RoleGenerator Starting ===");
 
         // Always ensure essential roles exist
         ensureRoleExists(Roles.ADMIN.name(), "Administrator");

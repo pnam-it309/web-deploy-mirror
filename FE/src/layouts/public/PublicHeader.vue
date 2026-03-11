@@ -4,11 +4,7 @@
         <div class="container mx-auto px-4 h-full flex items-center justify-between">
             <!-- Logo -->
             <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }" class="flex items-center gap-2">
-                <div
-                    class="w-8 h-8 rounded bg-[#1e293b] dark:bg-blue-600 flex items-center justify-center text-white font-bold">
-                    F
-                </div>
-                <!-- <img src="@/assets/images/logo.png" alt="Logo" class="w-8 h-8" /> -->
+                <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="h-8 w-auto object-contain" />
                 <span class="font-bold text-xl text-gray-800 dark:text-white">FPL Catalog</span>
             </router-link>
 
