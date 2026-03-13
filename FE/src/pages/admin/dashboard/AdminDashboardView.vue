@@ -9,18 +9,14 @@ import {
   SparklesIcon,
   CpuChipIcon,
   ArrowTrendingUpIcon,
-  ArrowPathIcon,
   StarIcon,
-  PlusIcon,
 } from '@heroicons/vue/24/outline';
 import { getDashboardStats, type DashboardStats } from '@/services/admin/dashboard.service';
 import draggable from 'vuedraggable';
 import { AppService } from '@/services/admin/app.service';
 import { toast } from 'vue3-toastify';
-import { useRouter } from 'vue-router';
 import { useThemeStore } from '@/stores/theme.store';
 
-const router = useRouter();
 const themeStore = useThemeStore();
 const featuredApps = ref<any[]>([]);
 const otherApps = ref<any[]>([]);
@@ -187,16 +183,6 @@ const statCards = computed(() => [
         <p class="header-subtitle text-sm font-medium mt-1">Sản phẩm kỹ thuật & Đo lường tăng trưởng</p>
       </div>
       <div class="flex items-center gap-4">
-        <button @click="loadData"
-          class="btn-secondary group flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm">
-          <ArrowPathIcon class="w-4.5 h-4.5 group-hover:rotate-180 transition-transform duration-500" :class="isLoading ? 'animate-spin' : ''" />
-          <span>Đồng bộ</span>
-        </button>
-        <button @click="router.push('/admin/apps')"
-          class="btn-primary flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
-          <PlusIcon class="w-4.5 h-4.5 stroke-[3]" />
-          <span>Tạo sản phẩm mới</span>
-        </button>
       </div>
     </div>
 
@@ -248,7 +234,7 @@ const statCards = computed(() => [
     <!-- ── STAT CARDS ── -->
     <div class="px-8 mb-10 relative z-10">
       <div v-if="isLoading" class="flex justify-center py-12">
-        <BaseSpinner size="xl" />
+        <BaseSpinner size="lg" />
       </div>
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
         <div v-for="(card, i) in statCards" :key="card.label"

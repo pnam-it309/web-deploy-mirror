@@ -1,5 +1,6 @@
 import { PREFIX_API_AUTH } from '@/constants/url'
 import request from '@/services/request'
+import { DefaultResponse } from '@/types/api.common'
 
 export interface UserProfile {
   id: string
@@ -11,7 +12,7 @@ export interface UserProfile {
 
 export const authService = {
   getCurrentUser: async () => {
-    return await request.get<UserProfile>(`${PREFIX_API_AUTH}/me`)
+    return await request.get<DefaultResponse<UserProfile>>(`${PREFIX_API_AUTH}/me`)
   },
   logout: async () => {
     return await request.post(`${PREFIX_API_AUTH}/logout`)

@@ -304,26 +304,31 @@ onMounted(async () => {
     if (token) {
         try {
             const res = await authService.getCurrentUser();
-            if (res.data) {
+            const responseData = res.data;
+            if (responseData && responseData.data) {
+                const user = responseData.data;
                 // Ensure we have a valid user ID, otherwise treat as guest
-                if (!res.data.id) {
+                if (!user.id) {
                     isLoggedIn.value = false;
                     localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
                     return;
                 }
 
                 isLoggedIn.value = true;
-                const roles = Array.isArray(res.data.roles) ? res.data.roles : (res.data.roles ? [res.data.roles] : []);
+                const roles = Array.isArray(user.roles) ? user.roles : (user.roles ? [user.roles] : []);
 
                 userInfo.value = {
-                    name: res.data.name,
-                    email: res.data.email,
-                    avatar: res.data.avatar || 'https://ui-avatars.com/api/?name=' + res.data.name,
+                    name: user.name,
+                    email: user.email,
+                    avatar: user.avatar || 'https://ui-avatars.com/api/?name=' + user.name,
                     roles: roles as string[]
                 };
 
                 // Fetch like count after login calculation
                 await fetchLikeCount();
+            } else {
+                isLoggedIn.value = false;
+                localStorageAction.remove(ACCESS_TOKEN_STORAGE_KEY);
             }
         } catch (error) {
             console.error('Failed to fetch user info', error);

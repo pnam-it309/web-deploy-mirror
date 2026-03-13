@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import apiClient from '@/services/api/api';
+import { toast } from 'vue3-toastify';
 import type { AppMemberRequest } from '@/types/admin.types';
 
 interface ExtendedAppMember extends AppMemberRequest {
@@ -48,7 +49,7 @@ const handleEnterKey = () => {
   // Validate Email cơ bản
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    // Nếu không phải email, có thể alert hoặc bỏ qua
+    toast.error('Email không hợp lệ!');
     return;
   }
 

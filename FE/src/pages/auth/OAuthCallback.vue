@@ -50,7 +50,7 @@ onMounted(async () => {
     if (error) {
       console.error('OAuth error:', error)
       alert(`OAuth error: ${error}`)
-      router.push({ name: ROUTES_CONSTANTS.SELECTION.name })
+      router.push({ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name })
       return
     }
 
@@ -74,7 +74,8 @@ onMounted(async () => {
           })
 
           if (userResponse.ok) {
-            const userData = await userResponse.json()
+            const responseBody = await userResponse.json()
+            const userData = responseBody.data;
             console.log('Got user data from backend:', userData)
 
             // Create user object from response
@@ -84,8 +85,8 @@ onMounted(async () => {
               fullName: userData.name || '',
               email: userData.email || '',
               pictureUrl: userData.picture || '',
-              rolesNames: userData.roles?.map((r: any) => r.name) || [],
-              rolesCodes: userData.roles?.map((r: any) => r.code) || [],
+              rolesName: userData.roles?.map((r: any) => r.name) || [],
+              rolesCode: userData.roles?.map((r: any) => r.code) || [],
               roleScreen: userData.roleScreen || 'ADMIN',
               idFacility: userData.idFacility,
               roleSwitch: userData.roleSwitch
@@ -124,7 +125,8 @@ onMounted(async () => {
       })
 
       if (userResponse.ok) {
-        const userData = await userResponse.json()
+        const responseBody = await userResponse.json()
+        const userData = responseBody.data;
         console.log('Got user data from session:', userData)
 
         // Create user object from session data
@@ -134,8 +136,8 @@ onMounted(async () => {
           fullName: userData.name || '',
           email: userData.email || '',
           pictureUrl: userData.picture || '',
-          rolesNames: userData.roles?.map((r: any) => r.name) || [],
-          rolesCodes: userData.roles?.map((r: any) => r.code) || [],
+          rolesName: userData.roles?.map((r: any) => r.name) || [],
+          rolesCode: userData.roles?.map((r: any) => r.code) || [],
           roleScreen: userData.roleScreen || 'ADMIN',
           idFacility: userData.idFacility,
           roleSwitch: userData.roleSwitch

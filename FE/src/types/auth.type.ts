@@ -2,7 +2,7 @@ export interface DecodedToken {
   userId: string
   userCode: string
   fullName: string
-  rolesName: string
+  rolesName: string[]
   rolesCode: string[]
   exp: number
   email: string
@@ -16,11 +16,11 @@ export interface UserInformation {
   userId: string | undefined
   userCode: string | undefined
   fullName: string | undefined
-  rolesNames: string[] | string
-  rolesCodes: string[] | string
+  rolesName: string[]
+  rolesCode: string[]
   email: string | undefined
   pictureUrl: string | undefined
   roleSwitch: string | undefined
-  roleScreen: string | undefined // role Lấy từ Fe khi login
+  roleScreen: string | undefined
   idFacility: string | null
 }

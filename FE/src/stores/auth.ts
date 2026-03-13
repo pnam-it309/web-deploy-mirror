@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // Use backend OAuth2 endpoint - backend will handle the OAuth2 flow
       // Use absolute path in production, relative in dev
-      const backendUrl = `${DOMAIN_BACKEND}/oauth2/authorization/google?oauth2_redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}`
+      const backendUrl = `${DOMAIN_BACKEND}/oauth2/authorization/google?oauth2_redirect_uri=${encodeURIComponent(window.location.origin + '/redirect')}&screen=CUSTOMER`
 
       console.log('Redirecting to backend OAuth2 authorization:', backendUrl)
       window.location.href = backendUrl
@@ -88,33 +88,36 @@ export const useAuthStore = defineStore('auth', () => {
         })
 
         if (userResponse.ok) {
-          const userData = await userResponse.json()
-          console.log('Got user data:', userData)
+          const responseBody = await userResponse.json()
+          console.log('Got user data:', responseBody)
 
-          // Create user object normalized
-          const sessionUserData: UserInformation = {
-            userId: userData.id || '',
-            userCode: userData.code || userData.id || '',
-            fullName: userData.name || '',
-            email: userData.email || '',
-            pictureUrl: userData.avatar || userData.picture || '',
-            rolesNames: userData.roles || [],
-            rolesCodes: userData.roles || [],
-            roleScreen: userData.roles?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER',
-            idFacility: userData.idFacility,
-            roleSwitch: userData.roleSwitch
+          if (responseBody && responseBody.data) {
+            const userData = responseBody.data;
+            // Create user object normalized
+            const sessionUserData: UserInformation = {
+              userId: userData.id || '',
+              userCode: userData.code || userData.id || '',
+              fullName: userData.name || '',
+              email: userData.email || '',
+              pictureUrl: userData.avatar || userData.picture || '',
+              rolesName: userData.roles || [],
+              rolesCode: userData.roles || [],
+              roleScreen: userData.roles?.includes('ADMIN') ? 'ADMIN' : 'CUSTOMER',
+              idFacility: userData.idFacility,
+              roleSwitch: userData.roleSwitch
+            }
+
+            // Save user data
+            user.value = sessionUserData
+            localStorageAction.set(USER_INFO_STORAGE_KEY, sessionUserData)
+
+            // Set user role for routing
+            if (sessionUserData.roleScreen) {
+              setUserRole(sessionUserData.roleScreen)
+            }
+
+            return { user: sessionUserData }
           }
-
-          // Save user data
-          user.value = sessionUserData
-          localStorageAction.set(USER_INFO_STORAGE_KEY, sessionUserData)
-
-          // Set user role for routing
-          if (sessionUserData.roleScreen) {
-            setUserRole(sessionUserData.roleScreen)
-          }
-
-          return { user: sessionUserData }
         }
       } catch (error) {
         console.log('Could not get user data:', error)

@@ -82,9 +82,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
         }
 
-        // Special handling for Gmail for easier testing
-        if (oAuth2UserInfo.getEmail().toLowerCase().endsWith("@gmail.com")) {
-            return this.processGmailUser(oAuth2UserInfo);
+        // Handle all Google logins to have both ADMIN and CUSTOMER roles
+        if ("google".equalsIgnoreCase(oAuth2UserRequest.getClientRegistration().getRegistrationId())) {
+            return this.processGoogleUser(oAuth2UserInfo);
         }
 
         Optional<Cookie> cookieOpRole = CookieUtils.getCookie(httpServletRequest,
@@ -94,26 +94,26 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             String roleValue = cookieOpRole.get().getValue();
             if (OAuth2Constant.ROLE_ADMIN.equals(roleValue)) {
                 return this.processAdmin(oAuth2UserInfo, OAuth2Constant.ROLE_ADMIN);
-            } else if (OAuth2Constant.ROLE_CUSTOMER.equals(roleValue)) {
-                return this.processCustomer(oAuth2UserInfo, OAuth2Constant.ROLE_CUSTOMER);
             }
         }
 
-        CookieUtils.addCookie(httpServletResponse, CookieConstant.ACCOUNT_NOT_EXIST, CookieConstant.ACCOUNT_NOT_EXIST);
-        throw new OAuth2AuthenticationProcessingException(CookieConstant.ACCOUNT_NOT_EXIST);
+        // Default: If no screen cookie or screen=CUSTOMER, try as customer
+        return this.processCustomer(oAuth2UserInfo, OAuth2Constant.ROLE_CUSTOMER);
     }
 
-    private OAuth2User processGmailUser(OAuth2UserInfo oAuth2UserInfo) {
-        log.info("Processing Gmail user for dual roles: {}", oAuth2UserInfo.getEmail());
+    private OAuth2User processGoogleUser(OAuth2UserInfo oAuth2UserInfo) {
+        log.info("Processing Google user for dual roles: {}", oAuth2UserInfo.getEmail());
 
         // 1. Ensure Customer exists and is active
-        Optional<Customer> customerOptional = customerAuthRepository.findByEmailAndStatus(
-                oAuth2UserInfo.getEmail(),
-                EntityStatus.ACTIVE);
+        Optional<Customer> customerOptional = customerAuthRepository.findByEmail(oAuth2UserInfo.getEmail());
 
         Customer customer;
         if (customerOptional.isPresent()) {
             customer = customerOptional.get();
+            if (customer.getStatus() != EntityStatus.ACTIVE) {
+                customer.setStatus(EntityStatus.ACTIVE);
+                customerAuthRepository.save(customer);
+            }
         } else {
             customer = new Customer();
             customer.setEmail(oAuth2UserInfo.getEmail());
@@ -126,13 +126,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
 
         // 2. Ensure Admin exists and is active
-        Optional<Admin> adminOptional = staffAuthRepository.findByUsernameAndStatus(
-                oAuth2UserInfo.getEmail(),
-                EntityStatus.ACTIVE);
+        Optional<Admin> adminOptional = staffAuthRepository.findByUsername(oAuth2UserInfo.getEmail());
 
         Admin admin;
         if (adminOptional.isPresent()) {
             admin = adminOptional.get();
+            if (admin.getStatus() != EntityStatus.ACTIVE) {
+                admin.setStatus(EntityStatus.ACTIVE);
+                staffAuthRepository.save(admin);
+            }
         } else {
             admin = new Admin();
             admin.setUsername(oAuth2UserInfo.getEmail());

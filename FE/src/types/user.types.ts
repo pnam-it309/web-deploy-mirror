@@ -140,8 +140,8 @@ export interface SessionData {
   accessToken: string
   refreshToken: string
   expiresAt: number
-  rolesNames: string[]
-  rolesCodes: string[]
+  rolesName: string[]
+  rolesCode: string[]
   permissions?: string[]
 }
 

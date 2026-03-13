@@ -30,13 +30,21 @@ const authStore = useAuthStore()
 const loading = ref(true)
 const error = ref<string | null>(null)
 
+const base64UrlDecode = (str: string) => {
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/')
+  while (base64.length % 4) {
+    base64 += '='
+  }
+  return atob(base64)
+}
+
 const processOAuthCallback = async () => {
   try {
     const { state } = route.query
     if (!state) throw new Error('Thiếu thông tin xác thực')
 
-    // Decode state
-    const decodedState = JSON.parse(atob(state as string))
+    // Decode state (URL-safe base64)
+    const decodedState = JSON.parse(base64UrlDecode(state as string))
     const { accessToken, refreshToken } = decodedState
 
     if (!accessToken) throw new Error('Không tìm thấy access token')
@@ -50,8 +58,8 @@ const processOAuthCallback = async () => {
       userCode: decodedToken.userCode || decodedToken.email,
       fullName: decodedToken.fullName || decodedToken.name,
       email: decodedToken.email,
-      rolesNames: decodedToken.rolesNames || [],
-      rolesCodes: decodedToken.rolesCodes || [],
+      rolesName: decodedToken.rolesName || [],
+      rolesCode: decodedToken.rolesCode || [],
       roleScreen: decodedToken.roleScreen || ROLES.CUSTOMER,
       pictureUrl: decodedToken.pictureUrl || decodedToken.picture,
       idFacility: decodedToken.idFacility || null,

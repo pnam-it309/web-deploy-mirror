@@ -81,16 +81,19 @@ public class TokenProvider {
 
         TokenInfoResponse tokenInfoResponse = new TokenInfoResponse();
 
-        if (screenForRole.isEmpty()) {
-            // Special handling for Gmail users - default to ADMIN screen if cookie is missing
-            if (userPrincipal.getEmail() != null && userPrincipal.getEmail().toLowerCase().endsWith("@gmail.com")) {
-                tokenInfoResponse.setRoleScreen(OAuth2Constant.ROLE_ADMIN);
-            } else {
-                throw new RedirectException(CookieConstant.ACCOUNT_NOT_EXIST);
-            }
+        String roleToUse = OAuth2Constant.ROLE_CUSTOMER;
+        if (screenForRole.isPresent()) {
+            roleToUse = screenForRole.get();
         } else {
-            tokenInfoResponse.setRoleScreen(screenForRole.get());
+            // Default logic if cookie is missing
+            List<String> authorities = userPrincipal.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+            if (authorities.contains(OAuth2Constant.ROLE_ADMIN)) {
+                roleToUse = OAuth2Constant.ROLE_ADMIN;
+            }
         }
+        tokenInfoResponse.setRoleScreen(roleToUse);
 
         Admin adminUser = getCurrentStaffLogin(userPrincipal.getEmail());
 

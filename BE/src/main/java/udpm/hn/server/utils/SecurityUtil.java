@@ -49,6 +49,25 @@ public class SecurityUtil {
         return Base64.getEncoder().encodeToString(input.getBytes(StandardCharsets.UTF_8));
     }
 
+    public static String encodeBase64UrlSafe(String input) {
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(input.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String decodeBase64(String input) {
+        // Handle URL-safe base64 manually if needed, or use getUrlDecoder
+        try {
+            // Try standard first
+            return new String(Base64.getDecoder().decode(input), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            // Try URL safe
+            try {
+                return new String(Base64.getUrlDecoder().decode(input), StandardCharsets.UTF_8);
+            } catch (Exception e2) {
+                return null;
+            }
+        }
+    }
+
     public static String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

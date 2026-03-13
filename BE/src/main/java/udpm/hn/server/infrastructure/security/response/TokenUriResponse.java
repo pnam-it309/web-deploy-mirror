@@ -31,12 +31,12 @@ public class TokenUriResponse {
             tokenMap.put("accessToken", accessToken);
             tokenMap.put("refreshToken", refreshToken);
             String tokenObject = objectMapper.writeValueAsString(tokenMap);
-            return SecurityUtil.encodeBase64(tokenObject);
+            return SecurityUtil.encodeBase64UrlSafe(tokenObject);
         } catch (JsonProcessingException e) {
             log.error("Error serializing token data to JSON", e);
             // Fallback to manual approach if Jackson fails
             String tokenObject = "{" + "\"accessToken\":\"" + accessToken + "\",\"refreshToken\":\"" + refreshToken + "\"}";
-            return SecurityUtil.encodeBase64(tokenObject);
+            return SecurityUtil.encodeBase64UrlSafe(tokenObject);
         }
     }
 
