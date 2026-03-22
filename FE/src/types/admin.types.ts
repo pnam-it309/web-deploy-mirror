@@ -20,6 +20,7 @@ export interface Domain {
   sortOrder?: number
   color?: string
   status?: string
+  createdAt?: number
 }
 
 export interface Technology {
@@ -28,6 +29,7 @@ export interface Technology {
   slug?: string
   description?: string
   icon?: string
+  createdAt?: number
 }
 export interface AppMemberRequest {
   customerId: string

@@ -179,7 +179,7 @@ const statCards = computed(() => [
     <!-- ── HEADER ── -->
     <div class="px-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
       <div>
-        <h1 class="header-title text-3xl font-black tracking-tight uppercase">Hệ thống Thống kê</h1>
+        <h1 class="header-title text-3xl font-black tracking-tight uppercase">Hệ thống Tổng quan</h1>
         <p class="header-subtitle text-sm font-medium mt-1">Sản phẩm kỹ thuật & Đo lường tăng trưởng</p>
       </div>
       <div class="flex items-center gap-4">

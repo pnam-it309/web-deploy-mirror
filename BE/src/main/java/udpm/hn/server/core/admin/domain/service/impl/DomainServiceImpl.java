@@ -34,13 +34,18 @@ public class DomainServiceImpl implements DomainService {
     @Cacheable(value = "domains", key = "'all'")
     public List<DomainResponse> getAllDomains() {
         log.debug("Cache MISS: Fetching all domains from database");
+        // Sắp xếp ưu tiên sortOrder (null xuống dưới), sau đó đến createdAt (mới nhất lên trên)
         return domainRepository.findAll().stream()
                 .filter(d -> d.getStatus() != udpm.hn.server.infrastructure.constant.EntityStatus.DELETED
                         && d.getStatus() != null)
                 .sorted((a, b) -> {
                     int orderA = a.getSortOrder() != null ? a.getSortOrder() : Integer.MAX_VALUE;
                     int orderB = b.getSortOrder() != null ? b.getSortOrder() : Integer.MAX_VALUE;
-                    return Integer.compare(orderA, orderB);
+                    if (orderA != orderB) return Integer.compare(orderA, orderB);
+                    // Nếu trùng thứ tự thì xếp theo ngày tạo (mới nhất trước)
+                    long timeA = a.getCreatedAt() != null ? a.getCreatedAt() : 0L;
+                    long timeB = b.getCreatedAt() != null ? b.getCreatedAt() : 0L;
+                    return Long.compare(timeB, timeA);
                 })
                 .map(d -> modelMapper.map(d, DomainResponse.class))
                 .collect(Collectors.toList());
@@ -48,7 +53,8 @@ public class DomainServiceImpl implements DomainService {
 
     @Override
     public Page<DomainResponse> getDomains(Pageable pageable) {
-        return domainRepository.findAll(pageable)
+        // Lọc bỏ các bản ghi đã xóa trong phân trang
+        return domainRepository.findAllByStatusNot(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED, pageable)
                 .map(d -> modelMapper.map(d, DomainResponse.class));
     }
 
@@ -109,6 +115,11 @@ public class DomainServiceImpl implements DomainService {
                     return new EntityNotFoundException("Không tìm thấy lĩnh vực với id=" + id);
                 });
 
+        // Appending suffix to release unique constraint on slug/name
+        String timestamp = "_" + System.currentTimeMillis();
+        domain.setSlug(domain.getSlug() + timestamp);
+        domain.setName(domain.getName() + " (Đã xóa" + timestamp + ")"); // Release unique constraint on name if it exists too
+        
         // Soft Delete – set status to DELETED
         domain.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);
         domainRepository.save(domain);

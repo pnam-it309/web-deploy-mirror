@@ -45,14 +45,21 @@ const handleDelete = async (id: string) => {
     try {
       await TechnologyService.deleteTechnology(id);
       toast.success("Xoá thành công!");
+      // Immediate UI update
+      items.value = items.value.filter(i => i.id !== id);
       await loadData();
     } catch (e: any) {
+      console.error("Delete tech failed:", e);
       const status = e.response?.status;
       const msg = e.response?.data?.message || e.response?.data?.error;
+      
       if (status === 409) {
         toast.error(msg || "Không thể xoá. Công nghệ này đang được sử dụng bởi sản phẩm khác.");
+      } else if (status === 404) {
+        toast.error("Không tìm thấy công nghệ cần xoá.");
+        await loadData();
       } else {
-        toast.error(msg || "Xoá thất bại. Vui lòng thử lại.");
+        toast.error(msg || "Đã xảy ra lỗi khi xoá công nghệ này. Vui lòng thử lại.");
       }
     }
   }

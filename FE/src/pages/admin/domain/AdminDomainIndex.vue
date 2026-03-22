@@ -30,7 +30,12 @@ const loadData = async () => {
   isLoading.value = true;
   try {
     const res = await DomainService.getAll();
-    items.value = res.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+    items.value = res.sort((a, b) => {
+      const orderA = a.sortOrder != null ? a.sortOrder : 999999;
+      const orderB = b.sortOrder != null ? b.sortOrder : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
   } catch (error) {
     console.error("Failed to load domains:", error);
   } finally {
@@ -44,22 +49,25 @@ const handleCreate = () => router.push({ name: 'AdminDomainCreate' });
 const handleEdit = (item: Domain) => router.push({ name: 'AdminDomainEdit', params: { id: encodeId(item.id) } });
 
 const handleDelete = async (id: string) => {
-  if (confirm('Bạn có chắc muốn xoá?')) {
+  if (confirm('Bạn có chắc muốn xoá lĩnh vực này?')) {
     try {
       await DomainService.deleteDomain(id);
       toast.success("Xoá thành công!");
+      // Manually remove from items to ensure responsiveness, or just loadData
+      items.value = items.value.filter(i => i.id !== id);
       await loadData();
     } catch (e: any) {
-      // Nếu backend trả về 409 (đang có sản phẩm liên kết)
+      console.error("Delete failed:", e);
       const status = e.response?.status;
       const msg = e.response?.data?.message || e.response?.data?.error;
+      
       if (status === 409) {
-        toast.error(msg || "Không thể xoá. Lĩnh vực này đang được sử dụng.");
+        toast.error(msg || "Không thể xoá. Lĩnh vực này đang được sử dụng bởi các sản phẩm.");
       } else if (status === 404) {
-        toast.error("Không tìm thấy lĩnh vực này.");
-        await loadData(); // Refresh để cập nhật danh sách
+        toast.error("Không tìm thấy lĩnh vực cần xoá.");
+        await loadData();
       } else {
-        toast.error(msg || "Không thể xoá. Có thể lĩnh vực này đang chứa sản phẩm.");
+        toast.error(msg || "Đã xảy ra lỗi khi xoá lĩnh vực này. Vui lòng thử lại.");
       }
     }
   }

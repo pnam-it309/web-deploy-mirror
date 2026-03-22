@@ -39,8 +39,8 @@ public class TechnologyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTechnology(@PathVariable String id) {
+    public ResponseEntity<String> deleteTechnology(@PathVariable String id) {
         technologyService.deleteTechnology(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Xóa thành công");
     }
 }

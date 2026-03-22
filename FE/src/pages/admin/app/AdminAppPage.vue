@@ -266,7 +266,7 @@ const handleDelete = async () => {
       <p class="text-gray-600 dark:text-gray-300">Bạn có chắc chắn muốn xoá dự án này không?</p>
       <template #footer>
         <BaseButton variant="outline" @click="showDeleteModal = false">Huỷ bỏ</BaseButton>
-        <BaseButton variant="danger" @click="handleDelete">Đồng ý Xoá</BaseButton>
+        <BaseButton variant="danger" @click="handleDelete">Đồng ý xóa</BaseButton>
       </template>
     </BaseModal>
 
@@ -276,7 +276,7 @@ const handleDelete = async () => {
         thể hoàn tác.</p>
       <template #footer>
         <BaseButton variant="outline" @click="showBatchDeleteModal = false">Huỷ bỏ</BaseButton>
-        <BaseButton variant="danger" @click="handleBatchDelete">Đồng ý Xoá</BaseButton>
+        <BaseButton variant="danger" @click="handleBatchDelete">Đồng ý xóa</BaseButton>
       </template>
     </BaseModal>
   </div>

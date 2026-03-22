@@ -42,7 +42,8 @@ public class TechnologyServiceImpl implements TechnologyService {
 
     @Override
     public Page<TechnologyResponse> getTechnologies(Pageable pageable) {
-        return technologyRepository.findAll(pageable)
+        // Lọc bỏ các bản ghi đã xóa trong phân trang
+        return technologyRepository.findAllByStatusNot(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED, pageable)
                 .map(t -> modelMapper.map(t, TechnologyResponse.class));
     }
 
@@ -99,9 +100,9 @@ public class TechnologyServiceImpl implements TechnologyService {
             Technology tech = technologyRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
 
-            if (appRepository.existsByTechnologiesId(id)) {
-                // Soft Delete bypasses FK constraints because the record remains in DB
-            }
+            // Release unique constraint on name by appending suffix
+            String timestamp = "_" + System.currentTimeMillis();
+            tech.setName(tech.getName() + " (Đã xóa" + timestamp + ")");
 
             // Soft Delete
             tech.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);

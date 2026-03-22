@@ -203,7 +203,9 @@ watch(() => form.sourceUrl, (newVal) => {
 });
 
 const formErrors = reactive({
+  name: '',
   sku: '',
+  shortDescription: '',
   demoUrl: '',
   sourceUrl: '',
   longDescription: '',
@@ -216,26 +218,88 @@ const validateAppForm = (): boolean => {
 
   let valid = true;
 
+  const specialCharsRegex = /[!@#$%^&*()_+={}\[\]|\\;:'",.<>?/~`]/;
+
+  // Tên dự án
   if (!form.name || !form.name.trim()) {
-    toast.error('Tên dự án không được để trống');
+    formErrors.name = 'Tên dự án không được để trống';
     valid = false;
+  } else {
+    if (form.name.startsWith(' ') || form.name.endsWith(' ')) {
+      formErrors.name = 'Tên dự án không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.name.length < 3) {
+      formErrors.name = 'Tên dự án phải từ 3 ký tự trở lên';
+      valid = false;
+    } else if (specialCharsRegex.test(form.name)) {
+      formErrors.name = 'Tên dự án không được chứa ký tự đặc biệt';
+      valid = false;
+    }
   }
+
+  // Mã SKU
   if (!form.sku || !form.sku.trim()) {
     formErrors.sku = 'Mã SKU không được để trống';
     valid = false;
+  } else {
+    if (form.sku.startsWith(' ') || form.sku.endsWith(' ')) {
+      formErrors.sku = 'Mã SKU không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.sku.length < 3) {
+      formErrors.sku = 'Mã SKU phải từ 3 ký tự trở lên';
+      valid = false;
+    } else if (specialCharsRegex.test(form.sku)) {
+      formErrors.sku = 'Mã SKU không được chứa ký tự đặc biệt';
+      valid = false;
+    }
   }
+
+  // Link Demo
   if (!form.demoUrl || !form.demoUrl.trim()) {
     formErrors.demoUrl = 'Link Demo (URL) không được để trống';
     valid = false;
   }
+
+  // Source Code
   if (!form.sourceUrl || !form.sourceUrl.trim()) {
     formErrors.sourceUrl = 'Source Code (Git) không được để trống';
     valid = false;
   }
+
+  // Mô tả ngắn
+  if (!form.shortDescription || !form.shortDescription.trim()) {
+    formErrors.shortDescription = 'Mô tả ngắn không được để trống';
+    valid = false;
+  } else {
+    if (form.shortDescription.startsWith(' ') || form.shortDescription.endsWith(' ')) {
+      formErrors.shortDescription = 'Mô tả ngắn không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.shortDescription.length < 5) {
+      formErrors.shortDescription = 'Mô tả ngắn phải từ 5 ký tự trở lên';
+      valid = false;
+    } else if (specialCharsRegex.test(form.shortDescription)) {
+      formErrors.shortDescription = 'Mô tả ngắn không được chứa ký tự đặc biệt';
+      valid = false;
+    }
+  }
+
+  // Bài viết chi tiết
   if (!form.longDescription || !form.longDescription.trim()) {
     formErrors.longDescription = 'Bài viết chi tiết không được để trống';
     valid = false;
+  } else {
+    if (form.longDescription.startsWith(' ') || form.longDescription.endsWith(' ')) {
+      formErrors.longDescription = 'Bài viết chi tiết không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.longDescription.length < 10) {
+      formErrors.longDescription = 'Bài viết chi tiết phải từ 10 ký tự trở lên';
+      valid = false;
+    } else if (specialCharsRegex.test(form.longDescription)) {
+      formErrors.longDescription = 'Bài viết chi tiết không được chứa ký tự đặc biệt';
+      valid = false;
+    }
   }
+
   const validMembers = form.members.filter(m => m.customerId && m.customerId.trim() !== '');
   if (validMembers.length === 0) {
     formErrors.members = 'Phải có ít nhất 1 thành viên nhóm';
@@ -375,7 +439,7 @@ const isValidYoutube = (url?: string) => {
         <BaseCard>
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-700 pb-2">Thông tin chung</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <BaseInput v-model="form.name" label="Tên dự án (*)" placeholder="Nhập tên dự án..." class="dark:text-white" />
+            <BaseInput v-model="form.name" label="Tên dự án (*)" placeholder="Nhập tên dự án..." class="dark:text-white" :error="formErrors.name" />
             <BaseInput v-model="form.sku" label="Mã SKU (*)" placeholder="VD: PROJ-001" class="dark:text-white" :error="formErrors.sku" />
           </div>
 
@@ -388,8 +452,8 @@ const isValidYoutube = (url?: string) => {
               placeholder="Chọn các công nghệ..." class="dark:text-white" />
           </div>
 
-          <BaseTextarea v-model="form.shortDescription" label="Mô tả ngắn"
-            placeholder="Giới thiệu tóm tắt về dự án..." class="dark:text-white" />
+          <BaseTextarea v-model="form.shortDescription" label="Mô tả ngắn (*)"
+            placeholder="Giới thiệu tóm tắt về dự án..." class="dark:text-white" :error="formErrors.shortDescription" />
         </BaseCard>
 
         <BaseCard>

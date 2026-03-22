@@ -19,4 +19,9 @@ public interface TechnologyManageRepository extends TechnologyRepository {
      */
     @Query("SELECT COUNT(t) > 0 FROM Technology t WHERE t.name = :name AND t.id <> :id AND t.status <> :status")
     boolean existsByNameAndIdNotAndStatusNot(String name, String id, EntityStatus status);
+
+    /**
+     * Lấy danh sách technology chưa bị xóa mềm theo phân trang
+     */
+    org.springframework.data.domain.Page<udpm.hn.server.entity.Technology> findAllByStatusNot(udpm.hn.server.infrastructure.constant.EntityStatus status, org.springframework.data.domain.Pageable pageable);
 }

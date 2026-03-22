@@ -30,14 +30,39 @@ const validateForm = (): boolean => {
   errors.name = '';
   errors.icon = '';
   let valid = true;
+  const specialCharsRegex = /[!@#$%^&*()_+={}\[\]|\\;:'",.<>?/~`]/;
+
+  // Tên công nghệ
   if (!form.name || !form.name.trim()) {
     errors.name = 'Tên công nghệ không được để trống';
     valid = false;
+  } else {
+    if (form.name.startsWith(' ') || form.name.endsWith(' ')) {
+      errors.name = 'Tên công nghệ không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.name.length < 2 || form.name.length > 50) {
+      errors.name = 'Tên công nghệ phải từ 2 đến 50 ký tự';
+      valid = false;
+    } else if (specialCharsRegex.test(form.name)) {
+      errors.name = 'Tên công nghệ không được chứa ký tự đặc biệt';
+      valid = false;
+    }
   }
+
+  // URL Logo / Icon
   if (!form.icon || !form.icon.trim()) {
     errors.icon = 'URL Logo / Icon không được để trống';
     valid = false;
+  } else {
+    if (form.icon.startsWith(' ') || form.icon.endsWith(' ')) {
+      errors.icon = 'URL Logo / Icon không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.icon.length < 2 || form.icon.length > 200) {
+      errors.icon = 'URL Logo / Icon phải có độ dài từ 2 đến 200 ký tự';
+      valid = false;
+    }
   }
+
   return valid;
 };
 

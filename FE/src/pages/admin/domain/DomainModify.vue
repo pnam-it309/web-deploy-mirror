@@ -49,27 +49,62 @@ onMounted(async () => {
 const errors = reactive({
   name: '',
   icon: '',
-  description: ''
+  description: '',
+  sortOrder: ''
 });
 
 const validateForm = (): boolean => {
   errors.name = '';
   errors.icon = '';
   errors.description = '';
+  errors.sortOrder = '';
 
   let valid = true;
+  const specialCharsRegex = /[!@#$%^&*()_+={}\[\]|\\;:'",.<>?/~`]/;
+
+  // Tên lĩnh vực
   if (!form.name || !form.name.trim()) {
     errors.name = 'Tên lĩnh vực không được để trống';
     valid = false;
+  } else {
+    if (form.name.startsWith(' ') || form.name.endsWith(' ')) {
+      errors.name = 'Tên lĩnh vực không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.name.length < 2 || form.name.length > 50) {
+      errors.name = 'Tên lĩnh vực phải từ 2 đến 50 ký tự';
+      valid = false;
+    } else if (specialCharsRegex.test(form.name)) {
+      errors.name = 'Tên lĩnh vực không được chứa ký tự đặc biệt';
+      valid = false;
+    }
   }
+
+  // Biểu tượng
   if (!form.icon || !form.icon.trim()) {
     errors.icon = 'Biểu tượng không được để trống';
     valid = false;
   }
+
+  // Mô tả
   if (!form.description || !form.description.trim()) {
     errors.description = 'Mô tả ngắn không được để trống';
     valid = false;
+  } else {
+    if (form.description.startsWith(' ') || form.description.endsWith(' ')) {
+      errors.description = 'Mô tả không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.description.length < 2 || form.description.length > 200) {
+      errors.description = 'Mô tả phải từ 2 đến 200 ký tự';
+      valid = false;
+    }
   }
+
+  // Thứ tự hiển thị
+  if (form.sortOrder === null || form.sortOrder === undefined || isNaN(Number(form.sortOrder))) {
+    errors.sortOrder = 'Thứ tự hiển thị phải là số';
+    valid = false;
+  }
+
   return valid;
 };
 
@@ -123,7 +158,7 @@ const handleSubmit = async () => {
               </div>
             </div>
 
-            <BaseInput v-model.number="form.sortOrder" type="number" label="Thứ tự hiển thị" placeholder="1" class="dark:text-white" />
+            <BaseInput v-model.number="form.sortOrder" type="number" label="Thứ tự hiển thị" placeholder="1" class="dark:text-white" :error="errors.sortOrder" />
 
             <div class="flex flex-col gap-2">
               <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</label>

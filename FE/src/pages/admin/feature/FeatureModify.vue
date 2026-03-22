@@ -55,15 +55,55 @@ onMounted(async () => {
   }
 });
 
+const errors = reactive({
+  name: '',
+  appId: ''
+});
+
+const validateForm = (): boolean => {
+  errors.name = '';
+  errors.appId = '';
+  let valid = true;
+
+  if (!form.appId) {
+    errors.appId = 'Vui lòng chọn dự án';
+    valid = false;
+  }
+
+  const specialCharsRegex = /[!@#$%^&*()_+={}\[\]|\\;:'",.<>?/~`]/;
+
+  if (!form.name || !form.name.trim()) {
+    errors.name = 'Tên chức năng không được để trống';
+    valid = false;
+  } else {
+    if (form.name.startsWith(' ') || form.name.endsWith(' ')) {
+      errors.name = 'Tên chức năng không được chứa khoảng trắng ở đầu hoặc cuối';
+      valid = false;
+    } else if (form.name.length < 3) {
+      errors.name = 'Tên chức năng phải từ 3 ký tự trở lên';
+      valid = false;
+    } else if (specialCharsRegex.test(form.name)) {
+      errors.name = 'Tên chức năng không được chứa ký tự đặc biệt';
+      valid = false;
+    }
+  }
+
+  return valid;
+};
+
 const handleSubmit = async () => {
-  if (!form.appId) return toast.warning('Vui lòng chọn dự án!');
+  if (!validateForm()) {
+    toast.error('Vui lòng kiểm tra lại thông tin!');
+    return;
+  }
   try {
     if (isEdit.value) await FeatureService.update(form.id, form);
     else await FeatureService.create(form);
     toast.success(isEdit.value ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
     router.push({ name: 'admin-features' });
-  } catch (e) {
-    toast.error('Lỗi khi lưu dữ liệu');
+  } catch (e: any) {
+    const msg = e.response?.data?.message || e.response?.data?.error;
+    toast.error(msg || 'Lỗi khi lưu dữ liệu');
   }
 };
 
@@ -97,10 +137,10 @@ const getAppName = computed(() => {
         <div class="grid grid-cols-2 gap-4">
           <div class="col-span-1">
             <BaseSelect v-model="form.appId" :options="apps.map(a => ({ value: a.id, label: a.name }))"
-              label="Thuộc dự án (*)" class="dark:text-white" />
+              label="Thuộc dự án (*)" class="dark:text-white" :error="errors.appId" />
           </div>
           <div class="col-span-1">
-            <BaseInput v-model="form.name" label="Tên chức năng (*)" required class="dark:text-white" />
+            <BaseInput v-model="form.name" label="Tên chức năng (*)" required class="dark:text-white" :error="errors.name" />
           </div>
           <div class="col-span-2">
             <BaseTextarea v-model="form.description" label="Mô tả chi tiết" :rows="2" class="dark:text-white" />

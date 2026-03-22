@@ -19,4 +19,8 @@ public interface DomainManageRepository extends DomainRepository {
      */
     @Query("SELECT COUNT(d) > 0 FROM Domain d WHERE d.name = :name AND d.id <> :id AND d.status <> :status")
     boolean existsByNameAndIdNotAndStatusNot(String name, String id, EntityStatus status);
-}
+    /**
+     * Lấy danh sách domain chưa bị xóa mềm theo phân trang
+     */
+    org.springframework.data.domain.Page<udpm.hn.server.entity.Domain> findAllByStatusNot(udpm.hn.server.infrastructure.constant.EntityStatus status, org.springframework.data.domain.Pageable pageable);
+}

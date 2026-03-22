@@ -90,6 +90,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Xử lý lỗi vi phạm ràng buộc dữ liệu (Unique constraint, v.v.)
+     */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<WebSocketMessage> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation: {}", ex.getMessage());
+        String message = "Dữ liệu đã tồn tại hoặc vi phạm ràng buộc";
+        if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry")) {
+            message = "Dữ liệu (tên hoặc mã) đã tồn tại trong hệ thống";
+        }
+        WebSocketMessage errorResponse = new WebSocketMessage(
+            "CONFLICT",
+            message,
+            new HashMap<>(Map.of("error", ex.getMessage()))
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<WebSocketMessage> handleException(Exception ex) {
         log.error("Lỗi không xác định: {}", ex.getMessage(), ex);
