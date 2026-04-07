@@ -100,8 +100,13 @@ const validateForm = (): boolean => {
   }
 
   // Thứ tự hiển thị
-  if (form.sortOrder === null || form.sortOrder === undefined || isNaN(Number(form.sortOrder))) {
-    errors.sortOrder = 'Thứ tự hiển thị phải là số';
+  // Thứ tự hiển thị (phải là số nguyên)
+  const sortOrderStr = String(form.sortOrder);
+  if (!form.sortOrder && form.sortOrder !== 0) {
+    errors.sortOrder = 'Thứ tự hiển thị không được để trống';
+    valid = false;
+  } else if (!/^\d+$/.test(sortOrderStr)) {
+    errors.sortOrder = 'Thứ tự hiển thị phải là số nguyên (0, 1, 2...)';
     valid = false;
   }
 

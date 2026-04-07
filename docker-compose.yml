@@ -3,27 +3,37 @@ version: "3.8"
 services:
   # Frontend - Vue.js Application
   frontend:
-    build: 
+    build:
       context: ./FE
-      args:
-        - VITE_API_URL=
+      dockerfile: Dockerfile
+      target: development
     container_name: udpm-frontend
     ports:
       - "6789:6789"
+    volumes:
+      - ./FE:/app
+      - /app/node_modules
     environment:
-      - VITE_API_URL=http://localhost:9999
+      - VITE_API_URL=http://backend:9999
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - app-network
-    restart: always
+    restart: unless-stopped
 
   # Backend - Spring Boot Application
   backend:
-    build: ./BE
+    build:
+      context: ./BE
+      dockerfile: Dockerfile
+      target: development
     container_name: udpm-backend
     ports:
       - "9999:9999"
+    volumes:
+      - ./BE:/app
+      - gradle_cache:/root/.gradle
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://udpm-mysql:3306/catalog_web?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
@@ -43,7 +53,13 @@ services:
         condition: service_started
     networks:
       - app-network
-    restart: always
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
 
   # Database - MySQL
   udpm-mysql:
@@ -97,6 +113,7 @@ volumes:
   mysql_data:
   meilisearch_data:
   redis_data:
+  gradle_cache:
 
 networks:
   app-network:

@@ -8,6 +8,8 @@ import java.util.List;
 public interface FeatureService {
     List<FeatureResponse> getAllFeatures();
 
+    FeatureResponse getFeatureById(String id);
+
     List<FeatureResponse> getFeaturesByAppId(String appId);
 
     FeatureResponse createFeature(FeatureRequest request);

@@ -43,9 +43,9 @@ public class DomainController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteDomain(@PathVariable String id) {
+    public ResponseEntity<Void> deleteDomain(@PathVariable String id) {
         domainService.deleteDomain(id);
-        return ResponseEntity.ok("Xóa thành công");
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/bulk-update-order")

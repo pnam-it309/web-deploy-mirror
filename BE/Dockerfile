@@ -1,25 +1,19 @@
-# Stage 1: Build the application
-FROM eclipse-temurin:17-jdk-jammy AS build
+# Development Stage
+FROM eclipse-temurin:17-jdk-jammy AS development
 WORKDIR /app
-
-# Copy source code
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY . .
-
-# Fix Windows line endings and permissions for gradlew
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
+EXPOSE 9999
+CMD ["./gradlew", "bootRun", "--no-daemon"]
 
-# Build the JAR file using the wrapper
+# Build Stage
+FROM development AS build
 RUN ./gradlew bootJar -x test --no-daemon
 
-# Stage 2: Create the runtime image
+# Production Stage
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-
-# Copy the built JAR from the builder stage
 COPY --from=build /app/build/libs/*.jar app.jar
-
-# Expose the server port
 EXPOSE 9999
-
-# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

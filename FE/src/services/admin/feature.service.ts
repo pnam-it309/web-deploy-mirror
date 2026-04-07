@@ -12,6 +12,10 @@ export const FeatureService = {
     const response = await apiClient.get(BASE_URL)
     return response.data
   },
+  getById: async (id: string) => {
+    const response = await apiClient.get(`${BASE_URL}/${id}`)
+    return response.data
+  },
   getByAppId: async (appId: string) => {
     const response = await apiClient.get(`${BASE_URL}/by-app/${appId}`)
     return response.data

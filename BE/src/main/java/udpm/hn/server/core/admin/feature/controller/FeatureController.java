@@ -14,12 +14,16 @@ public class FeatureController {
 
     private final FeatureService featureService;
 
-    // --- THÊM ĐOẠN NÀY ĐỂ HẾT LỖI 500 GET METHOD ---
     @GetMapping
     public ResponseEntity<?> getAllFeatures() {
         return ResponseEntity.ok(featureService.getAllFeatures());
     }
-    // -----------------------------------------------
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getFeatureById(@PathVariable String id) {
+        return ResponseEntity.ok(featureService.getFeatureById(id));
+    }
+
 
     // Lấy danh sách tính năng của 1 App cụ thể
     @GetMapping("/by-app/{appId}")

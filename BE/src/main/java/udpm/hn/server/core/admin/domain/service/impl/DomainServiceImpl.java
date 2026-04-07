@@ -117,7 +117,9 @@ public class DomainServiceImpl implements DomainService {
 
         // Appending suffix to release unique constraint on slug/name
         String timestamp = "_" + System.currentTimeMillis();
-        domain.setSlug(domain.getSlug() + timestamp);
+        if (domain.getSlug() != null) {
+            domain.setSlug(domain.getSlug() + timestamp);
+        }
         domain.setName(domain.getName() + " (Đã xóa" + timestamp + ")"); // Release unique constraint on name if it exists too
         
         // Soft Delete – set status to DELETED

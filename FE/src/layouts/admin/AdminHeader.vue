@@ -10,11 +10,16 @@
         </svg>
       </button>
       <!-- Breadcrumbs or Page Title could go here -->
-      <div class="hidden md:block">
-        <h1 class="text-xl font-bold text-gray-800 dark:text-white font-serif tracking-tight">
-          Hello, <span class="text-blue-600 dark:text-blue-400">{{ userInfo.name }}</span> 👋
+      <!-- Breadcrumbs / Page Context -->
+      <div class="hidden md:flex flex-col">
+        <div class="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">
+          <span>Hệ thống</span>
+          <span class="text-gray-300 dark:text-gray-700">/</span>
+          <span class="text-blue-500 dark:text-blue-400">SEO Dashboard</span>
+        </div>
+        <h1 class="text-lg font-bold text-gray-800 dark:text-white tracking-tight">
+          Xin chào, <span class="text-blue-600 dark:text-blue-400">{{ userInfo.name }}</span> 👋
         </h1>
-        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">Welcome back to the dashboard</p>
       </div>
     </div>
 
@@ -118,7 +123,7 @@
          
           <div class="hidden sm:block text-left">
             <p class="text-sm font-bold text-gray-900 dark:text-white leading-none select-none group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ userInfo.name }}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-none mt-1 group-hover:text-gray-700 dark:group-hover:text-gray-300">Administrator</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-medium leading-none mt-1 group-hover:text-gray-700 dark:group-hover:text-gray-300">Quản trị viên</p>
           </div>
           <ChevronDownIcon class="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 hidden sm:block transition-transform duration-200"
             :class="{ 'rotate-180': isDropdownOpen }" />
@@ -216,11 +221,12 @@ onMounted(async () => {
 
   try {
     const res = await authService.getCurrentUser();
-    if (res.data) {
+    const userData = res.data;
+    if (userData) {
       userInfo.value = {
-        name: res.data.name || 'Admin',
-        email: res.data.email || '',
-        avatar: res.data.avatar || ''
+        name: (userData as any).name || 'Admin',
+        email: (userData as any).email || '',
+        avatar: (userData as any).avatar || ''
       };
     }
   } catch (error) {

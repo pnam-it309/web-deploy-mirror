@@ -20,6 +20,7 @@ const router = useRouter();
 const isEdit = computed(() => !!route.params.id);
 const featureId = computed(() => decodeId(route.params.id as string));
 const apps = ref<any[]>([]);
+const isSaving = ref(false);
 
 const form = reactive({
   id: '',
@@ -39,16 +40,14 @@ onMounted(async () => {
     apps.value = appRes?.content || [];
 
     if (isEdit.value) {
-      const all = await FeatureService.getAll();
-      if (Array.isArray(all)) {
-        const found = all.find((f: any) => f.id === featureId.value);
-        if (found) {
-          Object.assign(form, found);
-          if (!form.status) form.status = 'ACTIVE';
-          if (!form.videoUrl) form.videoUrl = '';
-        }
+      const found = await FeatureService.getById(featureId.value);
+      if (found) {
+        Object.assign(form, found);
+        if (!form.status) form.status = 'ACTIVE';
+        if (!form.videoUrl) form.videoUrl = '';
       }
     }
+
   } catch (error) {
     console.error('Error loading data:', error);
     toast.error('Lỗi khi tải dữ liệu');
@@ -96,6 +95,7 @@ const handleSubmit = async () => {
     toast.error('Vui lòng kiểm tra lại thông tin!');
     return;
   }
+  isSaving.value = true;
   try {
     if (isEdit.value) await FeatureService.update(form.id, form);
     else await FeatureService.create(form);
@@ -104,6 +104,8 @@ const handleSubmit = async () => {
   } catch (e: any) {
     const msg = e.response?.data?.message || e.response?.data?.error;
     toast.error(msg || 'Lỗi khi lưu dữ liệu');
+  } finally {
+    isSaving.value = false;
   }
 };
 
@@ -123,8 +125,8 @@ const getAppName = computed(() => {
     <div class="mb-4 flex justify-between items-center">
       <div></div>
       <div class="flex gap-3">
-        <BaseButton variant="outline" size="sm" @click="router.back()">Huỷ</BaseButton>
-        <BaseButton variant="primary" size="sm" @click="handleSubmit">Lưu lại</BaseButton>
+        <BaseButton variant="outline" size="sm" @click="router.back()" :disabled="isSaving">Huỷ</BaseButton>
+        <BaseButton variant="primary" size="sm" @click="handleSubmit" :loading="isSaving" :disabled="isSaving">Lưu lại</BaseButton>
       </div>
     </div>
 

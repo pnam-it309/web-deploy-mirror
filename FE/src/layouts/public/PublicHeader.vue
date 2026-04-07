@@ -5,7 +5,6 @@
             <!-- Logo -->
             <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.HOME.name }" class="flex items-center gap-2">
                 <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="h-8 w-auto object-contain" />
-                <span class="font-bold text-xl text-gray-800 dark:text-white">FPL Catalog</span>
             </router-link>
 
             <!-- Navigation -->

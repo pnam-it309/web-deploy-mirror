@@ -100,9 +100,12 @@ public class TechnologyServiceImpl implements TechnologyService {
             Technology tech = technologyRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Technology not found"));
 
-            // Release unique constraint on name by appending suffix
+            // Release unique constraint on name and slug by appending suffix
             String timestamp = "_" + System.currentTimeMillis();
             tech.setName(tech.getName() + " (Đã xóa" + timestamp + ")");
+            if (tech.getSlug() != null) {
+                tech.setSlug(tech.getSlug() + timestamp);
+            }
 
             // Soft Delete
             tech.setStatus(udpm.hn.server.infrastructure.constant.EntityStatus.DELETED);

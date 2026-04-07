@@ -167,7 +167,9 @@ const handleImport = async (event: any) => {
         v-model="keyword"
         placeholder="Tìm kiếm chức năng..."
         @create="handleCreate"
+        @reset="loadData('')"
       >
+
         <template #actions>
           <input type="file" ref="fileInput" class="hidden" accept=".xlsx, .xls" @change="handleImport" />
           <BaseButton variant="outline" @click="triggerImport" title="Import Excel" class="flex items-center gap-2">

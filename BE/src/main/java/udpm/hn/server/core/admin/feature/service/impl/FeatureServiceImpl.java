@@ -25,11 +25,9 @@ public class FeatureServiceImpl implements FeatureService {
     private final AppManageRepository appRepository;
     private final ModelMapper modelMapper;
 
-    // --- BỔ SUNG HÀM NÀY ĐỂ HẾT LỖI 500/405 ---
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<FeatureResponse> getAllFeatures() {
-        // Lấy tất cả và sắp xếp theo thứ tự hiển thị (sortOrder)
         return featureRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder")).stream()
                 .map(f -> {
                     FeatureResponse res = modelMapper.map(f, FeatureResponse.class);
@@ -40,7 +38,21 @@ public class FeatureServiceImpl implements FeatureService {
                 })
                 .collect(Collectors.toList());
     }
-    // ------------------------------------------
+
+    @Override
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public FeatureResponse getFeatureById(String id) {
+        Feature f = featureRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Feature not found with ID: " + id));
+        FeatureResponse res = modelMapper.map(f, FeatureResponse.class);
+        if (f.getApp() != null) {
+            res.setAppId(f.getApp().getId());
+            res.setAppName(f.getApp().getName());
+        }
+        return res;
+    }
+
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)

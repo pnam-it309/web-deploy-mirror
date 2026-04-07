@@ -7,7 +7,7 @@
         <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden" ref="heroRef">
 
             <!-- Mesh Gradient Background -->
-            <div class="absolute inset-0 bg-[#0a0a1a]">
+            <div class="absolute inset-0 bg-[#000d2b]">
                 <div class="mesh-blob mesh-blob-1"></div>
                 <div class="mesh-blob mesh-blob-2"></div>
                 <div class="mesh-blob mesh-blob-3"></div>
@@ -41,10 +41,10 @@
                 <!-- Main Heading with Floating Animation -->
                 <h1 class="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 tracking-tight leading-[1.05] hero-fade-in text-white floating-text"
                     style="animation-delay: 0.2s">
-                    Khám phá Kho tàng
+                    Nền tảng trưng bày
                     <span
-                        class="block bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-purple-300 to-blue-400 mt-2">
-                        Sản phẩm Sinh viên
+                        class="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 mt-2">
+                        Sản phẩm Sáng tạo
                     </span>
                 </h1>
 
@@ -59,8 +59,8 @@
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4 hero-fade-in"
                     style="animation-delay: 0.5s">
                     <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
-                        class="group px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transform hover:-translate-y-1 flex items-center gap-2">
-                        Xem tất cả sản phẩm
+                        class="group px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 transform hover:-translate-y-1 flex items-center gap-2">
+                        Khám phá ngay
                         <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -69,11 +69,11 @@
                     </router-link>
                     <a href="#featured"
                         class="px-8 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl backdrop-blur-sm border border-white/10 transition-all hover:border-white/20 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                         </svg>
-                        Sản phẩm nổi bật
+                        Dự án tiêu biểu
                     </a>
                 </div>
 
@@ -109,13 +109,13 @@
         <!-- ═══════════════════════════════════════════════════════════
              2. DOMAIN FILTER CHIPS (Gradient)
         ═══════════════════════════════════════════════════════════ -->
-        <section class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors">
+        <section class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors reveal-on-scroll" id="domains">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">Lĩnh vực hoạt động
+                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">Môi trường Sáng tạo
                     </h2>
-                    <div class="w-24 h-1 bg-gradient-to-r from-violet-500 to-purple-500 mx-auto rounded-full"></div>
-                    <p class="text-gray-500 dark:text-gray-400 mt-4">Chọn lĩnh vực để khám phá các dự án liên quan</p>
+                    <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto rounded-full"></div>
+                    <p class="text-gray-500 dark:text-gray-400 mt-4">Phân loại theo lĩnh vực chuyên môn để dễ dàng tìm kiếm</p>
                 </div>
 
                 <!-- Filter Chips with Gradient -->
@@ -145,24 +145,23 @@
         <!-- ═══════════════════════════════════════════════════════════
              3. TECH MARQUEE (Enhanced)
         ═══════════════════════════════════════════════════════════ -->
-        <TechnologySlider />
+        <TechnologySlider class="reveal-on-scroll" />
 
         <!-- ═══════════════════════════════════════════════════════════
              4. DYNAMIC BENTO GRID — Featured Products
         ═══════════════════════════════════════════════════════════ -->
-        <section id="featured" class="py-20 bg-white dark:bg-gray-950 transition-colors">
+        <section id="featured" class="py-20 bg-white dark:bg-gray-950 transition-colors reveal-on-scroll">
             <div class="container mx-auto px-4">
                 <div class="flex items-end justify-between mb-12">
                     <div>
                         <span
-                            class="inline-block text-xs font-bold tracking-widest uppercase text-violet-500 mb-2">Featured</span>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Sản phẩm Nổi bật</h2>
-                        <p class="text-gray-500 dark:text-gray-400 mt-2">Các dự án được đánh giá cao, có tính ứng dụng
-                            thực tế</p>
+                            class="inline-block text-xs font-bold tracking-widest uppercase text-blue-500 mb-2">Đặc sắc nhất</span>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Dự án được Đề cử</h2>
+                        <p class="text-gray-500 dark:text-gray-400 mt-2">Những sản phẩm đột phá với công nghệ tiên phong</p>
                     </div>
                     <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"
-                        class="hidden md:flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold hover:gap-3 transition-all px-4 py-2 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20">
-                        Xem thêm <span>→</span>
+                        class="hidden md:flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:gap-3 transition-all px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                        Khám phá thêm <span>→</span>
                     </router-link>
                 </div>
 
@@ -213,14 +212,13 @@
         <!-- ═══════════════════════════════════════════════════════════
              5. FEATURED VIDEOS (Enhanced)
         ═══════════════════════════════════════════════════════════ -->
-        <section v-if="hasFeaturedVideos" class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors">
+        <section v-if="hasFeaturedVideos" class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors reveal-on-scroll">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <span class="inline-block text-xs font-bold tracking-widest uppercase text-amber-500 mb-2">Video
-                        Demo</span>
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Video Nổi Bật</h2>
-                    <p class="text-gray-500 dark:text-gray-400">Khám phá các demo video từ những dự án xuất sắc</p>
-                    <div class="w-20 h-1 bg-gradient-to-r from-amber-400 to-orange-500 mx-auto rounded mt-4"></div>
+                    <span class="inline-block text-xs font-bold tracking-widest uppercase text-blue-500 mb-2">Showcase</span>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">Video Thực tế</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Trải nghiệm các tính năng cốt lõi qua video demo</p>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 mx-auto rounded mt-4"></div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -239,7 +237,7 @@
                             </div>
                             <div class="p-5">
                                 <h3
-                                    class="text-base font-bold text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-1">
+                                    class="text-base font-bold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors line-clamp-1">
                                     {{ video.name }}
                                 </h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
@@ -254,7 +252,7 @@
                                         {{ video.viewCount || 0 }} lượt xem
                                     </span>
                                     <span v-if="video.domainName"
-                                        class="px-2 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full font-semibold">
+                                        class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full font-semibold">
                                         {{ video.domainName }}
                                     </span>
                                 </div>
@@ -337,6 +335,19 @@ onMounted(async () => {
     }
 });
 
+// Intersection Observer for scroll reveal
+onMounted(() => {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+});
+
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
 });
@@ -355,7 +366,7 @@ onUnmounted(() => {
 .mesh-blob-1 {
     width: 700px;
     height: 700px;
-    background: radial-gradient(circle, #7c3aed, transparent 70%);
+    background: radial-gradient(circle, #2563eb, transparent 70%);
     top: -200px;
     left: -150px;
     animation-duration: 18s;
@@ -365,7 +376,7 @@ onUnmounted(() => {
 .mesh-blob-2 {
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, #2563eb, transparent 70%);
+    background: radial-gradient(circle, #1d4ed8, transparent 70%);
     top: 40%;
     right: -100px;
     animation-duration: 22s;
@@ -375,7 +386,7 @@ onUnmounted(() => {
 .mesh-blob-3 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, #a855f7, transparent 70%);
+    background: radial-gradient(circle, #3b82f6, transparent 70%);
     bottom: -150px;
     left: 30%;
     animation-duration: 16s;
@@ -385,7 +396,7 @@ onUnmounted(() => {
 .mesh-blob-4 {
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, #06b6d4, transparent 70%);
+    background: radial-gradient(circle, #60a5fa, transparent 70%);
     top: 20%;
     left: 50%;
     animation-duration: 25s;
@@ -434,7 +445,7 @@ onUnmounted(() => {
     position: absolute;
     width: 2px;
     height: 2px;
-    background: rgba(167, 139, 250, 0.6);
+    background: rgba(59, 130, 246, 0.6);
     border-radius: 50%;
     animation: particle-rise linear infinite;
 }
@@ -487,10 +498,10 @@ onUnmounted(() => {
 }
 
 .domain-chip-active {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
-    border-color: #7c3aed;
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    border-color: #2563eb;
     color: white;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
 }
 
 .domain-chip-inactive {
@@ -506,16 +517,16 @@ onUnmounted(() => {
 }
 
 .domain-chip-inactive:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
-    background: #f5f3ff;
-    box-shadow: 0 0 15px rgba(124, 58, 237, 0.15);
+    border-color: #2563eb;
+    color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.15);
 }
 
 :global(.dark) .domain-chip-inactive:hover {
-    background: rgba(124, 58, 237, 0.1);
-    border-color: #7c3aed;
-    color: #a78bfa;
+    background: rgba(37, 99, 235, 0.1);
+    border-color: #2563eb;
+    color: #60a5fa;
 }
 
 /* ─── Bento Grid ─────────────────────────────────────── */
