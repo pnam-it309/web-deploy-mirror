@@ -294,10 +294,10 @@ public class ExcelExportImportService {
             int rowNum = 1;
             for (Feature f : features) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(f.getId());
-                row.createCell(1).setCellValue(f.getName());
+                row.createCell(0).setCellValue(f.getId() != null ? f.getId() : "");
+                row.createCell(1).setCellValue(f.getName() != null ? f.getName() : "");
                 row.createCell(2).setCellValue(f.getApp() != null ? f.getApp().getName() : "");
-                row.createCell(3).setCellValue(f.getDescription());
+                row.createCell(3).setCellValue(f.getDescription() != null ? f.getDescription() : "");
                 row.createCell(4).setCellValue(f.getSortOrder() != null ? f.getSortOrder() : 0);
             }
             autoSizeColumns(sheet, 5);
@@ -326,6 +326,15 @@ public class ExcelExportImportService {
              Iterator<Row> iter = sheet.iterator();
              if (iter.hasNext()) iter.next();
 
+             // Pre-load all apps into a map for efficiency
+             List<App> allApps = appRepository.findAll();
+             Map<String, App> appMap = new HashMap<>();
+             for (App a : allApps) {
+                 if (a.getSku() != null) {
+                     appMap.put(a.getSku().toLowerCase(), a);
+                 }
+             }
+
              while (iter.hasNext()) {
                  Row row = iter.next();
                  try {
@@ -338,10 +347,7 @@ public class ExcelExportImportService {
                           continue;
                      }
                      
-                     // Find app by SKU or Name ? SKU is better.
-                     App app = appRepository.findAll().stream()
-                        .filter(a -> appSku.equalsIgnoreCase(a.getSku()))
-                        .findFirst().orElse(null);
+                     App app = appMap.get(appSku.toLowerCase());
                      
                      if (app == null) {
                          errors.add("Row " + (row.getRowNum() + 1) + ": App with SKU '" + appSku + "' not found");

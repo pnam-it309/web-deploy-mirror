@@ -41,10 +41,10 @@
                 <!-- Main Heading with Floating Animation -->
                 <h1 class="text-5xl sm:text-6xl lg:text-8xl font-bold mb-8 tracking-tight leading-[1.05] hero-fade-in text-white floating-text"
                     style="animation-delay: 0.2s">
-                    Nền tảng trưng bày
+                    Khám phá kho tàng
                     <span
                         class="block bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 mt-2">
-                        Sản phẩm Sáng tạo
+                        Sản phẩm sinh viên
                     </span>
                 </h1>
 
@@ -112,7 +112,7 @@
         <section class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors reveal-on-scroll" id="domains">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">Môi trường Sáng tạo
+                    <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">Lĩnh vực hoạt động
                     </h2>
                     <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto rounded-full"></div>
                     <p class="text-gray-500 dark:text-gray-400 mt-4">Phân loại theo lĩnh vực chuyên môn để dễ dàng tìm kiếm</p>
@@ -156,7 +156,7 @@
                     <div>
                         <span
                             class="inline-block text-xs font-bold tracking-widest uppercase text-blue-500 mb-2">Đặc sắc nhất</span>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Dự án được Đề cử</h2>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">Sản phẩm nổi bật</h2>
                         <p class="text-gray-500 dark:text-gray-400 mt-2">Những sản phẩm đột phá với công nghệ tiên phong</p>
                     </div>
                     <router-link :to="{ name: ROUTES_CONSTANTS.CUSTOMER.children.APPS.name }"

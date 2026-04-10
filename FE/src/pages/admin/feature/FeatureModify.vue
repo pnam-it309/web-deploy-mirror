@@ -229,6 +229,7 @@ const getAppName = computed(() => {
                 </p>
                 <div class="mt-4">
                   <span
+                    @click="toast.info('Đây là bản mô phỏng giao diện trải nghiệm người dùng')"
                     class="inline-block px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[10px] font-bold rounded cursor-pointer hover:bg-primary dark:hover:bg-primary hover:text-white transition-colors uppercase tracking-wide">
                     Trải nghiệm ngay
                   </span>
