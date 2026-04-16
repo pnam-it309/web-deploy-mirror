@@ -20,9 +20,8 @@
                     <!-- Floating tech icon -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                         <div v-if="primaryTech" class="tech-icon-float">
-                            <img :src="primaryTech.icon" :alt="primaryTech.name"
-                                class="w-12 h-12 object-contain filter drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]"
-                                @error="onTechIconError" />
+                            <img src="@/assets/images/logo-udpm-dark.png" :alt="primaryTech.name"
+                                class="w-12 h-12 object-contain filter drop-shadow-[0_0_20px_rgba(255,255,255,0.6)]" />
                         </div>
                         <div v-else class="tech-icon-float">
                             <svg class="w-12 h-12 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -48,8 +47,7 @@
                         <div v-for="(tech, i) in safeTechnologies.slice(0, 4)" :key="i"
                             class="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center overflow-hidden"
                             :title="tech.name">
-                            <img :src="tech.icon" class="w-4 h-4 object-contain"
-                                @error="($event.target as HTMLImageElement).style.display='none'" />
+                            <img src="@/assets/images/logo-udpm-dark.png" class="w-4 h-4 object-contain" />
                         </div>
                         <span v-if="technologiesCount > 4"
                             class="text-white/80 text-[10px] font-bold ml-1">+{{ technologiesCount - 4 }}</span>
@@ -99,10 +97,9 @@
                 <!-- Footer -->
                 <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/50">
                     <div class="flex -space-x-1.5">
-                        <img v-for="(tech, idx) in safeTechnologies.slice(0, 3)" :key="idx" :src="tech.icon"
+                        <img v-for="(tech, idx) in safeTechnologies.slice(0, 3)" :key="idx" src="@/assets/images/logo-udpm-dark.png"
                             :title="tech.name"
-                            class="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-50 object-cover"
-                            @error="($event.target as HTMLImageElement).style.display='none'" />
+                            class="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-50 object-cover" />
                         <div v-if="technologiesCount > 3"
                             class="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[9px] font-bold text-gray-500">
                             +{{ technologiesCount - 3 }}

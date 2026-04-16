@@ -54,7 +54,7 @@ public class ExcelExportImportService {
                 row.createCell(2).setCellValue(app.getSku() != null ? app.getSku() : "");
                 row.createCell(3).setCellValue(app.getShortDescription() != null ? app.getShortDescription() : "");
                 row.createCell(4).setCellValue(app.getDomain() != null ? app.getDomain().getName() : "");
-                row.createCell(5).setCellValue(app.getApprovalStatus() != null ? app.getApprovalStatus().name() : "");
+                row.createCell(5).setCellValue(app.getApprovalStatus() != null ? app.getApprovalStatus().name() : "PENDING");
                 row.createCell(6).setCellValue(Boolean.TRUE.equals(app.getIsFeatured()) ? "Yes" : "No");
                 row.createCell(7).setCellValue(app.getViewCount() != null ? app.getViewCount() : 0);
                 row.createCell(8).setCellValue(app.getMetaTitle() != null ? app.getMetaTitle() : "");
@@ -273,7 +273,8 @@ public class ExcelExportImportService {
                     technologyRepository.save(t);
                     imported.add(name);
                 } catch(Exception e) {
-                     errors.add("Row " + (row.getRowNum() + 1) + ": " + e.getMessage());
+                    log.error("Error importing feature at row {}", row.getRowNum() + 1, e);
+                    errors.add("Row " + (row.getRowNum() + 1) + ": " + (e.getMessage() != null ? e.getMessage() : "Unexpected error"));
                 }
             }
         }
@@ -294,9 +295,9 @@ public class ExcelExportImportService {
             int rowNum = 1;
             for (Feature f : features) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(f.getId() != null ? f.getId() : "");
+                row.createCell(0).setCellValue(f.getId() != null ? String.valueOf(f.getId()) : "");
                 row.createCell(1).setCellValue(f.getName() != null ? f.getName() : "");
-                row.createCell(2).setCellValue(f.getApp() != null ? f.getApp().getName() : "");
+                row.createCell(2).setCellValue(f.getApp() != null ? (f.getApp().getName() != null ? f.getApp().getName() : "") : "N/A");
                 row.createCell(3).setCellValue(f.getDescription() != null ? f.getDescription() : "");
                 row.createCell(4).setCellValue(f.getSortOrder() != null ? f.getSortOrder() : 0);
             }

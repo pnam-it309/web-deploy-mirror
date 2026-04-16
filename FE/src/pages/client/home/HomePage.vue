@@ -126,9 +126,7 @@
                     </button>
                     <button v-for="domain in domains" :key="domain.id" @click="navigateToCategory(domain.id)"
                         class="domain-chip group domain-chip-inactive">
-                        <i v-if="domain.icon && !domain.icon.startsWith('http')" :class="domain.icon"
-                            class="text-base"></i>
-                        <img v-else-if="domain.icon" :src="domain.icon" class="w-4 h-4 object-contain" />
+                        <img src="@/assets/images/logo-udpm-dark.png" class="w-4 h-4 object-contain" />
                         <span class="text-sm font-bold">{{ domain.name }}</span>
                         <span class="text-xs opacity-60 ml-1">({{ domain.productCount || 0 }})</span>
                     </button>

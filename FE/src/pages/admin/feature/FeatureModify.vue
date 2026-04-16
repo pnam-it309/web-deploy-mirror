@@ -159,7 +159,7 @@ const getAppName = computed(() => {
               <label class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Video minh
                 hoạ</label>
             </div>
-            <MediaUpload v-model="form.videoUrl" label="" accept="video/*" />
+            <MediaUpload v-model="form.videoUrl" label="" accept="video/*" @error="(msg) => toast.error(msg)" />
             <BaseInput v-model="form.videoUrl" placeholder="YouTube URL..." class="dark:text-white text-xs" />
             <transition name="fade">
               <span v-if="form.videoUrl && !isYouTubeUrl(form.videoUrl) && form.videoUrl.length > 0"
@@ -229,8 +229,8 @@ const getAppName = computed(() => {
                 </p>
                 <div class="mt-4">
                   <span
-                    @click="toast.info('Đây là bản mô phỏng giao diện trải nghiệm người dùng')"
-                    class="inline-block px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[10px] font-bold rounded cursor-pointer hover:bg-primary dark:hover:bg-primary hover:text-white transition-colors uppercase tracking-wide">
+                    @click="() => { toast.success('Đang khởi tạo môi trường trải nghiệm mô phỏng...'); toast.info('Đây là bản mô phỏng giao diện người dùng cho chức năng này.'); }"
+                    class="inline-block px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[10px] font-bold rounded cursor-pointer hover:bg-primary dark:hover:bg-primary hover:text-white transition-all transform active:scale-95 uppercase tracking-wide">
                     Trải nghiệm ngay
                   </span>
                 </div>

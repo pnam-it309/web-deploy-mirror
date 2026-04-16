@@ -63,7 +63,7 @@
             :class="isActive(item.path) ? 'opacity-100' : 'opacity-0'"></div>
 
           <div class="flex-shrink-0 w-11 h-11 flex items-center justify-center">
-            <component :is="item.icon" class="nav-icon w-5 h-5 transition-all duration-300 group-hover:scale-110" />
+            <img src="@/assets/images/logo-udpm-dark.png" class="nav-icon w-5 h-5 transition-all duration-300 group-hover:scale-110 object-contain" />
           </div>
 
           <span class="nav-label whitespace-nowrap transition-all duration-300 font-semibold text-sm" :class="[

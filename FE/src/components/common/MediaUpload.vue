@@ -11,7 +11,7 @@ const props = defineProps({
   accept: { type: String, default: 'image/*' }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'error']);
 const isUploading = ref(false);
 const error = ref('');
 
@@ -42,7 +42,9 @@ const handleFileChange = async (event: any) => {
     });
     emit('update:modelValue', res.data.url);
   } catch (e: any) {
-    error.value = e.response?.data?.message || 'Upload failed';
+    const msg = e.response?.data?.message || 'Upload failed: ' + (e.message || 'Unknown error');
+    error.value = msg;
+    emit('error', msg);
   } finally {
     isUploading.value = false;
   }

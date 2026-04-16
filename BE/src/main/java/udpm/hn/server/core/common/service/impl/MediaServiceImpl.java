@@ -33,8 +33,9 @@ public class MediaServiceImpl implements MediaService {
                     "resource_type", "auto"));
             return (String) uploadResult.get("secure_url");
         } catch (Exception e) {
-            log.error("Cloudinary upload failed", e);
-            throw new IOException("Upload failed: " + e.getMessage());
+            log.error("Cloudinary upload failed for file: {} of size: {}", file.getOriginalFilename(), file.getSize(), e);
+            String errorMsg = e.getMessage() != null ? e.getMessage() : "An unknown error occurred during Cloudinary upload";
+            throw new IOException("Upload failed: " + errorMsg);
         }
     }
 

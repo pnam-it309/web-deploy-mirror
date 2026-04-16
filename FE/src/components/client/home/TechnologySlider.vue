@@ -19,10 +19,8 @@
                         class="tech-pill group"
                         @click="navigateToTech(tech.id)">
                         <div class="tech-pill-icon">
-                            <img v-if="tech.icon" :src="tech.icon" :alt="tech.name"
-                                class="w-6 h-6 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
-                                @error="($event.target as HTMLImageElement).style.display = 'none'" />
-                            <span v-else class="text-gray-400 font-bold text-sm">?</span>
+                            <img src="@/assets/images/logo-udpm-dark.png" :alt="tech.name"
+                                class="w-6 h-6 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                         </div>
                         <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors whitespace-nowrap">
                             {{ tech.name }}
@@ -43,10 +41,8 @@
                         class="tech-pill group"
                         @click="navigateToTech(tech.id)">
                         <div class="tech-pill-icon">
-                            <img v-if="tech.icon" :src="tech.icon" :alt="tech.name"
-                                class="w-6 h-6 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
-                                @error="($event.target as HTMLImageElement).style.display = 'none'" />
-                            <span v-else class="text-gray-400 font-bold text-sm">?</span>
+                            <img src="@/assets/images/logo-udpm-dark.png" :alt="tech.name"
+                                class="w-6 h-6 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300" />
                         </div>
                         <span class="text-sm font-semibold text-gray-600 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors whitespace-nowrap">
                             {{ tech.name }}

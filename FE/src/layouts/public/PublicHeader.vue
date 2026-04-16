@@ -132,7 +132,10 @@
                 class="fixed top-0 right-0 h-full w-64 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl shadow-black/20 dark:shadow-black/40 z-50 md:hidden overflow-y-auto">
                 <div class="p-4">
                     <div class="flex justify-between items-center mb-6">
-                        <span class="font-bold text-lg text-gray-800 dark:text-white">Menu</span>
+                        <div class="flex items-center gap-2">
+                             <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="h-6 w-auto object-contain" />
+                             <span class="font-bold text-lg text-gray-800 dark:text-white">Menu</span>
+                        </div>
                         <button @click="closeMobileMenu" class="p-2 text-gray-600 dark:text-gray-300">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
