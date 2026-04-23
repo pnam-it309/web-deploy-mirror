@@ -5,10 +5,9 @@
                 <!-- Brand Column -->
                 <div class="col-span-1 md:col-span-1">
                     <div class="flex items-center gap-2 mb-6">
-                        <div class="w-8 h-8 bg-white p-1 rounded-lg flex items-center justify-center">
+                        <div class="w-10 h-10 flex items-center justify-center">
                             <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
                         </div>
-                        <span class="text-xl font-bold">UDPM Catalog</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">
                         Kho tàng sản phẩm số chất lượng cao từ sinh viên FPT Polytechnic. Khám phá, học hỏi và chia sẻ.
@@ -74,7 +73,7 @@
             <!-- Bottom Bar -->
             <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-gray-500 text-sm">
-                    &copy; {{ new Date().getFullYear() }} FPL UDPM Catalog. Developed with ❤️ by FPL Students.
+                    &copy; {{ new Date().getFullYear() }} FPL Catalog. Developed with ❤️ by FPL Students.
                 </p>
                 <div class="flex gap-6 text-sm text-gray-500">
                     <a href="#" class="hover:text-white transition-colors">Quyền riêng tư</a>

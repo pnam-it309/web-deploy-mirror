@@ -35,7 +35,7 @@
                 <div class="inline-flex items-center gap-2 px-5 py-2 mb-8 text-xs font-bold tracking-widest uppercase bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-purple-300 hero-fade-in"
                     style="animation-delay: 0.1s">
                     <span class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></span>
-                    FPL UDPM · Student Project Catalog
+                    FPL · Student Project Catalog
                 </div>
 
                 <!-- Main Heading with Floating Animation -->
@@ -52,7 +52,7 @@
                 <p class="text-lg lg:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed hero-fade-in"
                     style="animation-delay: 0.35s">
                     Nơi lưu trữ và trưng bày các dự án xuất sắc, đồ án tốt nghiệp và sản phẩm sáng tạo
-                    từ cộng đồng sinh viên FPL UDPM.
+                    từ cộng đồng sinh viên FPL.
                 </p>
 
                 <!-- CTAs -->

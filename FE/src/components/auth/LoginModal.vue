@@ -40,7 +40,7 @@
                     <div class="px-6 pt-8 pb-8">
                         <div class="flex flex-col items-center">
                             <!-- Logo / Icon -->
-                            <div class="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm border border-gray-100">
+                            <div class="w-20 h-20 flex items-center justify-center mb-6">
                                 <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-16 h-16 object-contain" />
                             </div>
 
@@ -49,7 +49,7 @@
                                     Chào mừng trở lại!
                                 </h3>
                                 <p class="text-gray-500 dark:text-gray-400 max-w-[280px] mx-auto">
-                                    Đăng nhập để trải nghiệm đầy đủ các sản phẩm và tiện ích của FPL Catalog.
+                                    Đăng nhập để trải nghiệm đầy đủ các sản phẩm và tiện ích.
                                 </p>
                             </div>
 

@@ -133,8 +133,7 @@
                 <div class="p-4">
                     <div class="flex justify-between items-center mb-6">
                         <div class="flex items-center gap-2">
-                             <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="h-6 w-auto object-contain" />
-                             <span class="font-bold text-lg text-gray-800 dark:text-white">Menu</span>
+                              <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="h-6 w-auto object-contain" />
                         </div>
                         <button @click="closeMobileMenu" class="p-2 text-gray-600 dark:text-gray-300">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

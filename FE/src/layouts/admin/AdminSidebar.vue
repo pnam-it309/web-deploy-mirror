@@ -25,16 +25,13 @@
       <div class="flex items-center gap-3 transition-all duration-300 whitespace-nowrap overflow-hidden"
         :class="[isExpanded ? 'w-full opacity-100' : 'w-0 opacity-0']">
         <div
-          class="logo-icon w-9 h-9 p-1.5 rounded-xl flex items-center justify-center bg-white shadow-lg flex-shrink-0">
+          class="logo-icon w-10 h-10 flex items-center justify-center flex-shrink-0">
           <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
         </div>
-        <span class="logo-text font-serif tracking-tight text-xl font-bold">
-          UDPM <span class="highlight">Admin</span>
-        </span>
       </div>
 
       <div v-if="!isExpanded" class="w-full flex justify-center">
-        <div class="logo-icon w-9 h-9 p-1.5 rounded-xl flex items-center justify-center bg-white shadow-lg">
+        <div class="logo-icon w-10 h-10 flex items-center justify-center">
           <img src="@/assets/images/logo-udpm-dark.png" alt="Logo" class="w-full h-full object-contain" />
         </div>
       </div>
@@ -93,7 +90,7 @@
         </div>
         <div v-if="isExpanded" class="flex-1 min-w-0">
           <p class="user-name text-xs font-semibold truncate">Administrator</p>
-          <p class="user-role text-[10px] truncate">UDPM System</p>
+          <p class="user-role text-[10px] truncate">Administrator</p>
         </div>
       </div>
     </div>
